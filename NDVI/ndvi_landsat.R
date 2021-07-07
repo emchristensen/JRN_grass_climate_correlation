@@ -25,24 +25,26 @@ minpixels7 = 0.75*max(ndvi7_raw$NDVI_count)
 # process raw data
 ndvi5 = ndvi5_raw %>% 
   get_date_from_index() %>%
-  dplyr::filter(NDVI_count>minpixels5) #%>%
+  dplyr::filter(NDVI_count>minpixels5) %>%
   group_by(month, year) %>%
   summarize(NDVI_mean=mean(NDVI_mean)) %>%
   mutate(date=as.Date(paste(year, month, '15',sep='-')))
 
 ndvi7 = ndvi7_raw %>%
   get_date_from_index() %>%
-  dplyr::filter(NDVI_count>minpixels7) #%>%
+  dplyr::filter(NDVI_count>minpixels7) %>%
   group_by(month, year) %>%
   summarize(NDVI_mean=mean(NDVI_mean)) %>%
   mutate(date=as.Date(paste(year, month,'15',sep='-')))
 
 # plot monthly data compare landsat 5 and 7
-ggplot(ndvi5, aes(x=date, y=NDVI_mean, color='landsat5')) +
+ndvimonthly = ggplot(ndvi5, aes(x=date, y=NDVI_mean, color='landsat5')) +
   geom_point() +
   geom_line() +
   geom_point(data=ndvi7, aes(x=date, y=NDVI_mean, color='landsat7')) +
   geom_line(data=ndvi7, aes(x=date, y=NDVI_mean, color='landsat7'))
+ndvimonthly
+ggsave('Figures/NDVI_monthly.png', plot=ndvimonthly, width=12, height = 4)
 
 
 # get yearly average
@@ -55,8 +57,10 @@ ndvi7yearly = ndvi7 %>%
   summarize(NDVI_mean=mean(NDVI_mean)) %>%
   ungroup()
 
-ggplot(ndvi5yearly, aes(x=year, y=NDVI_mean, group=1)) +
+ndviyearly = ggplot(ndvi5yearly, aes(x=as.numeric(year), y=NDVI_mean, group=1)) +
   geom_point() +
   geom_line() +
   geom_point(data=ndvi7yearly, aes(color='landsat7')) +
   geom_line(data=ndvi7yearly, aes(color='landsat7'))
+ndviyearly
+ggsave('Figures/NDVI_yearly.png', plot=ndviyearly, width=6, height=3)
