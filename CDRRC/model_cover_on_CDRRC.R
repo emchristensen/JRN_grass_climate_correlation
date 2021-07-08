@@ -33,4 +33,4 @@ yearlygrass_gapfilled = yearlygrass %>%
 ggplot(yearlygrass_gapfilled, aes(x=as.numeric(year), y=mean_grass)) +
   geom_point() +
   geom_line()
-write.csv(yearlygrass_gapfilled, 'CDRRC/yearly_grass_gapfilled.csv', row.names=F)
+write.csv(yearlygrass_gapfilled[,c('year','mean_grass')], 'CDRRC/yearly_grass_gapfilled.csv', row.names=F)
