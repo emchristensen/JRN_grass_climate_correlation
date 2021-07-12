@@ -21,7 +21,7 @@ forage_1980_1994 = dplyr::filter(forage, year %in% 1980:1994) %>%
   dplyr::select(year, forage=forage.production..kg.ha.1.) %>%
   dplyr::mutate(mean_grass = NA)
 
-p = predict(test, forage_1980_1994)
+p = predict(model1, forage_1980_1994)
 forage_1980_1994$mean_grass = p
 
 # combine into grass timeseries
@@ -29,8 +29,16 @@ yearlygrass_gapfilled = yearlygrass %>%
   dplyr::select(year=project_year, mean_grass) %>%
   merge(forage_1980_1994, all=T)
 
-# plot new time series
-ggplot(yearlygrass_gapfilled, aes(x=as.numeric(year), y=mean_grass)) +
-  geom_point() +
-  geom_line()
+# plot new time series (with pdo phases)
+phases = read.csv('data/PDO_phases_byyear.csv')
+yearlygrass_phase = merge(yearlygrass_gapfilled, phases)
+gapfilledplot = ggplot(yearlygrass_phase, aes(x=as.numeric(year), y=mean_grass)) +
+  geom_point(aes(color=pdo_phase)) +
+  geom_line() +
+  xlab('') +
+  ylab('avg. grass cover') +
+  ggtitle('Gap-filled (1980-1994) grass cover') +
+  theme_bw()
+gapfilledplot
+ggsave('Figures/grass_gapfilled_by_CDRRC.png', plot=gapfilledplot, width=5, height=3)
 write.csv(yearlygrass_gapfilled[,c('year','mean_grass')], 'CDRRC/yearly_grass_gapfilled.csv', row.names=F)
