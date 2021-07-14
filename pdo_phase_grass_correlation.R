@@ -33,19 +33,26 @@ write.csv(quads31, 'data/grass_by_pdo_phase_31quadrats.csv', row.names=F)
 # repeated measures anova https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
 
 # set up data frame
-quads_imputed <- veg
+# just use data pre-1995; remove the first year of each new phase: 1925, 1947, 1977, 1999, 2015
+grass_pdo_training <- grass_pdo %>% dplyr::filter(project_year<1995) #%>% dplyr::filter(!project_year %in% c(1925, 1947, 1977, 1999, 2015))
 
-# look at summary stats
-quads_imputed %>% group_by(project_year) %>% rstatix::get_summary_stats(grass_cover, type='mean_sd')
-ggpubr::ggboxplot(quads_imputed, x='project_year', y='grass_cover', add='point')
+# summary stats
+grass_pdo_training %>% group_by(pdo_phase) %>% rstatix::get_summary_stats(mean_grass, type='mean_sd')
+ggplot(grass_pdo_training, aes(x=pdo_phase, y=mean_grass)) +
+  geom_boxplot() +
+  geom_jitter(width=.1, alpha=.4) +
+  xlab('') +
+  ylab('mean yearly grass cover (m^2)') +
+  ggtitle('Mean grass cover by PDO phase') +
+  theme_bw()
 
-# test for outliers
-outliers <- quads_imputed %>% group_by(project_year) %>% rstatix::identify_outliers(grass_cover)
-# there are some extreme outliers. should try analysis with and without these. 
+# plot histograms of grass cover during warm or cool phase respectively
+warmpdo = dplyr::filter(grass_pdo_training, pdo_phase=='warm')
+hist(warmpdo$mean_grass)
+coolpdo = dplyr::filter(grass_pdo_training, pdo_phase=='cool')
+hist(coolpdo$mean_grass)
 
-# test for normality
-normality <- quads_imputed %>% group_by(project_year) %>% rstatix::shapiro_test(grass_cover)
-# many of the time points are not normally distributed
-ggpubr::ggqqplot(quads_imputed, 'grass_cover', facet.by='project_year')
-# most look ok in the qqplot
-
+# anova of grass cover by phase
+res.aov <- aov(mean_grass ~ pdo_phase, data=grass_pdo_training)
+summary(res.aov)
+# highly significant difference
