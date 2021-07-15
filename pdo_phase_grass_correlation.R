@@ -1,6 +1,6 @@
 #' does total perennial grass cover differ by PDO phase?
 #' EMC 4/12/21
-#' last run: 7/2/21
+#' last run: 7/15/21
 
 library(dplyr)
 library(ggplot2)
@@ -25,10 +25,10 @@ pdo_grass_plot = ggplot(grass_pdo, aes(x=project_year, y=mean_grass)) +
 pdo_grass_plot
 ggsave('Figures/grass_by_pdo_phase_31quads.png', plot=pdo_grass_plot, width=5, height=3)
 
-write.csv(quads31, 'data/grass_by_pdo_phase_31quadrats.csv', row.names=F)
+write.csv(grass_pdo, 'data/grass_by_pdo_phase_31quadrats.csv', row.names=F)
 
 
-
+# =============================================
 # test for differences
 # repeated measures anova https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
 
@@ -38,13 +38,16 @@ grass_pdo_training <- grass_pdo %>% dplyr::filter(project_year<1995) #%>% dplyr:
 
 # summary stats
 grass_pdo_training %>% group_by(pdo_phase) %>% rstatix::get_summary_stats(mean_grass, type='mean_sd')
-ggplot(grass_pdo_training, aes(x=pdo_phase, y=mean_grass)) +
+phase_boxplot = ggplot(grass_pdo_training, aes(x=pdo_phase, y=mean_grass)) +
   geom_boxplot() +
   geom_jitter(width=.1, alpha=.4) +
   xlab('') +
   ylab('mean yearly grass cover (m^2)') +
   ggtitle('Mean grass cover by PDO phase') +
   theme_bw()
+phase_boxplot
+ggsave('Figures/PDO_phase_grass_boxplot.png', plot=phase_boxplot, width=4, height=4)
+
 
 # plot histograms of grass cover during warm or cool phase respectively
 warmpdo = dplyr::filter(grass_pdo_training, pdo_phase=='warm')
@@ -56,3 +59,25 @@ hist(coolpdo$mean_grass)
 res.aov <- aov(mean_grass ~ pdo_phase, data=grass_pdo_training)
 summary(res.aov)
 # highly significant difference
+
+
+# =============================================================
+# plot raw PDO index vs grass
+pdo_long = read.csv('data/PDO_long_1900_2020.csv')
+# get yearly average 
+pdo_yearly = pdo_long %>% group_by(year) %>% summarize(pdo_nolag = mean(pdo))
+
+# shift pdo index to 1 and 2 year lag
+pdo_yearly$pdo1lag = c(NA,pdo_yearly$pdo_nolag[1:120])
+pdo_yearly$pdo2lag = c(NA,NA,pdo_yearly$pdo_nolag[1:119])
+
+# look at the time series
+ggplot(pdo_yearly, aes(x=year, y=pdo_nolag)) +
+  geom_point() +
+  geom_line()
+
+# merge with grass
+pdo_index_grass = merge(pdo_yearly, grass_pdo, by.x='year', by.y='project_year')
+# plot pdo index vs grass
+ggplot(pdo_index_grass, aes(x=pdo2lag, y=mean_grass)) +
+  geom_point()
