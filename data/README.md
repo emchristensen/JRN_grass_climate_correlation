@@ -12,3 +12,5 @@ Files:
  * __grass_shrub_trends_yearly.csv__ yearly average of grass_shrub_timeseries_imputed.csv. Created by same script. 
 
  * __JRN_011002_npp_quadrat_meas.csv__ data from the NPP quadrats (different study). Huge data set.
+
+* __JRN_temp_NOAA.csv__ daily min and max temperature, downloaded from NOAA, 1915-2021
