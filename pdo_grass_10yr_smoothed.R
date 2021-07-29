@@ -18,19 +18,27 @@ pdoindex = read.csv('data/PDO_long_1900_2020.csv')
 pdo_yearly = pdoindex %>% group_by(year) %>%
   summarize(pdo_year = mean(pdo))
 
+# plot raw pdo and grass
+rawdata = merge(pdo_yearly, grass, by.x='year', by.y='project_year', all=T)
+ggplot(rawdata, aes(x=pdo_year, y=mean_grass)) +
+  geom_point()
+
 # normalize pdo and grass
 pdo_yearly$pdo_norm = normalize(pdo_yearly$pdo_year)
 grass$grass_norm = normalize(grass$mean_grass)
 
-# ggplot(pdo_yearly, aes(x=year, y=pdo_year)) +
-#   geom_line() + 
-#   geom_point() +
-#   geom_line(aes(y=pdo_norm), color='red')
-# 
-# ggplot(grass, aes(x=project_year, y=mean_grass)) +
-#   geom_line() +
-#   geom_point() +
-#   geom_line(aes(y=grass_norm), color='red')
+# plot raw normalized pdo and grass
+rawplot = ggplot(pdo_yearly, aes(x=year, y=pdo_norm)) +
+  geom_point() +
+  geom_line() +
+  geom_point(data=grass, aes(x=project_year, y=grass_norm),color='blue') +
+  geom_line(data=grass, aes(x=project_year, y=grass_norm),color='blue') +
+  geom_hline(yintercept=.5) +
+  ggtitle('PDO and grass cover (yearly; normalized)') +
+  xlab('') +
+  theme_bw()
+rawplot
+ggsave('Figures/PDO_grass_yearly_normalized.png', plot=rawplot, width=6, height=2.5)
 
 # calculate 10-year moving average of pdo
 pdo_10y = c()
