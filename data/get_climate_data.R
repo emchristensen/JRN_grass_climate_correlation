@@ -89,9 +89,9 @@ winterppt = monthly %>%
 winterppt$winter_maxt[winterppt$winter_maxt_nas>1] <- NA
 
 # merge into one data frame
-climatesummary = merge(yearlyppt, summerppt) %>%
-  merge(winterppt) %>%
-  dplyr::select(water_yr, yearly_ppt_mm, yearly_maxt, yearly_mint, yearly_vpd, 
+climatesummary = merge(yearlyppt, summerppt, by.x='year', by.y='water_yr') %>%
+  merge(winterppt, by.x='year', by.y='water_yr') %>%
+  dplyr::select(year, yearly_ppt_mm, yearly_maxt, yearly_mint, yearly_vpd, 
                 summer_ppt_mm, summer_maxt, summer_vpd,
                 winter_ppt_mm, winter_maxt, winter_vpd)
 
