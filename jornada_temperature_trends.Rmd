@@ -14,10 +14,23 @@ jrn = read.csv('data/raw_climate_data/JRN_379001_NOAA_JER_HQ_daily_climate_data.
 noaaprcp = read.csv('data/raw_climate_data/NOAA_Jornada_precip_downloaded20210803.csv')
 noaatemp = read.csv('data/raw_climate_data/NOAA_Jornada_temp.csv')
 prism = read.csv('data/raw_climate_data/PRISM_ppt_tmin_tmean_tmax_tdmean_vpdmin_vpdmax_stable_4km_189501_202001_Headquarters.csv', skip=10)
+noaaDA = read.csv('data/raw_climate_data/NOAA_DonaAna_downloaded20210809.csv')
 
-# put noaa data frame together and convert from English to metric
+# separate NMSU from Hatch station (DonaAna file)
+nmsu = dplyr::filter(noaaDA, NAME=='STATE UNIVERSITY, NM US')
+hatch = dplyr::filter(noaaDA, NAME=='HATCH, NM US')
+
+# put jornada noaa data frames together and convert from English to metric
 noaa = merge(noaaprcp, noaatemp, all=T) %>%
   dplyr::select(-NAME, -STATION) %>%
+  mutate(prec_mm = PRCP*25.4,
+         tmin_c = (TMIN-32)*5/9,
+         tmax_c = (TMAX-32)*5/9)
+nmsu = nmsu %>%
+  mutate(prec_mm = PRCP*25.4,
+         tmin_c = (TMIN-32)*5/9,
+         tmax_c = (TMAX-32)*5/9)
+hatch = hatch %>%
   mutate(prec_mm = PRCP*25.4,
          tmin_c = (TMIN-32)*5/9,
          tmax_c = (TMAX-32)*5/9)
@@ -31,18 +44,32 @@ prism$month = as.numeric(substr(prism$Date, 6,7))
 noaa$year = lubridate::year(noaa$DATE)
 noaa$month = lubridate::month(noaa$DATE)
 noaa$day = lubridate::day(noaa$DATE)
+nmsu$year = lubridate::year(nmsu$DATE)
+nmsu$month = lubridate::month(nmsu$DATE)
+nmsu$day = lubridate::day(nmsu$DATE)
+hatch$year = lubridate::year(hatch$DATE)
+hatch$month = lubridate::month(hatch$DATE)
+hatch$day = lubridate::day(hatch$DATE)
 
 # add column of data source
 jrn$source = 'JRN'
 noaa$source = 'NOAA'
 prism$source = 'PRISM'
+nmsu$source = 'NMSU'
+hatch$source = 'HATCH'
+
+# get daily mean temp
+jrn$tmean_c = rowMeans(jrn[,c('tmax_c','tmin_c')])
+noaa$tmean_c = rowMeans(noaa[,c('tmax_c','tmin_c')])
+nmsu$tmean_c = rowMeans(nmsu[,c('tmax_c','tmin_c')])
+hatch$tmean_c = rowMeans(hatch[,c('tmax_c','tmin_c')])
 ```
 
 ## temperature trends
 
 There are three versions of climate data: PRISM (prism.oregonstate.edu), NOAA, and the JRN climate data from the headquarters station. 
 
-JRN temperature trends:
+## JRN data:
 
 
 ```{r jrn station, echo=F}
@@ -94,12 +121,13 @@ winter_min=ggplot(jrn_winter_temp, aes(x=year, y=tmin_winter_avg)) +
 
 gridExtra::grid.arrange(summer_max, summer_min, winter_max, winter_min, nrow=2)
 ```
-NOAA data:
 
-```{r noaa station, echo=F}
+## NOAA data (NMSU):
+
+```{r nmsu station, echo=F}
 # plot avg summer and winter high/low temp
 
-noaa_summer_temp = dplyr::filter(noaa, month %in% c(6,7,8)) %>%
+nmsu_summer_temp = dplyr::filter(nmsu, month %in% c(6,7,8)) %>%
   group_by(year) %>%
   summarize(tmax_summer_avg = mean(tmax_c, na.rm=T),
             tmin_summer_avg = mean(tmin_c, na.rm=T),
@@ -107,21 +135,21 @@ noaa_summer_temp = dplyr::filter(noaa, month %in% c(6,7,8)) %>%
             monthly_min_nas = sum(is.na(tmin_c))) %>%
   dplyr::filter(monthly_temp_nas<30, monthly_min_nas<30)
 
-summer_max2=ggplot(noaa_summer_temp, aes(x=year, y=tmax_summer_avg)) +
+summer_max2=ggplot(nmsu_summer_temp, aes(x=year, y=tmax_summer_avg)) +
   geom_point() +
   geom_line() +
   ggtitle('Avg daily high temp June-August') +
   xlab('') +
   theme_bw()
 
-summer_min2=ggplot(noaa_summer_temp, aes(x=year, y=tmin_summer_avg)) +
+summer_min2=ggplot(nmsu_summer_temp, aes(x=year, y=tmin_summer_avg)) +
   geom_point() +
   geom_line() +
   ggtitle('Avg daily low temp June-August') +
   xlab('') +
   theme_bw()
 
-noaa_winter_temp = dplyr::filter(noaa, month %in% c(1,2)) %>%
+nmsu_winter_temp = dplyr::filter(nmsu, month %in% c(1,2)) %>%
   group_by(year) %>%
   summarize(tmax_winter_avg = mean(tmax_c, na.rm=T),
             tmin_winter_avg = mean(tmin_c, na.rm=T),
@@ -129,14 +157,14 @@ noaa_winter_temp = dplyr::filter(noaa, month %in% c(1,2)) %>%
             monthly_min_nas = sum(is.na(tmin_c))) %>%
   dplyr::filter(monthly_temp_nas<20, monthly_min_nas<20)
 
-winter_max2=ggplot(noaa_winter_temp, aes(x=year, y=tmax_winter_avg)) +
+winter_max2=ggplot(nmsu_winter_temp, aes(x=year, y=tmax_winter_avg)) +
   geom_point() +
   geom_line() +
   ggtitle('Avg daily high temp Jan-Feb') +
   xlab('') +
   theme_bw()
 
-winter_min2=ggplot(noaa_winter_temp, aes(x=year, y=tmin_winter_avg)) +
+winter_min2=ggplot(nmsu_winter_temp, aes(x=year, y=tmin_winter_avg)) +
   geom_point() +
   geom_line() +
   ggtitle('Avg daily low temp Jan-Feb') +
@@ -146,7 +174,59 @@ winter_min2=ggplot(noaa_winter_temp, aes(x=year, y=tmin_winter_avg)) +
 gridExtra::grid.arrange(summer_max2, summer_min2, winter_max2, winter_min2, nrow=2)
 ```
 
-PRISM data:
+## NOAA data (Hatch):
+
+```{r hatch station, echo=F}
+# plot avg summer and winter high/low temp
+
+hatch_summer_temp = dplyr::filter(hatch, month %in% c(6,7,8)) %>%
+  group_by(year) %>%
+  summarize(tmax_summer_avg = mean(tmax_c, na.rm=T),
+            tmin_summer_avg = mean(tmin_c, na.rm=T),
+            monthly_temp_nas = sum(is.na(tmax_c)),
+            monthly_min_nas = sum(is.na(tmin_c))) %>%
+  dplyr::filter(monthly_temp_nas<30, monthly_min_nas<30)
+
+summer_max2=ggplot(hatch_summer_temp, aes(x=year, y=tmax_summer_avg)) +
+  geom_point() +
+  geom_line() +
+  ggtitle('Avg daily high temp June-August') +
+  xlab('') +
+  theme_bw()
+
+summer_min2=ggplot(hatch_summer_temp, aes(x=year, y=tmin_summer_avg)) +
+  geom_point() +
+  geom_line() +
+  ggtitle('Avg daily low temp June-August') +
+  xlab('') +
+  theme_bw()
+
+hatch_winter_temp = dplyr::filter(hatch, month %in% c(1,2)) %>%
+  group_by(year) %>%
+  summarize(tmax_winter_avg = mean(tmax_c, na.rm=T),
+            tmin_winter_avg = mean(tmin_c, na.rm=T),
+            monthly_temp_nas = sum(is.na(tmax_c)),
+            monthly_min_nas = sum(is.na(tmin_c))) %>%
+  dplyr::filter(monthly_temp_nas<20, monthly_min_nas<20)
+
+winter_max2=ggplot(hatch_winter_temp, aes(x=year, y=tmax_winter_avg)) +
+  geom_point() +
+  geom_line() +
+  ggtitle('Avg daily high temp Jan-Feb') +
+  xlab('') +
+  theme_bw()
+
+winter_min2=ggplot(hatch_winter_temp, aes(x=year, y=tmin_winter_avg)) +
+  geom_point() +
+  geom_line() +
+  ggtitle('Avg daily low temp Jan-Feb') +
+  xlab('') +
+  theme_bw()
+
+gridExtra::grid.arrange(summer_max2, summer_min2, winter_max2, winter_min2, nrow=2)
+```
+
+## PRISM data:
 
 ```{r prism, echo=F}
 # plot avg summer and winter high/low temp
@@ -192,5 +272,87 @@ winter_min=ggplot(prism_winter_temp, aes(x=year, y=tmin_winter_avg)) +
 gridExtra::grid.arrange(summer_max, summer_min, winter_max, winter_min, nrow=2)
 ```
 
+## Average temp
+
+```{r average, echo=F}
+nmsu_summer_avg = dplyr::filter(nmsu, month %in% c(6,7,8)) %>%
+  group_by(year) %>%
+  summarize(tmean_summer_avg = mean(tmean_c, na.rm=T),
+            monthly_nas = sum(is.na(tmean_c))) %>%
+  dplyr::filter(monthly_nas<30) %>%
+  mutate(data='NMSU')
+
+hatch_summer_avg = dplyr::filter(hatch, month %in% c(6,7,8)) %>%
+  group_by(year) %>%
+  summarize(tmean_summer_avg = mean(tmean_c, na.rm=T),
+            monthly_nas = sum(is.na(tmean_c))) %>%
+  dplyr::filter(monthly_nas<30) %>%
+  mutate(data='HATCH')
+
+jrn_summer_avg = dplyr::filter(jrn, month %in% c(6,7,8)) %>%
+  group_by(year) %>%
+  summarize(tmean_summer_avg = mean(tmean_c, na.rm=T),
+            monthly_nas = sum(is.na(tmean_c))) %>%
+  dplyr::filter(monthly_nas<30) %>%
+  mutate(data='JRN')
+
+prism_summer_avg = dplyr::filter(prism, month %in% c(6,7,8)) %>%
+  group_by(year) %>%
+  summarize(tmean_summer_avg = mean(tmean..degrees.C., na.rm=T)) %>%
+  mutate(data='PRISM')
+
+nmsu_winter_avg = dplyr::filter(nmsu, month %in% c(1,2)) %>%
+  group_by(year) %>%
+  summarize(tmean_winter_avg = mean(tmean_c, na.rm=T),
+            monthly_nas = sum(is.na(tmean_c))) %>%
+  dplyr::filter(monthly_nas<20) %>%
+  mutate(data='NMSU')
+
+hatch_winter_avg = dplyr::filter(hatch, month %in% c(1,2)) %>%
+  group_by(year) %>%
+  summarize(tmean_winter_avg = mean(tmean_c, na.rm=T),
+            monthly_nas = sum(is.na(tmean_c))) %>%
+  dplyr::filter(monthly_nas<20) %>%
+  mutate(data='HATCH')
+
+jrn_winter_avg = dplyr::filter(jrn, month %in% c(1,2)) %>%
+  group_by(year) %>%
+  summarize(tmean_winter_avg = mean(tmean_c, na.rm=T),
+            monthly_nas = sum(is.na(tmean_c))) %>%
+  dplyr::filter(monthly_nas<20) %>%
+  mutate(data='JRN')
+
+prism_winter_avg = dplyr::filter(prism, month %in% c(1,2)) %>%
+  group_by(year) %>%
+  summarize(tmean_winter_avg = mean(tmean..degrees.C., na.rm=T)) %>%
+  mutate(data='PRISM')
 
 
+summer_avg = rbind(nmsu_summer_avg[,c('year','tmean_summer_avg','data')],
+                   hatch_summer_avg[,c('year','tmean_summer_avg','data')],
+                   jrn_summer_avg[,c('year','tmean_summer_avg','data')],
+                   prism_summer_avg)
+
+summer_mean=ggplot(summer_avg, aes(x=year, y=tmean_summer_avg)) +
+  #geom_point() +
+  geom_line() +
+  ggtitle('Avg daily temp June-Aug') +
+  xlab('') +
+  facet_wrap(~data, ncol=1) +
+  theme_bw()
+
+winter_avg = rbind(nmsu_winter_avg[,c('year','tmean_winter_avg','data')],
+                   hatch_winter_avg[,c('year','tmean_winter_avg','data')],
+                   jrn_winter_avg[,c('year','tmean_winter_avg','data')],
+                   prism_winter_avg)
+
+winter_mean=ggplot(winter_avg, aes(x=year, y=tmean_winter_avg)) +
+  #geom_point() +
+  geom_line() +
+  ggtitle('Avg daily temp Jan-Feb') +
+  xlab('') +
+  facet_wrap(~data, ncol=1) +
+  theme_bw()
+
+gridExtra::grid.arrange(summer_mean, winter_mean, nrow=1)
+```
