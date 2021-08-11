@@ -1,0 +1,5 @@
+Manifest file for knb-lter-sev.4.202002-4c9184f37cff01bcdc32dc486ec36961.zip created on Wed Jun 03 00:41:19 MDT 2020
+sev004_line_intercept_transects.csv (13572208 bytes)
+knb-lter-sev.4.202002.xml (23799 bytes)
+knb-lter-sev.4.202002.txt (14426 bytes)
+knb-lter-sev.4.202002.report.xml (32326 bytes)

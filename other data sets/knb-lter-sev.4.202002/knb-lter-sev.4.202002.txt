@@ -1,0 +1,487 @@
+
+  
+    
+      uid=SEV,o=LTER,dc=ecoinformatics,dc=org
+      all
+    
+    
+      public
+      read
+    
+  
+  
+    doi:10.6073/pasta/63f506aaf52e7a6ecb3fb296b9e83478
+    Grassland Vegetation Line-Intercept Transects at the Sevilleta National Wildlife Refuge, New Mexico (1989 - present)
+    
+      Scott Collins
+      University of New Mexico
+      scollins@unm.edu
+      https://orcid.org/0000-0002-0193-2892
+    
+    
+      Lauren Baur
+      University of New Mexico
+      lbaur@unm.edu
+      Data Program Manager
+    
+    
+      Stephanie Baker
+      University of New Mexico
+      Field Station Manager
+    
+    
+      Pablo Cardenas
+      University of New Mexico
+      Field Crew
+    
+    
+      Jade McLaughlin
+      University of New Mexico
+      Field Crew
+    
+    
+      Jessica Johnson
+      University of New Mexico
+      Field Crew
+    
+    
+      Samantha Cafferky
+      University of New Mexico
+      Field Crew
+    
+    2020-02-28
+    
+      
+  In 1989, line-intercept transects were installed to evaluate temporal
+  and spatial dynamics across vegetation transition zones.  Currently, a
+  400m transect is sampled at a grassland site (Deep Well) which is
+  dominated by Bouteloua eriopoda (black grama) and, near the southern
+  end of the transect, B. gracilis (blue grama).  A second grassland
+  site (Five Points), dominated by B. eriopoda and, to the south, Larrea
+  tridentata (creosote), is also sampled.  Both sites are sampled twice
+  a year, in May/June and September/October, and measurements are taken
+  at a one-centimeter resolution.  The biannual sampling protocol
+  detects potential responses in both cool and warm season plants as
+  well as pre- and post-monsoon dynamics.  Several transects have been
+  discontinued and data archived within SEV200.
+
+    
+    
+      populations
+      biodiversity
+      plant species composition
+      seasonality
+      transects
+      succession
+      competition
+      deserts
+      grasslands
+      grasses
+      herbs
+      forbs
+      https://vocab.lternet.edu/vocab/vocab/index.php
+    
+    
+      
+  2009 Wildfire On Aug 4, 2009, a lightning strike ignited a fire in the
+  area west of the road from Black Butte to Five-Points. The fire
+  started around 3:30 PM on the 4th. The fire was initially concentrated
+  in the Grassland Drought, SMES, and Monsoon study areas. The next day,
+  the fire carried north and east to the Deep Well Meteorological
+  station, Warming, Deep Well Line Intercept transect, and Nut-Net plot
+  areas. The fire was finally contained by the end of the 5th covering
+  ~7800 ha. Other researchers involved with collecting samples/data:
+  Chandra Tucker (CAT; 04/2014-201x), Megan McClung (MAM; 04/2013-201x),
+  Stephanie Baker (SRB; 09/2010-present), John Mulhouse (JMM;
+  08/2009-06/2013), Amaris Swann (ALS; 08/2008-01/2013), Maya Kapoor
+  (MLK; 08/2003-01/2005, 05/2010-03/2011), Terri Koontz (TLK;
+  02/2000-08/2003, 08/2006-08/2010), Yang Xia (YX; 01/2005-03/2010),
+  Karen Wetherill (KRW; 02/2000-08/2009); Michell Thomey (MLT;
+  09/2005-08/2008), Heather Simpson (HLS; 08/2000-08/2002), Chris
+  Roberts (CR; 09/2001-08/2002), Shana Penington (SBP; 01/2000-08/2000),
+  Seth Munson (SMM; 09/2002-06/2004), Jay McLeod (JRM; 01/2006-08/2006);
+  Caleb Hickman (CRH; 09/2002-11/2004), Charity Hall (CLH;
+  01/2005-01/2006), Mike Friggens (MTF; 1999-09/2001), Tessa Edelen
+  (MTE, 08/2004-08/2005). ARPUP6 changed to ARPU9 03/05/2015; SPWR
+  changed to SPPO6 03/05/2015
+
+      
+  Maintenance:
+
+      
+  8/12/2010-The data in this file has been QA/QC'd and imported into
+  MySQL. Unknown forbs were identified as UNKNO for the species code.
+  (ALS) 12/08/2009-The data in this file has been QAQC'd in My SQL and
+  on-line as well. Due to wildfire at Sevilleta LTER on Aug 5 2009, some
+  plants were not identified. New variables were added, such as BGRASS
+  (burned grass), BVEG (burned vegetation),  BSHRUB (burned shrub), and
+  BFORB(burned forb). 12/20/2008-The data has been QAQC'd in My SQL. All
+  plant codes have been updated to current Kartesz codes as listed in
+  the USDA Plants Database found at http://plants.usda.gov/.
+  Questionable identifications and mistakes were updated to the best of
+  my (data manager's) ability. Old codes are maintained in the database
+  and can be obtained by contacting the data manager. (KRW) Changes to
+  the data: This dataset (SEV004) includes all active line intercept
+  data from Transect 1 at both Deep Well and Five Points.  Old species
+  codes are maintained in the database and can be obtained by contacting
+  the data manager. Old data and metadata can be found in:
+  /export/db/local/htdocs/data/archive/plant/transect/data_oldformat but
+  this data has NOT been vigorously QAQC'd and contains errors.
+  2/25/2020-Species typos corrected and outdated synonyms updated. One
+  instance of a stop &lt;0 and one &gt;400 have been corrected. The
+  dataset still contains start/stop errors which will be corrected in
+  the future.
+
+    
+    
+      
+  This data package is released to the "public domain" under
+  Creative Commons CC0 1.0 "No Rights Reserved" (see:
+  https://creativecommons.org/publicdomain/zero/1.0/). It is considered
+  professional etiquette to provide attribution of the original work if
+  this data package is shared in whole or by individual components. A
+  generic citation is provided for this data package on the website
+  https://portal.edirepository.org (herein "website") in the
+  summary metadata page. Communication (and collaboration) with the
+  creators of this data package is recommended to prevent duplicate
+  research or publication. This data package (and its components) is
+  made available "as is" and with no warranty of accuracy or
+  fitness for use. The creators of this data package and the website
+  shall not be liable for any damages resulting from misinterpretation
+  or misuse of the data package or its components. Periodic updates of
+  this data package may be available from the website. Thank you.
+
+    
+    
+      
+        Deep Well is located on McKenzie Flats and is site of the longest running SEV LTER met station, number 40, which has been active since 1988.<ca> Deep Well Blue/Black Grama Mixed is also the location of the warming and monsoon experiments, as well as portions of the line-intercept and vegetation removal studies. On August 4, 2009, a lightning-initiated fire began on the Sevilleta National Wildlife Refuge. By August 5, 2009, the fire had reached the area of Deep Well Blue/Black Grama Mixed.<ca> While portions of this site were burned, the entirety was not.<ca> See individual projects for further information on the effects of the fire. 
+        
+          -106.688
+          -106.688
+          34.3591
+          34.3591
+        
+      
+      
+        Five Points is the area which encompasses the Five Points Black Grama and Five Points Creosote Core study sites and falls along the transition between Chihuahuan Desert Scrub and Desert Grassland habitats. Both sites are subject to intensive research activity, including NPP measurement, phenology observation, pollinator diversity studies, and ground dwelling arthropod and rodent population assessments. There are drought rain-out shelters in both the Black Grama and Creosote sites, as well as the mixed-ecotone, with co-located ET Towers. 
+        
+          -106.717
+          -106.717
+          34.3381
+          34.3381
+        
+      
+      
+        The southern edge of Mckenzie Flats, about 2.5 km west-northwest of the Five-Points intersection. 
+        
+          -106.729
+          -106.729
+          34.35
+          34.35
+        
+      
+      
+        
+          
+            1989-01-01
+          
+          
+            2019-09-04
+          
+        
+      
+    
+    
+      ongoing
+    
+    
+      University of New Mexico
+      Information Manager
+      khall001@unm.edu
+      https://orcid.org/0000-0003-4904-3960
+    
+    
+      
+        
+          
+  Preparing Transects for Measurement: A 100m measuring tape is unrolled
+  and affixed to permanent pieces of rebar hammered into the ground at
+  each of the four segments of a 400 m transect. For example, a tape is
+  attached to the 0 meter (north) rebar stake and run to the 100 meter
+  (south) stake. The tape is stretched as tightly as possible to get the
+  straightest line. Windy days should be avoided as the wind moves the
+  tape and results in inaccurate data. Recording data: Crew members work
+  in groups of two, with one crew member making observations and the
+  other recording them in an Excel spreadsheet on a Samsung smartphone.
+  Each species or substrate (i.e., bare soil, litter) that intersects
+  the tape and occupies at least one centimeter is recorded whether
+  rooted beneath the tape or not. Observations are recorded at the cm
+  level, the point at which the species or substrate first crosses the
+  tape being stated. This starting location is noted but the ending
+  point is considered to be the starting point of the next species or
+  substrate, unless otherwise stated (as in the case of overlapping
+  plants). For example, Bouteloua eriopoda encountered at 12m 79cm,
+  litter encountered at 12m 82 cm, bare soil at 12m 85 cm, and so forth.
+
+        
+      
+    
+    
+      Sevilleta (SEV) Site:Climate Variability at Dryland Ecotones<ca>
+      
+        Scott Collins
+        University of New Mexico
+        scollins@unm.edu
+        https://orcid.org/0000-0002-0193-2892
+        Principal Investigator
+      
+      National Science Foundation: 1655499
+    
+    
+      sev004_line_intercept_transects.csv
+      Sevilleta LTER line-intercept transect data.
+      
+        sev004_line_intercept_transects.csv
+        13572208
+        5305c4935bf2dc7acf7bda90ee45aec0
+        
+          
+            1
+            \n
+            column
+            
+              ,
+              "
+            
+          
+        
+        
+          
+            https://pasta.lternet.edu/package/data/eml/knb-lter-sev/4/202002/d954c3b638b19e2ccac3b45f2b47229a
+          
+        
+      
+      
+        
+          year
+          The year in which data was collected
+          date
+          
+            
+              YYYY
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+        
+          location
+          The site at which sampling occurred
+          string
+          
+            
+              
+                
+                  
+                    DW
+                    Deep Well
+                  
+                  
+                    FP
+                    Five Point
+                  
+                
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+        
+          transect
+          The numerical or alphabetical designation of the transect being sampled.
+          string
+          
+            
+              
+                
+                  
+                    1
+                    Transect 1
+                  
+                
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+        
+          period
+          The season in which data was collected
+          string
+          
+            
+              
+                
+                  
+                    1
+                    Spring
+                  
+                  
+                    2
+                    Summer
+                  
+                  
+                    3
+                    Fall
+                  
+                
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+        
+          species
+          The Kartez code associated with a species as designated in the USDA Plants database.
+          string
+          
+            
+              
+                
+                  The Kartez code associated with a species as designated in the USDA Plants database.
+                
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+        
+          start
+          The point along a transect at which an individual plant or a substrate begins.
+          float
+          
+            
+              
+                millimeter
+              
+              
+                real
+                
+                  0
+                  533.26
+                
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+        
+          stop
+          The point along a transect at which an individual plant or a substrate ends
+          float
+          
+            
+              
+                millimeter
+              
+              
+                real
+                
+                  0.02
+                  400
+                
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+        
+          condition
+          Designates whether an individual is alive or dead
+          string
+          
+            
+              
+                
+                  
+                    2
+                    Live plant
+                  
+                  
+                    0
+                    Dead plant
+                  
+                  
+                    1
+                    Dead portion of a live plant
+                  
+                
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+        
+          field_comments
+          A special statement related to an observation, noted during data collection
+          string
+          
+            
+              
+                
+                  A special statement related to an observation, noted during data collection
+                
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+        
+          qaqc_comments
+          A special statement related to an observation, noted during data checking
+          string
+          
+            
+              
+                
+                  A special statement related to an observation, noted during data checking
+                
+              
+            
+          
+          
+            NA
+            missing value
+          
+        
+      
+      353043
+    
+  
