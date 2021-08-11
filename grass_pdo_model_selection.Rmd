@@ -1,0 +1,153 @@
+---
+title: "Grass/PDO model selection"
+author: "Erica Christensen"
+date: "8/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(MuMIn)
+
+# min-max normalization function
+normalize <- function(x) {
+  return ((x-min(x)) / (max(x) - min(x)))
+}
+
+# 10 year moving average function
+moving_avg_10y <- function(index, year) {
+  smoothed = c()
+  for (n in 10:length(index)) {
+    avg10y = data.frame(index_smooth = mean(index[(n-9):n]),
+                        year=year[n])
+    smoothed = rbind(smoothed, avg10y)
+  }
+  return(smoothed)
+}
+
+
+# read in data
+#grass = read.csv('data/grass_shrub_trends_yearly.csv')
+grass = read.csv('data/grass_shrub_median_yearly.csv') %>% rename(grass = median_grass)
+pdoindex = read.csv('data/PDO_long_1900_2020.csv')
+soiindex = read.csv('data/SOI_long_1866_2020.csv')
+pptdat = read.csv('data/climate_variables.csv')
+pdo_factor = read.csv('data/PDO_phases_byyear.csv')
+
+# convert monthly indices to yearly
+pdo_yearly = pdoindex %>% group_by(year) %>%
+  summarize(pdo_year = mean(pdo))
+soi_yearly = soiindex %>% group_by(year) %>%
+  summarise(soi_year=mean(soi))
+
+
+# normalize timeseries
+pdo_yearly$pdo_norm = normalize(pdo_yearly$pdo_year)
+soi_yearly$soi_norm = normalize(soi_yearly$soi_year)
+grass$grass_norm = normalize(grass$grass)
+pptdat$yearly_ppt_norm = normalize(pptdat$yearly_ppt_mm)
+pptdat$winter_ppt_norm = normalize(pptdat$winter_ppt_mm)
+pptdat$summer_ppt_norm = normalize(pptdat$summer_ppt_mm)
+
+# calculate 10-year moving average of pdo
+pdo_10y = moving_avg_10y(pdo_yearly$pdo_year, year=pdo_yearly$year) %>%
+  mutate(pdo_smooth=normalize(index_smooth))
+
+# calculate moving average of yearly precip
+precip_10y = moving_avg_10y(pptdat$yearly_ppt_mm, year=pptdat$year) %>%
+  mutate(precip_smooth=normalize(index_smooth))
+
+# moving avg summer and winter precip
+winter_ppt_10y = moving_avg_10y(pptdat$winter_ppt_mm, year=pptdat$year) %>%
+  mutate(winter_ppt_smooth=normalize(index_smooth))
+summer_ppt_10y = moving_avg_10y(pptdat$summer_ppt_mm, year=pptdat$year) %>%
+  mutate(summer_ppt_smooth=normalize(index_smooth))
+
+# create one big data frame
+combined_data = merge(pdo_yearly, soi_yearly, all=T) %>%
+  merge(grass, by.x='year', by.y='project_year', all=T) %>%
+  merge(pptdat, all=T) %>% 
+  merge(pdo_10y[,c('year','pdo_smooth')], all=T) %>%
+  merge(pdo_factor, all=T) %>%
+  merge(precip_10y[,c('year','precip_smooth')], all=T) %>%
+  merge(winter_ppt_10y[,c('year','winter_ppt_smooth')], all=T) %>%
+  merge(summer_ppt_10y[,c('year','summer_ppt_smooth')], all=T) %>%
+  dplyr::select(year, grass_norm, pdo_norm, pdo_smooth, pdo_phase, soi_norm, yearly_ppt_norm, precip_smooth, winter_ppt_norm, winter_ppt_smooth,
+                summer_ppt_norm, summer_ppt_smooth)
+```
+
+## Timeseries cross-correlation
+
+The first thing I did was look at the ccf between grass (normalized) and the normalized climate variable time series. PDO had significant correlation terms going back to lag 10, while SOI, yearly precip, winter precip, and summer precip had no significant terms.
+
+```{r cars, echo=F}
+# cross-correlation functions
+corr_data = dplyr::filter(combined_data, !is.na(grass_norm))
+ccf(corr_data$pdo_norm, corr_data$grass_norm)
+ccf(corr_data$soi_norm, corr_data$grass_norm)
+ccf(corr_data$yearly_ppt_norm, corr_data$grass_norm)
+ccf(corr_data$winter_ppt_norm, corr_data$grass_norm)
+ccf(corr_data$summer_ppt_norm, corr_data$grass_norm)
+```
+
+## Models and model comparison
+
+I created a smoothed PDO variable by calculating 10-year moving window average of the PDO index. I also created a variable indicating PDO phase (cool or warm; factor variable). I compared models correlating normalized grass cover to PDO index, the binary warm/cool pdo phase, 10-year smoothed PDO, SOI, yearly precip, winter precip, and summer precip.
+
+```{r pressure, echo=T}
+model_data = combined_data %>%
+  dplyr::filter(year>=1916, year<1980)
+
+# models with single predictors
+model1 = lm(grass_norm ~ pdo_norm, data=model_data)
+model2 = lm(grass_norm ~ pdo_phase, data=model_data)
+model3 = lm(grass_norm ~ pdo_smooth, data=model_data)
+model4 = lm(grass_norm ~ soi_norm, data=model_data)
+model5 = lm(grass_norm ~ yearly_ppt_norm, data=model_data)
+model6 = lm(grass_norm ~ winter_ppt_norm, data=model_data)
+model7 = lm(grass_norm ~ summer_ppt_norm, data=model_data)
+
+AICc(model1, model2, model3, model4, model5, model6, model7)
+```
+
+```{r multimodels, echo=F}
+# models with multiple predictors
+
+model8 = lm(grass_norm ~ pdo_smooth + yearly_ppt_norm, data=model_data)
+model9 = lm(grass_norm ~ pdo_smooth + winter_ppt_norm, data=model_data)
+model10 = lm(grass_norm ~ pdo_smooth + summer_ppt_norm, data=model_data)
+model11 = lm(grass_norm ~ pdo_smooth + soi_norm, data=model_data)
+model12 = lm(grass_norm ~ pdo_smooth + soi_norm + summer_ppt_norm, data=model_data)
+model13 = lm(grass_norm ~ pdo_smooth + soi_norm + yearly_ppt_norm, data=model_data)
+model14 = lm(grass_norm ~ pdo_smooth + soi_norm + winter_ppt_norm, data=model_data)
+
+AICc(model3, model8, model9, model10, model11, model12, model13, model14)
+```
+
+The smoothed PDO (model3) is clearly the best. I then tested models containing smoothed PDO + another variable, but no model was more than 2 units better than model2
+
+## Predictions from model
+
+```{r model predict}
+# prediction based on best model
+newdata = dplyr::filter(combined_data, year>1916) %>%
+  dplyr::select(year, pdo_smooth)
+predicted_grass = predict.lm(model3, newdata, se.fit=T)
+
+modelprediction = newdata %>%
+  mutate(predicted_grass=predicted_grass$fit)
+
+se = 0.08134 # from summary(model3)
+# plot figure
+grasspred = ggplot(modelprediction, aes(x=year)) +
+  geom_line(aes(y=predicted_grass)) +
+  geom_ribbon(aes(ymin=predicted_grass-se, ymax=predicted_grass+se), alpha=.3) +
+  geom_point(data=combined_data, aes(x=year, y=grass_norm)) +
+  xlim(1916, 2020) +
+  theme_bw() +
+  xlab('') +
+  ylab('grass cover')
+grasspred
+ggsave('Figures/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
+```
