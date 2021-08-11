@@ -19,3 +19,5 @@ Files:
 * __JRN_temp_NOAA.csv__ daily min and max temperature, downloaded from NOAA, 1915-2021
 
 * __yearly_climate_variables.csv__ yearly precip, vpd, tmin, tmax
+
+* __raw_climate_data/27938-TAVG-Data.txt__ Berkeley Earth data: http://berkeleyearth.lbl.gov/stations/27938
