@@ -1,122 +1,133 @@
 #' get raw climate data and create monthly timeseries
-#' Takes daily headquarters weather station data, aggregate to monthly. 
-#'  - If more than 7 precip values (days) in a month are missing, fill with monthly PRISM values
-#'  - When aggregating to yearly, if more than 1 month NA discard yearly avg 
+#' Takes daily headquarters weather station data, aggregate to monthly and yearly. 
 #'  - summer = May-Sept
 #'  - winter = Oct-April and belongs to the following year (Oct 1923-Apr 1924 is winter 1924)
-#'  - VPD is from PRISM, precip and temp are from the weather station
 # EMC
-# last run: 8/4/21
+# last run: 8/13/21
 
 library(dplyr)
 library(lubridate)
 
-# daily precip (in) downloaded from EDIT data portal
-pptdat = read.csv('data/raw_climate_data/JRN_379001_NOAA_JER_HQ_daily_climate_data.csv', stringsAsFactors = F)
-# monthly precip (in) from PRISM
-prismdat = read.csv('data/raw_climate_data/PRISM_ppt_tmean_vpdmax_stable_4km_191501_201701_Headquarters.csv', stringsAsFactors = F, skip=10)
+
+
+# =========================================================
+# Precipitation
+
+# daily precip (in) downloaded from EDIT data portal and NOAA site
+pptdat_jrn = read.csv('data/raw_climate_data/JRN_379001_NOAA_JER_HQ_daily_climate_data.csv', stringsAsFactors = F)
+pptdat_noaa = read.csv('data/raw_climate_data/NOAA_Jornada_precip_downloaded20210803.csv')
 
 # deal with dates 
-pptdat$Date = as.Date(pptdat$date)
-pptdat$year = lubridate::year(pptdat$Date)
-pptdat$month = lubridate::month(pptdat$Date)
-prismdat$year = as.numeric(substr(prismdat$Date, 1,4))
-prismdat$month = as.numeric(substr(prismdat$Date, 6,7))
+pptdat_jrn$Date = as.Date(pptdat_jrn$date)
+pptdat_jrn$year = lubridate::year(pptdat_jrn$Date)
+pptdat_jrn$month = lubridate::month(pptdat_jrn$Date)
+pptdat_noaa$Date = as.Date(pptdat_noaa$DATE)
+pptdat_noaa$year = lubridate::year(pptdat_noaa$Date)
+pptdat_noaa$month = lubridate::month(pptdat_noaa$Date)
+
+# convert NOAA data from in to mm
+pptdat_noaa$prec_mm = pptdat_noaa$PRCP * 25.4
+
+# in JRN data, if prec_comment is "trace", make ppt zero (instead of NA)
+pptdat$prec_mm[pptdat$prec_comment=='trace'] <- 0
+# in JRN data, if prec_comment is "totaled next day" make zero (the quantity should be included in the next day value, 
+#     and I'm aggregating to monthly anyway)
+pptdat$prec_mm[pptdat$prec_comment=='totaled next day'] <- 0
+# now all NAs in prec_mm are truly missing data points
+
+# combine JRN and NOAA data
+pptdat1 = pptdat_jrn %>%
+  dplyr::select(Date, year, month, prec_mm)
+pptdat2 = pptdat_noaa %>%
+  dplyr::select(Date, year, month, prec_mm) %>%
+  dplyr::filter(Date>as.Date('2017-10-06'))
+pptdat = rbind(pptdat1, pptdat2)
 
 # get monthly ppt
 monthlyppt = pptdat %>%
   group_by(year, month) %>%
-  summarize(monthly_ppt_mm= sum(prec_mm, na.rm=T), monthly_ppt_nas = sum(is.na(prec_mm)),
-            monthly_maxt = mean(tmax_c, na.rm=T), monthly_temp_nas = sum(is.na(tmax_c)),
-            monthly_mint = mean(tmin_c, na.rm=T), monthly_tmin_nas = sum(is.na(tmin_c)))
-# get monthly prism data -- convert in to mm for precip
-monthlyprism = prismdat %>%
-  group_by(year, month) %>%
-  mutate(monthly_ppt_prism = sum(ppt..inches.)*25.4) %>%
-  dplyr::select(year, month, monthly_ppt_prism, monthly_vpd = vpdmax..hPa.)
-
-# if HQ ppt measurements are missing more than 7 days in a month, fill with prism data
-#   this only affects 6 vaues: 5/1915, 12/1977, 1/2009, 9/1979, 7/2002, 8/1948
-monthly = merge(monthlyppt, monthlyprism)
-monthly$monthly_ppt_filled = monthly$monthly_ppt_mm
-monthly$monthly_ppt_filled[monthly$monthly_ppt_nas>7] <- monthly$monthly_ppt_prism[monthly$monthly_ppt_nas>7]
-
+  summarize(monthly_ppt_mm= sum(prec_mm, na.rm=T), monthly_ppt_nas = sum(is.na(prec_mm)))
 
 # aggregate by year
-yearlyppt = monthly %>%
+yearlyppt = monthlyppt %>%
   group_by(year) %>%
-  summarize(yearly_ppt_mm = sum(monthly_ppt_filled),
-            yearly_maxt = mean(monthly_maxt, na.rm = T), yearly_maxt_nas = sum(is.na(monthly_maxt)),
-            yearly_mint = mean(monthly_mint, na.rm = T), yearly_mint_nas = sum(is.na(monthly_mint)),
-            yearly_vpd = mean(monthly_vpd))
+  summarize(yearly_ppt_mm = sum(monthly_ppt_mm),
+            days_missing_year = sum(monthly_ppt_nas))
 
-# if there is more than one entire month missing from temp, replace with NA (not a reliable avg)
-#   this affects 9 values for max, 11 for min
-yearlyppt$yearly_maxt[yearlyppt$yearly_maxt_nas>1] <- NA
-yearlyppt$yearly_mint[yearlyppt$yearly_mint_nas>1] <- NA
+# summer and winter totals
+# create water_yr column so winter (Oct-Apr) ppt can be calculated
+monthlyppt$water_yr = monthlyppt$year
+monthlyppt$water_yr[monthlyppt$month %in% c(10,11,12)] <- monthlyppt$year[monthlyppt$month %in% c(10,11,12)] +1
 
+summerppt = monthlyppt %>%
+  dplyr::filter(month %in% c(5,6,7,8,9)) %>%
+  group_by(year) %>%
+  summarize(summer_ppt_mm = sum(monthly_ppt_mm),
+            days_missing_summer = sum(monthly_ppt_nas))
 
+winterppt = monthlyppt %>%
+  dplyr::filter(month %in% c(1,2,3,4,10,11,12)) %>%
+  group_by(water_yr) %>%
+  summarize(winter_ppt_mm = sum(monthly_ppt_mm),
+            days_missing_winter=sum(monthly_ppt_nas))
 
-write.csv(yearlyppt, 'data/yearly_climate_variables.csv', row.names=F)
+precip = merge(yearlyppt, summerppt, all=T) %>%
+  merge(winterppt, by.x='year', by.y='water_yr', all=T)
+
+#write.csv(yearly, 'data/yearly_climate_variables.csv', row.names=F)
+
 
 
 
 # ==================================
-# summer and winter seasonal totals 
+# temperature
 
-# create water_yr column so winter (Oct-Apr) ppt can be calculated
-monthly$water_yr = monthly$year
-monthly$water_yr[monthly$month %in% c(10,11,12)] <- monthly$year[monthly$month %in% c(10,11,12)] +1
+# read temperature from Berkeley http://berkeleyearth.lbl.gov/stations/27938
+temp_be = read.table('data/raw_climate_data/27938-TAVG-Data.txt', sep='', skip=87, 
+                  col.names=c('year','month','raw_temperature','data_anomaly','qc_failed','cont_breaks','adj_temp','data_anomaly2',
+                              'regional_temperature','expectation_anomaly'))
+# read temperature from NOAA station (for 2013-2017)
+temp_noaa = read.csv('data/raw_climate_data/NOAA_Jornada_temp.csv', stringsAsFactors = F)
 
-summerppt = monthly %>%
-  dplyr::filter(month %in% c(5,6,7,8,9)) %>%
-  group_by(water_yr) %>%
-  summarize(summer_ppt_mm = sum(monthly_ppt_filled),
-            summer_maxt = mean(monthly_maxt, na.rm=T), summer_maxt_nas = sum(is.na(monthly_maxt)),
-            summer_vpd = mean(monthly_vpd))
-# if there is more than one entire month missing from summer temp, replace with NA (not a reliable avg)
-#   this only affects 5 values: 1918, 1921, 1929, 1932, 1937
-summerppt$summer_maxt[summerppt$summer_maxt_nas>1] <- NA
+# deal with dates 
+temp_noaa$Date = as.Date(temp_noaa$DATE)
+temp_noaa$year = lubridate::year(temp_noaa$Date)
+temp_noaa$month = lubridate::month(temp_noaa$Date)
 
-winterppt = monthly %>%
-  dplyr::filter(month %in% c(1,2,3,4,10,11,12)) %>%
-  group_by(water_yr) %>%
-  summarize(winter_ppt_mm = sum(monthly_ppt_filled),
-            winter_maxt = mean(monthly_maxt, na.rm=T), winter_maxt_nas = sum(is.na(monthly_maxt)),
-            winter_vpd = mean(monthly_vpd))
-# if there is more than one entire month missing from winter temp, replace with NA (not a reliable avg)
-#   this affects 8 values: 1917, 1921, 1929, 1931, 1932, 1933, 1937, 1948
-winterppt$winter_maxt[winterppt$winter_maxt_nas>1] <- NA
+# get daily mean temp (from max and min) and convert from F to C
+temp_noaa$tmean_f = rowMeans(temp_noaa[,c('TMAX','TMIN')])
+temp_noaa$tmean_c = (temp_noaa$tmean_f - 32) * (5/9)
 
-# merge into one data frame
-climatesummary = merge(yearlyppt, summerppt, by.x='year', by.y='water_yr') %>%
-  merge(winterppt, by.x='year', by.y='water_yr') %>%
-  dplyr::select(year, yearly_ppt_mm, yearly_maxt, yearly_mint, yearly_vpd, 
-                summer_ppt_mm, summer_maxt, summer_vpd,
-                winter_ppt_mm, winter_maxt, winter_vpd)
+# get monthly mean temp from NOAA data
+temp_noaa_monthly = temp_noaa %>%
+  group_by(year, month) %>%
+  summarize(monthly_tmean_c = mean(tmean_c, na.rm=T),
+            monthly_temp_nas = sum(is.na(tmean_c)))
+# the most NA days after Oct 2013 (the data I will use) is 9; there is no reason to discard any monthly data due to missingness
 
-write.csv(climatesummary, 'data/climate_variables.csv', row.names=F)
+# combine Berkeley and NOAA data
+temp1 = temp_be %>%
+  mutate(date = as.Date(paste(year, month, '15', sep='-'))) %>%
+  dplyr::filter(date>as.Date('1914-01-01'), date<as.Date('2013-10-01')) %>%
+  dplyr::select(year, month, monthly_tmean_c =adj_temp) 
+temp2 = temp_noaa_monthly %>%
+  mutate(date = as.Date(paste(year, month, '15', sep='-'))) %>%
+  dplyr::filter(date>as.Date('2013-09-15')) %>%
+  dplyr::select(year, month, monthly_tmean_c)
+temp = rbind(temp1, temp2)
 
-# ============================================================
+# get yearly mean temp
+yearly_temp = temp %>%
+  group_by(year) %>%
+  summarize(mean_temp = mean(monthly_tmean_c, na.rm=T),
+            months_missing_tmean = sum(is.na(monthly_tmean_c)))
 
 
 
 
-# ===================================================================
-# get monthly sums of past 6 months and 1 year
-monthlyppt$date = as.Date(paste(monthlyppt$year, monthlyppt$month, '15', sep='-'))
-monthlyppt = arrange(monthlyppt, date)
+# ====================================================
+# combine precip and temp into one data file
+yearlyclimate = merge(precip, yearly_temp, all=T)
 
-ppt_6mo_yr = c()
-for (n in 12:nrow(monthlyppt)) {
-  selectedrows = monthlyppt[(n-11):n,]
-  if ((selectedrows$date[12]- selectedrows$date[1])>367) {
-    stop()
-  }
-  ppt_6mo_yr = rbind(ppt_6mo_yr, data.frame(year=selectedrows$year[12], 
-                                            month = selectedrows$month[12], 
-                                            ppt_6mo = sum(selectedrows$monthly_ppt_mm[7:12]),
-                                            ppt_yr = sum(selectedrows$monthly_ppt_mm)))
-}
+write.csv(yearlyclimate, 'data/climate_variables.csv', row.names=F)
 
-write.csv(ppt_6mo_yr, 'climate/ppt_6mo_year_sums.csv', row.names=F)
