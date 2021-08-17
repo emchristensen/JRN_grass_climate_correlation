@@ -6,6 +6,8 @@ Precipitation data 1914-2017 comes from the Jornada Headquarters data stream (Wo
 
 Temperature data 1914-2012 are from the Berkeley Earth project, which performs quality control and corrections. More recent data (2013-2021) were downladed from NOAA. 
 
+PDSI and SPEI values (for Dona Ana county) downloaded from https://wrcc.dri.edu/wwdt/time/
+
 Code:
  * __get_climate_data.R__ creates yearly_climate_variables.csv and climate_variables.csv. Raw data from sources described above, in raw_climate_data folder
 
