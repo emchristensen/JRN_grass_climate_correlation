@@ -82,9 +82,6 @@ winterppt = monthlyppt %>%
 precip = merge(yearlyppt, summerppt, all=T) %>%
   merge(winterppt, by.x='year', by.y='water_yr', all=T)
 
-#write.csv(yearly, 'data/yearly_climate_variables.csv', row.names=F)
-
-
 
 
 # ==================================
@@ -165,8 +162,8 @@ monthlyfinal$spei1[is.infinite(monthlyfinal$spei1)] <- NA
 # aggregate to yearly
 yearlyclimate = monthlyfinal %>%
   group_by(year) %>%
-  summarize(spei = mean(spei1, na.rm=T)) %>%
-  merge(yearly_temp) %>%
+  summarize(spei = mean(spei1, na.rm=T),
+            mean_temp=mean(tmean_c)) %>%
   merge(precip)
 
 write.csv(yearlyclimate, 'data/climate_variables.csv', row.names=F)
