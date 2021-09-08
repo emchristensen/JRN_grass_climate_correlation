@@ -1,7 +1,7 @@
 ---
 title: "Grass/PDO model selection"
 author: "Erica Christensen"
-date: "8/11/2021"
+date: "8/13/2021"
 output: html_document
 ---
 
@@ -10,21 +10,8 @@ library(dplyr)
 library(ggplot2)
 library(MuMIn)
 
-# min-max normalization function
-normalize <- function(x) {
-  return ((x-min(x)) / (max(x) - min(x)))
-}
-
-# 10 year moving average function
-moving_avg_10y <- function(index, year) {
-  smoothed = c()
-  for (n in 10:length(index)) {
-    avg10y = data.frame(index_smooth = mean(index[(n-9):n]),
-                        year=year[n])
-    smoothed = rbind(smoothed, avg10y)
-  }
-  return(smoothed)
-}
+# load data functions
+source('data_functions.R')
 
 
 # read in data
@@ -47,7 +34,7 @@ pdo_yearly$pdo_norm = normalize(pdo_yearly$pdo_year)
 soi_yearly$soi_norm = normalize(soi_yearly$soi_year)
 grass$grass_norm = normalize(grass$grass)
 pptdat$yearly_ppt_norm = normalize(pptdat$yearly_ppt_mm)
-pptdat$winter_ppt_norm = normalize(pptdat$winter_ppt_mm)
+pptdat$winter_ppt_norm = c(NA,normalize(pptdat$winter_ppt_mm[-1]))
 pptdat$summer_ppt_norm = normalize(pptdat$summer_ppt_mm)
 
 # calculate 10-year moving average of pdo
@@ -59,7 +46,7 @@ precip_10y = moving_avg_10y(pptdat$yearly_ppt_mm, year=pptdat$year) %>%
   mutate(precip_smooth=normalize(index_smooth))
 
 # moving avg summer and winter precip
-winter_ppt_10y = moving_avg_10y(pptdat$winter_ppt_mm, year=pptdat$year) %>%
+winter_ppt_10y = moving_avg_10y(pptdat$winter_ppt_mm[-1], year=pptdat$year) %>%
   mutate(winter_ppt_smooth=normalize(index_smooth))
 summer_ppt_10y = moving_avg_10y(pptdat$summer_ppt_mm, year=pptdat$year) %>%
   mutate(summer_ppt_smooth=normalize(index_smooth))
@@ -84,6 +71,7 @@ The first thing I did was look at the ccf between grass (normalized) and the nor
 ```{r cars, echo=F}
 # cross-correlation functions
 corr_data = dplyr::filter(combined_data, !is.na(grass_norm))
+acf(corr_data$grass_norm)
 ccf(corr_data$pdo_norm, corr_data$grass_norm)
 ccf(corr_data$soi_norm, corr_data$grass_norm)
 ccf(corr_data$yearly_ppt_norm, corr_data$grass_norm)
@@ -95,7 +83,7 @@ ccf(corr_data$summer_ppt_norm, corr_data$grass_norm)
 
 I created a smoothed PDO variable by calculating 10-year moving window average of the PDO index. I also created a variable indicating PDO phase (cool or warm; factor variable). I compared models correlating normalized grass cover to PDO index, the binary warm/cool pdo phase, 10-year smoothed PDO, SOI, yearly precip, winter precip, and summer precip.
 
-```{r pressure, echo=T}
+```{r pressure, echo=F}
 model_data = combined_data %>%
   dplyr::filter(year>=1916, year<1980)
 
@@ -108,12 +96,7 @@ model5 = lm(grass_norm ~ yearly_ppt_norm, data=model_data)
 model6 = lm(grass_norm ~ winter_ppt_norm, data=model_data)
 model7 = lm(grass_norm ~ summer_ppt_norm, data=model_data)
 
-AICc(model1, model2, model3, model4, model5, model6, model7)
-```
-
-```{r multimodels, echo=F}
 # models with multiple predictors
-
 model8 = lm(grass_norm ~ pdo_smooth + yearly_ppt_norm, data=model_data)
 model9 = lm(grass_norm ~ pdo_smooth + winter_ppt_norm, data=model_data)
 model10 = lm(grass_norm ~ pdo_smooth + summer_ppt_norm, data=model_data)
@@ -122,10 +105,22 @@ model12 = lm(grass_norm ~ pdo_smooth + soi_norm + summer_ppt_norm, data=model_da
 model13 = lm(grass_norm ~ pdo_smooth + soi_norm + yearly_ppt_norm, data=model_data)
 model14 = lm(grass_norm ~ pdo_smooth + soi_norm + winter_ppt_norm, data=model_data)
 
-AICc(model3, model8, model9, model10, model11, model12, model13, model14)
+
+# create table with aic and rsquared
+modellist = list(model1, model2, model3, model4, model5, model6, model7, model8, model9, model10, model11, model12, model13, model14)
+aictable = c()
+for (m in 1:length(modellist)) {
+  model=modellist[[m]]
+  aictable = rbind(aictable, data.frame(parameters=paste(names(model$coefficients),collapse=', '),
+                                        AICc=AICc(model),
+                                        adj.r.squared=summary(model)$adj.r.squared))
+}
+aictable['deltaAICc'] <- aictable['AICc']-min(aictable['AICc'])
+#aictable['weightedAIC'] <- round(exp(-0.5 * aictable['deltaAICc'])/sum(exp(-0.5 * aictable['deltaAICc'])),4)
+aictable %>% arrange(deltaAICc)
 ```
 
-The smoothed PDO (model3) is clearly the best. I then tested models containing smoothed PDO + another variable, but no model was more than 2 units better than model2
+There are several models almost tied for best AICc. The simplest of these has only pdo_smooth as a predictor. 
 
 ## Predictions from model
 
@@ -133,16 +128,18 @@ The smoothed PDO (model3) is clearly the best. I then tested models containing s
 # prediction based on best model
 newdata = dplyr::filter(combined_data, year>1916) %>%
   dplyr::select(year, pdo_smooth)
-predicted_grass = predict.lm(model3, newdata, se.fit=T)
+predicted_grass = predict.lm(model3, newdata, interval='prediction') %>% as.data.frame()
 
-modelprediction = newdata %>%
-  mutate(predicted_grass=predicted_grass$fit)
+modelprediction = data.frame(predicted_grass=predicted_grass$fit,
+         lower=predicted_grass$lwr,
+         upper=predicted_grass$upr) %>%
+  cbind(newdata)
 
 se = 0.08134 # from summary(model3)
 # plot figure
 grasspred = ggplot(modelprediction, aes(x=year)) +
   geom_line(aes(y=predicted_grass)) +
-  geom_ribbon(aes(ymin=predicted_grass-se, ymax=predicted_grass+se), alpha=.3) +
+  geom_ribbon(aes(ymin=lower, ymax=upper), alpha=.3) +
   geom_point(data=combined_data, aes(x=year, y=grass_norm)) +
   xlim(1916, 2020) +
   theme_bw() +
@@ -150,4 +147,13 @@ grasspred = ggplot(modelprediction, aes(x=year)) +
   ylab('grass cover')
 grasspred
 ggsave('Figures/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
+```
+
+## Differences
+
+```{r diff, echo=F}
+diffdata = data.frame(grass_diff = diff(model_data$grass_norm),
+                      pdo_diff = diff(model_data$pdo_smooth))
+
+plot(diffdata)
 ```
