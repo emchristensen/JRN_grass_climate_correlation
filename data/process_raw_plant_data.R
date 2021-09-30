@@ -24,23 +24,30 @@ selected_quads = c('A1','A2','A3','A4','A5','B1','B2','B3','B4','B5',
 # years for creating imputed timeseries
 imputed_years = data.frame(project_year = 1916:1979)
 
+# restrict dates dataframe to quadrats and dates (latest date per year per quadrat) for analysis
+dates_for_analysis = dates %>% dplyr::filter(quadrat %in% selected_quads) %>%
+  group_by(quadrat, project_year) %>%
+  arrange(month, day) %>%
+  summarize_all(last)
+
+# merge raw plant data with dates_for_analysis to restrict data
+data_for_analysis = merge(dates_for_analysis, rawdata, all.x=T)
+
 # =========================================================================
 # species-level imputed timeseries for each quadrat
 
 # combine ARPA9, ARPU9, and ARPUL (very similar species, may have been confused in data collection in early years)
-rawdata2 = rawdata
-rawdata2$species_code[rawdata2$species_code %in% c('ARPU9','ARPA9','ARPUL')] <- 'ARIST'
+data_for_analysis$species_code[data_for_analysis$species_code %in% c('ARPU9','ARPA9','ARPUL')] <- 'ARIST'
 
-# get total of grass species by quadrat and year
-grass_species_totals = rawdata2 %>%
-  dplyr::filter(quadrat %in% selected_quads, 
-                species_code %in% pg_species) %>%
+# get total cover by species, quadrat, and year
+grass_species_totals = data_for_analysis %>%
+  dplyr::filter(species_code %in% pg_species) %>%
   group_by(quadrat, project_year, species_code) %>%
   summarize(total_cover=sum(area))
 
 # loop through each quadrat and species
 allquadsallspecies = c()
-#quad = 'A1'
+#quad = 'N3'
 for (quad in selected_quads) {
   
   quaddata = dplyr::filter(grass_species_totals, quadrat==quad)
@@ -51,8 +58,8 @@ for (quad in selected_quads) {
     
     quadsp = dplyr::filter(quaddata, species_code==sp)
     
-    # merge with dates dataframe and fill in zeros
-    quadseries = dplyr::filter(dates, quadrat==quad) %>%
+    # merge with dates_for_analysis and fill in zeros
+    quadseries = dplyr::filter(dates_for_analysis, quadrat==quad) %>%
       dplyr::select(quadrat, project_year) %>%
       merge(quadsp, all=T) %>%
       dplyr::select(-species_code, -quadrat)
@@ -76,7 +83,7 @@ ggplot(quadratspeciesdata, aes(x=project_year, y=total_cover, color=species, fil
 
 
 # get modern values and add to imputed values
-modern_grass_sp = expand.grid(quadrat = unique(allquadsallspecies$quadrat),
+modern_grass_sp = expand.grid(quadrat = selected_quads,
                               project_year =c(1995,2001,2006,2011,2016),
                               species_code = unique(allquadsallspecies$species)) %>%
   merge(grass_species_totals, all.x=T) %>%
@@ -92,3 +99,32 @@ write.csv(all_grass_species, 'data/grass_species_timeseries_imputed.csv', row.na
 # =============================================================
 # total grass timeseries
 
+# read in data from above
+all_grass_species = read.csv('data/grass_species_timeseries_imputed.csv')
+
+# group by quadrat and year
+total_by_quad = all_grass_species %>%
+  group_by(quadrat, project_year) %>%
+  summarize(grass_cover = sum(total_cover)) %>%
+  arrange(quadrat, project_year)
+
+# save to file
+write.csv(total_by_quad, 'data/grass_total_timeseries_imputed.csv', row.names=F)
+
+# ===============================================================
+# median grass cover over all quadrats by year
+
+# read in data from above
+total_by_quad = read.csv('data/grass_total_timeseries_imputed.csv')
+
+# get median 
+median_grass = total_by_quad %>%
+  group_by(project_year) %>%
+  summarize(median_grass = median(grass_cover))
+
+ggplot(median_grass, aes(x=project_year, y=median_grass)) +
+  geom_point() +
+  geom_line()
+
+# write to file
+write.csv(median_grass, 'data/grass_median_yearly.csv', row.names=F)
