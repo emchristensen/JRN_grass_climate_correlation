@@ -6,7 +6,7 @@
 #' Temp 1914-2012 from Berkeley Earth project; 2012-2020 from NOAA
 #' Gaps in monthly data filled by PRISM
 # EMC
-# last run: 8/18/21
+# last run: 10/6/21
 
 library(dplyr)
 library(lubridate)
@@ -56,33 +56,6 @@ monthlyppt = pptdat %>%
   group_by(year, month) %>%
   summarize(monthly_ppt_mm= sum(prec_mm, na.rm=T), monthly_ppt_nas = sum(is.na(prec_mm)))
 
-# aggregate by year
-yearlyppt = monthlyppt %>%
-  group_by(year) %>%
-  summarize(yearly_ppt_mm = sum(monthly_ppt_mm),
-            days_missing_year = sum(monthly_ppt_nas))
-
-# summer and winter totals
-# create water_yr column so winter (Oct-Apr) ppt can be calculated
-monthlyppt$water_yr = monthlyppt$year
-monthlyppt$water_yr[monthlyppt$month %in% c(10,11,12)] <- monthlyppt$year[monthlyppt$month %in% c(10,11,12)] +1
-
-summerppt = monthlyppt %>%
-  dplyr::filter(month %in% c(5,6,7,8,9)) %>%
-  group_by(year) %>%
-  summarize(summer_ppt_mm = sum(monthly_ppt_mm),
-            days_missing_summer = sum(monthly_ppt_nas))
-
-winterppt = monthlyppt %>%
-  dplyr::filter(month %in% c(1,2,3,4,10,11,12)) %>%
-  group_by(water_yr) %>%
-  summarize(winter_ppt_mm = sum(monthly_ppt_mm),
-            days_missing_winter=sum(monthly_ppt_nas))
-
-precip = merge(yearlyppt, summerppt, all=T) %>%
-  merge(winterppt, by.x='year', by.y='water_yr', all=T)
-
-
 
 # ==================================
 # temperature
@@ -122,11 +95,6 @@ temp2 = temp_noaa_monthly %>%
   dplyr::select(year, month, monthly_tmean_c)
 temp = rbind(temp1, temp2)
 
-yearly_temp = temp %>%
-  group_by(year) %>%
-  summarize(mean_temp = mean(monthly_tmean_c, na.rm=T),
-            months_missing_tmean=sum(is.na(monthly_tmean_c)))
-
 
 # ====================================================
 # put together final data files
@@ -137,34 +105,54 @@ monthlyclimate = merge(monthlyppt, temp, all=T) %>%
   mutate(ppt_mm = monthly_ppt_mm,
          tmean_c = monthly_tmean_c)
 
-# if whole month of ppt missing, make NA
+# if whole month of ppt missing, make NA and fill with PRISM
 monthlyclimate$ppt_mm[monthlyclimate$monthly_ppt_nas>=28] <- NA
 monthlyclimate$ppt_mm[is.na(monthlyclimate$ppt_mm)] <- monthlyclimate$ppt_prism[is.na(monthlyclimate$ppt_mm)]
+# fill missing temp with PRISM
 monthlyclimate$tmean_c[is.na(monthlyclimate$tmean_c)] <- monthlyclimate$tmean_prism[is.na(monthlyclimate$tmean_c)]
 
-
-# get 1-month and 12-month SPEI
+# get 1-month SPEI
 monthlyclimate$PET = thornthwaite(monthlyclimate$tmean_c, lat=32.6171)
 monthlyclimate$BAL = monthlyclimate$ppt_mm-monthlyclimate$PET
 spei1 = spei(monthlyclimate[,'BAL'],1)
-spei12 = spei(monthlyclimate[,'BAL'],12)
 monthlyclimate$spei1 = spei1$fitted
-monthlyclimate$spei12 = spei12$fitted
 
 monthlyfinal = dplyr::filter(monthlyclimate, year>=1915, year<=2020) %>%
-  dplyr::select(year, month, ppt_mm, tmean_c, spei1, spei12)
-
-write.csv(monthlyfinal, 'data/climate_variables_monthly.csv', row.names=F)
+  dplyr::select(year, month, ppt_mm, tmean_c, spei1)
 
 # there is a -Inf value in spei1, make NA
 monthlyfinal$spei1[is.infinite(monthlyfinal$spei1)] <- NA
 
-# aggregate to yearly
+write.csv(monthlyfinal, 'data/climate_variables_monthly.csv', row.names=F)
+
+# =============================================================================
+# get yearly and seasonal summary
+
+# create water_yr column so winter (Oct-Apr) ppt can be calculated
+monthlyfinal$water_yr = monthlyfinal$year
+monthlyfinal$water_yr[monthlyfinal$month %in% c(10,11,12)] <- monthlyfinal$year[monthlyfinal$month %in% c(10,11,12)] +1
+
+# summer precip
+summerppt = monthlyfinal %>%
+  dplyr::filter(month %in% c(5,6,7,8,9)) %>%
+  group_by(water_yr) %>%
+  summarize(summer_ppt_mm = sum(ppt_mm))
+
+# winter precip
+winterppt = monthlyfinal %>%
+  dplyr::filter(month %in% c(1,2,3,4,10,11,12)) %>%
+  group_by(water_yr) %>%
+  summarize(winter_ppt_mm = sum(ppt_mm))
+
+# aggregate precip, temp, spei to yearly; merge with summer and winter precip
 yearlyclimate = monthlyfinal %>%
-  group_by(year) %>%
-  summarize(spei = mean(spei1, na.rm=T),
-            mean_temp=mean(tmean_c)) %>%
-  merge(precip)
+  group_by(water_yr) %>%
+  summarize(yearly_ppt_mm = sum(ppt_mm),
+            spei = mean(spei1, na.rm=T),
+            mean_tem=mean(tmean_c)) %>%
+  merge(summerppt) %>%
+  merge(winterppt)
+
 
 write.csv(yearlyclimate, 'data/climate_variables.csv', row.names=F)
 
