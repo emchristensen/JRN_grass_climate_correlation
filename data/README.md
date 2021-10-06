@@ -18,9 +18,9 @@ Other grass data:
  * __JRN_011002_npp_quadrat_meas.csv__ data from the NPP quadrats (different study). Huge data set.
 
 ## Climate data
-Precipitation data 1914-2017 comes from the Jornada Headquarters data stream (Wooton et al 2020). More recent data (2017-2021) were downloaded from NOAA. The Jornada data and NOAA data are from the same station, but there may be data entry errors in the NOAA data prior to 2007 (Darren Jams, pers. comm.). 
+Precipitation data 1914-2017 comes from the Jornada Headquarters data stream (Wooton et al 2020). More recent data (2017-2021) were downloaded from NOAA. The Jornada data and NOAA data are from the same station, but there may be data entry errors in the NOAA data prior to 2007 (Darren Jams, pers. comm.). Recent data (2017-2021) not needed for final version of paper. 
 
-Temperature data 1914-2012 are from the Berkeley Earth project, which performs quality control and corrections. More recent data (2013-2021) were downladed from NOAA. 
+Temperature data 1914-2012 are from the Berkeley Earth project, which performs quality control and corrections. More recent data (2013-2021) were downladed from NOAA (again, not needed in final paper). 
 
 Missing values (monthly) filled in with PRISM data. 78 monthly temp values and 5 monthly precip.
 
