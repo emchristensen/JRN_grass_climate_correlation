@@ -1,29 +1,19 @@
 ---
 title: "PDO climate correlations"
 author: "Erica Christensen"
-date: "8/20/2021"
+date: "10/6/2021"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 library(dplyr)
 library(ggplot2)
-pdo_index = read.csv('data/PDO_long_1900_2020.csv') %>%
-  group_by(year) %>%
-  summarize(yearly_pdo=mean(pdo))
+
 pdo_phases = read.csv('data/PDO_phases_byyear.csv')
 climate = read.csv('data/climate_variables.csv')
-soi_index = read.csv('data/SOI_long_1866_2020.csv') %>%
-  group_by(year) %>%
-  summarize(yearly_soi=mean(soi))
-pdsi = read.csv('data/PDSI_DonaAna_1895_2021.csv') %>% dplyr::group_by(year) %>% summarize(yearly_pdsi=mean(pdsi))
 
-# remove suspect temperature values
 
-alldata = merge(pdo_index, pdo_phases, all=T) %>%
-  merge(soi_index, all=T) %>%
-  merge(climate, all=T) %>%
-  merge(pdsi, all=T) %>%
+alldata = merge(pdo_phases, climate, by.x='year', by.y='water_yr', all=T) %>%
   dplyr::filter(year>=1915, year<=2020)
 
 ```
@@ -59,7 +49,7 @@ speiplot = ggplot(plotdata, aes(x=pdo_phase, y=spei)) +
   ylab('SPEI') +
   xlab('') +
   theme_bw()
-pdsiplot = ggplot(plotdata, aes(x=pdo_phase, y=yearly_pdsi)) +
+pdsiplot = ggplot(plotdata, aes(x=pdo_phase, y=pdsi)) +
   geom_boxplot(na.rm=T) +
   geom_jitter(width=.1, alpha=.4, na.rm=T)+
   ylab('PDSI') +
@@ -91,7 +81,7 @@ winter.aov <- aov(winter_ppt_mm ~ pdo_phase, data=plotdata)
 summary(winter.aov)
 spei.aov <- aov(spei ~ pdo_phase, data=plotdata)
 summary(spei.aov)
-pdsi.aov <- aov(yearly_pdsi ~ pdo_phase, data=plotdata)
+pdsi.aov <- aov(pdsi ~ pdo_phase, data=plotdata)
 summary(pdsi.aov)
 temp.aov <- aov(mean_temp ~ pdo_phase, data=plotdata)
 summary(temp.aov)
@@ -103,17 +93,17 @@ The differences are significant for yearly, summer, and winter precip.
 ```{r pdo-ppt, echo=F}
 # code from Darren 8/18/21
 library(emmeans)
-ggplot(plotdata, aes(x = yearly_pdo, y = yearly_ppt_mm, col = pdo_phase)) +
+ggplot(plotdata, aes(x = pdo, y = yearly_ppt_mm, col = pdo_phase)) +
   geom_smooth(method = "lm", se = FALSE) +
   geom_point()
 
 # Run linear regression
-ppt.interaction <- lm(yearly_ppt_mm ~ yearly_pdo*pdo_phase, data = plotdata)
+ppt.interaction <- lm(yearly_ppt_mm ~ pdo*pdo_phase, data = plotdata)
 
 anova(ppt.interaction) # Check pdo_index:pdo_phase effect for the test of different slopes
 
 # Obtain slopes
-ppt.emmeans <- emtrends(ppt.interaction, "pdo_phase", var="yearly_pdo")
+ppt.emmeans <- emtrends(ppt.interaction, "pdo_phase", var="pdo")
 
 # Compare slopes -- look at yearly_pdo:pdo_phase interaction term
 pairs(ppt.emmeans)
@@ -125,11 +115,11 @@ The interaction term is not significant, p=0.36
 ```{r y-intercept, echo=F}
 # code from Darren 8/19/21
 library(emmeans)
-ggplot(plotdata, aes(x = yearly_pdo, y = yearly_ppt_mm, col = pdo_phase)) +
+ggplot(plotdata, aes(x = pdo, y = yearly_ppt_mm, col = pdo_phase)) +
   geom_smooth(method = "lm", se = FALSE) +
   geom_point()
 
-ppt.interaction <- lm(yearly_ppt_mm ~ yearly_pdo*pdo_phase, data = plotdata)
+ppt.interaction <- lm(yearly_ppt_mm ~ pdo*pdo_phase, data = plotdata)
 ppt.intercept <- emmeans::emmeans(ppt.interaction, "pdo_phase", at = list(pdo_index = 0))
 pairs(ppt.intercept)
 ```
