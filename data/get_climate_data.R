@@ -1,4 +1,5 @@
-#' get raw climate data and create monthly timeseries
+#' read in raw climate data and create monthly and yearly time series
+#' yearly = October-September
 #' Takes daily headquarters weather station data, aggregate to monthly and yearly. 
 #'  - summer = May-Sept
 #'  - winter = Oct-April and belongs to the following year (Oct 1923-Apr 1924 is winter 1924)
@@ -12,6 +13,16 @@ library(dplyr)
 library(lubridate)
 library(SPEI)
 
+# read in PDSI data
+pdsi = read.csv('data/PDSI_DonaAna_1895_2021.csv')
+
+# read in PDO index
+pdo = read.csv('data/PDO_long_1900_2020.csv')
+
+# read in SOI index
+soi = read.csv('data/SOI_long_1866_2020.csv')
+
+# read in PRISM data
 prism = read.csv('data/raw_climate_data/PRISM_ppt_tmin_tmean_tmax_tdmean_vpdmin_vpdmax_stable_4km_189501_202001_Headquarters.csv',
                  skip=10) %>%
   mutate(year=as.numeric(substr(Date, 1,4)),
@@ -116,12 +127,18 @@ monthlyclimate$PET = thornthwaite(monthlyclimate$tmean_c, lat=32.6171)
 monthlyclimate$BAL = monthlyclimate$ppt_mm-monthlyclimate$PET
 spei1 = spei(monthlyclimate[,'BAL'],1)
 monthlyclimate$spei1 = spei1$fitted
-
-monthlyfinal = dplyr::filter(monthlyclimate, year>=1915, year<=2020) %>%
-  dplyr::select(year, month, ppt_mm, tmean_c, spei1)
-
 # there is a -Inf value in spei1, make NA
-monthlyfinal$spei1[is.infinite(monthlyfinal$spei1)] <- NA
+monthlyclimate$spei1[is.infinite(monthlyclimate$spei1)] <- NA
+
+# combine with PDSI
+monthlyfinal = monthlyclimate %>%
+  merge(pdsi) %>%
+  merge(pdo) %>%
+  merge(soi) %>%
+  dplyr::filter(year>=1915, year<=2020) %>%
+  dplyr::select(year, month, ppt_mm, tmean_c, spei1, pdsi, soi, pdo)
+
+
 
 write.csv(monthlyfinal, 'data/climate_variables_monthly.csv', row.names=F)
 
@@ -147,9 +164,12 @@ winterppt = monthlyfinal %>%
 # aggregate precip, temp, spei to yearly; merge with summer and winter precip
 yearlyclimate = monthlyfinal %>%
   group_by(water_yr) %>%
-  summarize(yearly_ppt_mm = sum(ppt_mm),
+  summarize(pdo = mean(pdo),
+            soi = mean(soi),
+            pdsi = mean(pdsi),
             spei = mean(spei1, na.rm=T),
-            mean_tem=mean(tmean_c)) %>%
+            mean_temp=mean(tmean_c),
+            yearly_ppt_mm = sum(ppt_mm)) %>%
   merge(summerppt) %>%
   merge(winterppt)
 
