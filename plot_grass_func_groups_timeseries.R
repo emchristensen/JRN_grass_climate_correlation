@@ -1,7 +1,7 @@
 #' plot grass species groupings timeseries
 #' 
 #' EMC 5/14/21
-#' last update: 9/30/21
+#' last update: 10/7/21
 
 library(dplyr)
 library(ggplot2)
@@ -57,91 +57,120 @@ grassgroups
 # =============================================================
 # functional group breakdown during discrete time periods
 
-# divide into phase sections; chop off first 3 years of each phase
-c1 = dplyr::filter(yearly_grass_groups, project_year<1925)
-w1 = dplyr::filter(yearly_grass_groups, project_year>=1928, project_year<1947)
-c2 = dplyr::filter(yearly_grass_groups, project_year>=1950, project_year<1977)
+#pdo = read.csv('data/PDO_phases_byyear.csv')
 
+pdophases = data.frame(year = 1916:1976,
+                       pdo_phase = c(rep('Cool PDO \n1916-1924',9),
+                                     rep('Warm PDO \n1925-1946',22),
+                                     rep('Cool PDO \n1947-1976',30)))
 
-# first cold period
-# get average composition over the time period for each quadrat
-c1_comp = c1 %>%
-  group_by(quadrat, functional_group) %>%
+grassgroupspdo =merge(yearly_grass_groups, pdophases, by.x='project_year', by.y='year')
+
+grassgroupspdo_mean = grassgroupspdo %>%
+  group_by(pdo_phase, functional_group) %>%
   summarize(mean_cover=mean(cover))
-# get average over quadrats for the time period
-c1_comp_total = c1_comp %>%
-  group_by(functional_group) %>%
-  summarize(mean_cover_all=mean(mean_cover),
-            sd_cover = sd(mean_cover))
 
-# the error bars are huge
-c1_plot = ggplot(c1_comp_total, aes(x=functional_group, y=mean_cover_all, fill=functional_group)) +
-  geom_bar(stat='identity') +
-  #geom_errorbar(aes(ymin=mean_cover_all-sd_cover, ymax=mean_cover_all+sd_cover)) +
-  scale_fill_manual(values=cbPalette, labels=c('Aristida spp.','B. eriopoda','D. pulchella','Muhlenbergia spp.','Other','P. mutica',
-                                               'S. brevifolius','Sporobolus spp.')) +
-  ylim(0,.06) +
-  ggtitle('Cool PDO: 1916-1925') +
-  ylab('Cover (m^2)') +
+# reorder factors
+grassgroupspdo_mean$pdo_phase = factor(grassgroupspdo_mean$pdo_phase, levels=c('Cool PDO \n1916-1924','Warm PDO \n1925-1946','Cool PDO \n1947-1976'))
+grassgroupspdo_mean$functional_group = factor(grassgroupspdo_mean$functional_group, levels=c('climax','seral','early'))
+
+fungroupbox = ggplot(grassgroupspdo_mean, aes(x=pdo_phase, y=mean_cover, fill=functional_group)) +
+  geom_bar(position='stack', stat='identity') +
+  scale_fill_manual(values=cbPalette, labels=c('Climax','Seral','Early \nsuccessional'), name='Functional Group') +
   xlab('') +
-  guides(fill='none') +
-  theme_bw() +
-  theme(axis.text.x=element_blank()) 
-c1_plot
+  ylab('mean cover (m^2)') +
+  theme_bw() 
+fungroupbox
 
+ggsave('Figures/species_func_groups_byphase.png', plot=fungroupbox, width=5, height=3)
 
-# first warm period
-# get average composition over the time period for each quadrat
-w1_comp = w1 %>%
-  group_by(quadrat, functional_group) %>%
-  summarize(mean_cover=mean(cover))
-# get average over quadrats for the time period
-w1_comp_total = w1_comp %>%
-  group_by(functional_group) %>%
-  summarize(mean_cover_all=mean(mean_cover),
-            sd_cover = sd(mean_cover))
-
-# the error bars are huge
-w1_plot = ggplot(w1_comp_total, aes(x=functional_group, y=mean_cover_all, fill=functional_group)) +
-  geom_bar(stat='identity') +
-  #geom_errorbar(aes(ymin=mean_cover_all-sd_cover, ymax=mean_cover_all+sd_cover)) +
-  scale_fill_manual(values=cbPalette, labels=c('Aristida spp.','B. eriopoda','D. pulchella','Muhlenbergia spp.','Other','P. mutica',
-                                               'S. brevifolius','Sporobolus spp.')) +
-  ylim(0,.06) +
-  ggtitle('Warm PDO: 1928-1946') +
-  ylab('Cover (m^2)') +
-  xlab('') +
-  guides(fill='none') +
-  theme_bw() +
-  theme(axis.text.x=element_blank()) 
-w1_plot
-
-# second cool period
-# get average composition over the time period for each quadrat
-c2_comp = c2 %>%
-  group_by(quadrat, functional_group) %>%
-  summarize(mean_cover=mean(cover))
-# get average over quadrats for the time period
-c2_comp_total = c2_comp %>%
-  group_by(functional_group) %>%
-  summarize(mean_cover_all=mean(mean_cover),
-            sd_cover = sd(mean_cover))
-
-# the error bars are huge
-c2_plot = ggplot(c2_comp_total, aes(x=functional_group, y=mean_cover_all, fill=functional_group)) +
-  geom_bar(stat='identity') +
-  #geom_errorbar(aes(ymin=mean_cover_all-sd_cover, ymax=mean_cover_all+sd_cover)) +
-  scale_fill_manual(values=cbPalette, labels=c('Climax species','Early successional species','Seral species')) +
-  ylim(0,.06) +
-  ggtitle('Cool PDO: 1950-1977') +
-  ylab('Cover (m^2)') +
-  xlab('') +
-  #guides(fill='none') +
-  theme_bw() +
-  theme(axis.text.x=element_blank()) 
-c2_plot
-
-composition_combined = ggarrange(c1_plot, w1_plot, c2_plot, nrow=1, common.legend = T, legend='bottom')
-composition_combined
-
-#ggsave('Figures/speices_func_groups_byphase.png', plot=composition_combined, width=7.5, height=3)
+# old version
+# # =======================================================================
+# # divide into phase sections; chop off first 3 years of each phase
+# c1 = dplyr::filter(yearly_grass_groups, project_year<1925)
+# w1 = dplyr::filter(yearly_grass_groups, project_year>=1928, project_year<1947)
+# c2 = dplyr::filter(yearly_grass_groups, project_year>=1950, project_year<1977)
+# 
+# 
+# # first cold period
+# # get average composition over the time period for each quadrat
+# c1_comp = c1 %>%
+#   group_by(quadrat, functional_group) %>%
+#   summarize(mean_cover=mean(cover))
+# # get average over quadrats for the time period
+# c1_comp_total = c1_comp %>%
+#   group_by(functional_group) %>%
+#   summarize(mean_cover_all=mean(mean_cover),
+#             sd_cover = sd(mean_cover))
+# 
+# # the error bars are huge
+# c1_plot = ggplot(c1_comp_total, aes(x=functional_group, y=mean_cover_all, fill=functional_group)) +
+#   geom_bar(stat='identity') +
+#   #geom_errorbar(aes(ymin=mean_cover_all-sd_cover, ymax=mean_cover_all+sd_cover)) +
+#   scale_fill_manual(values=cbPalette, labels=c('Aristida spp.','B. eriopoda','D. pulchella','Muhlenbergia spp.','Other','P. mutica',
+#                                                'S. brevifolius','Sporobolus spp.')) +
+#   ylim(0,.06) +
+#   ggtitle('Cool PDO: 1916-1925') +
+#   ylab('Cover (m^2)') +
+#   xlab('') +
+#   guides(fill='none') +
+#   theme_bw() +
+#   theme(axis.text.x=element_blank()) 
+# c1_plot
+# 
+# 
+# # first warm period
+# # get average composition over the time period for each quadrat
+# w1_comp = w1 %>%
+#   group_by(quadrat, functional_group) %>%
+#   summarize(mean_cover=mean(cover))
+# # get average over quadrats for the time period
+# w1_comp_total = w1_comp %>%
+#   group_by(functional_group) %>%
+#   summarize(mean_cover_all=mean(mean_cover),
+#             sd_cover = sd(mean_cover))
+# 
+# # the error bars are huge
+# w1_plot = ggplot(w1_comp_total, aes(x=functional_group, y=mean_cover_all, fill=functional_group)) +
+#   geom_bar(stat='identity') +
+#   #geom_errorbar(aes(ymin=mean_cover_all-sd_cover, ymax=mean_cover_all+sd_cover)) +
+#   scale_fill_manual(values=cbPalette, labels=c('Aristida spp.','B. eriopoda','D. pulchella','Muhlenbergia spp.','Other','P. mutica',
+#                                                'S. brevifolius','Sporobolus spp.')) +
+#   ylim(0,.06) +
+#   ggtitle('Warm PDO: 1928-1946') +
+#   ylab('Cover (m^2)') +
+#   xlab('') +
+#   guides(fill='none') +
+#   theme_bw() +
+#   theme(axis.text.x=element_blank()) 
+# w1_plot
+# 
+# # second cool period
+# # get average composition over the time period for each quadrat
+# c2_comp = c2 %>%
+#   group_by(quadrat, functional_group) %>%
+#   summarize(mean_cover=mean(cover))
+# # get average over quadrats for the time period
+# c2_comp_total = c2_comp %>%
+#   group_by(functional_group) %>%
+#   summarize(mean_cover_all=mean(mean_cover),
+#             sd_cover = sd(mean_cover))
+# 
+# # the error bars are huge
+# c2_plot = ggplot(c2_comp_total, aes(x=functional_group, y=mean_cover_all, fill=functional_group)) +
+#   geom_bar(stat='identity') +
+#   #geom_errorbar(aes(ymin=mean_cover_all-sd_cover, ymax=mean_cover_all+sd_cover)) +
+#   scale_fill_manual(values=cbPalette, labels=c('Climax species','Early successional species','Seral species')) +
+#   ylim(0,.06) +
+#   ggtitle('Cool PDO: 1950-1977') +
+#   ylab('Cover (m^2)') +
+#   xlab('') +
+#   #guides(fill='none') +
+#   theme_bw() +
+#   theme(axis.text.x=element_blank()) 
+# c2_plot
+# 
+# composition_combined = ggarrange(c1_plot, w1_plot, c2_plot, nrow=1, common.legend = T, legend='bottom')
+# composition_combined
+# 
+# #ggsave('Figures/speices_func_groups_byphase.png', plot=composition_combined, width=7.5, height=3)
