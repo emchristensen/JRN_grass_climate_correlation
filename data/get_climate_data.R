@@ -17,10 +17,11 @@ library(SPEI)
 pdsi = read.csv('data/PDSI_DonaAna_1895_2021.csv')
 
 # read in PDO index
-pdo = read.csv('data/PDO_long_1900_2020.csv')
+pdo = read.csv('data/raw_climate_data/PDO_long_1900_2020.csv')
 
-# read in SOI index
-soi = read.csv('data/SOI_long_1866_2020.csv')
+# read in Nino 3.4 index
+#soi = read.csv('data/SOI_long_1866_2020.csv')
+nino34 = read.csv('data/raw_climate_data/Nino34_long_1870_2020.csv')
 
 # read in PRISM data
 prism = read.csv('data/raw_climate_data/PRISM_ppt_tmin_tmean_tmax_tdmean_vpdmin_vpdmax_stable_4km_189501_202001_Headquarters.csv',
@@ -134,9 +135,9 @@ monthlyclimate$spei1[is.infinite(monthlyclimate$spei1)] <- NA
 monthlyfinal = monthlyclimate %>%
   merge(pdsi) %>%
   merge(pdo) %>%
-  merge(soi) %>%
+  merge(nino34) %>%
   dplyr::filter(year>=1915, year<=2020) %>%
-  dplyr::select(year, month, ppt_mm, tmean_c, spei1, pdsi, soi, pdo)
+  dplyr::select(year, month, ppt_mm, tmean_c, spei1, pdsi, nino34_index, pdo)
 
 
 
@@ -165,7 +166,7 @@ winterppt = monthlyfinal %>%
 yearlyclimate = monthlyfinal %>%
   group_by(water_yr) %>%
   summarize(pdo = mean(pdo),
-            soi = mean(soi),
+            nino34 = mean(nino34_index),
             pdsi = mean(pdsi),
             spei = mean(spei1, na.rm=T),
             mean_temp=mean(tmean_c),
