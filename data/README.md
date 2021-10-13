@@ -17,6 +17,8 @@ Other grass data:
 
  * __JRN_011002_npp_quadrat_meas.csv__ data from the NPP quadrats (different study). Huge data set.
 
+ * __grass_species_functional_grouping.csv__ categorizes each grass species in data set as climax, early successional, or seral. Classification based on traits in USDA PLANTS database and expert opinion of Jornada scientists.
+
 ## Climate data
 Precipitation data 1914-2017 comes from the Jornada Headquarters data stream (Wooton et al 2020). More recent data (2017-2021) were downloaded from NOAA. The Jornada data and NOAA data are from the same station, but there may be data entry errors in the NOAA data prior to 2007 (Darren Jams, pers. comm.). Recent data (2017-2021) not needed for final version of paper. 
 
@@ -27,6 +29,8 @@ Missing values (monthly) filled in with PRISM data. 78 monthly temp values and 5
 PDSI values (for Dona Ana county) downloaded from https://wrcc.dri.edu/wwdt/time/
 
 __get_climate_data.R__ creates climate_variables_monthly.csv and climate_variables.csv. Raw data from sources described above, in raw_climate_data folder
+
+__determine_enso_categories.R__ creates ENSO_phases_byyear.csv. 
 
 
 Files:
@@ -39,11 +43,17 @@ Files:
 
 * __raw_climate_data/NOAA_Jornada_temp.csv__ raw data file from which temperature data is taken. From https://www.ncdc.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND:USC00294426/detail 
 
-* __PRISM_ppt_tmin_tmean_tmax_tdmean_vpdmin_vpdmax_stable_4km_189501_202001_Headquarters.csv__ PRISM data
+* __raw_climate_data/PRISM_ppt_tmin_tmean_tmax_tdmean_vpdmin_vpdmax_stable_4km_189501_202001_Headquarters.csv__ PRISM data
 
-* __climate_variables.csv__ yearly spei, ppt, yearly mean temp, summer ppt, winter ppt. Summer = May-Sept, Winter = Oct-April (e.g. winter 1923 is the sum of precip from Oct 1922 - April 1923), Yearly = Jan-Dec. Number of missing data days (precip) or months (temperature) are included. File created by get_climate_data.R
+* __raw_climate_data/Nino34_long_1870_2020.csv__ Nino 3.4 index monthly. Downloaded from https://psl.noaa.gov/enso/dashboard.lanina.html and converted to long format.
 
-* __climate_variables_monthly.csv__ monthly ppt, mean temp, spei1 (1 month), spei12 (12-month)
+* __climate_variables.csv__ yearly pdo, nino34, pdsi, spei, mean temp, total ppt, summer ppt, winter ppt. Summer = May-Sept, Winter = Oct-April (e.g. winter 1923 is the sum of precip from Oct 1922 - April 1923), Yearly = Jan-Dec. Number of missing data days (precip) or months (temperature) are included. File created by get_climate_data.R
+
+* __climate_variables_monthly.csv__ monthly ppt, mean temp, spei, pdsi, nino34, pdo.
+
+* __ENSO_phases_byyear.csv__ exploring different ENSO indices for determining Nino/Nina/neutral years. The most common method seems to be using ONI data based on 3-month averages (https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php), and the year is nina if below -0.5 for 5 consecutive points (ASO-FMA). However this index only goes back to 1950. Nino3.4 and SOI indices go back to 1870; I defined a year as la nina if index is below -0.5 for 5 consecutive months Sept-March. SOI same definition. The two indices return very different results; I use Nino 3.4 in further analyses because it is known to correlate well to teleconnections in North America. Created by determine_enso_categories.R.
+
+* __PDO_phases_byyear.csv__ PDO phases (cool/warm) as determined by Mantua and Hare 2002 and Collins et al. 2020.
 
 
 
