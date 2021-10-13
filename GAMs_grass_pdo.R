@@ -4,13 +4,12 @@
 library(dplyr)
 library(ggplot2)
 
-source('data_functions.R')
 
 # read in data
 grass = read.csv('data/grass_median_yearly.csv') %>% rename(grass = median_grass)
+
 # restrict to historical section of timeseries
-grass_hist = dplyr::filter(grass, project_year<1995) %>%
-  mutate(grass_norm = normalize(grass))
+grass_hist = dplyr::filter(grass, project_year<1995)
 
 
 # =============================
@@ -36,7 +35,7 @@ grassgam
 
 #ggsave('Figures/grass_smoothed_gam.png', plot=grassgam, width=4, height=3)
 
-smoothedgrass = merge(modeloutput, grass)
+smoothedgrass = merge(modeloutput, grass) %>% rename(smoothed_grass = fitted_grass)
 write.csv(smoothedgrass,'data/smoothed_grass_gam.csv', row.names = F)
 
 # ===================================================================
@@ -63,11 +62,11 @@ pdogam = ggplot(pdoindex, aes(x=year, y=pdo)) +
   theme_bw()
 pdogam
 
-smoothedpdo = merge(modeloutput_pdo, pdoindex)
+smoothedpdo = merge(modeloutput_pdo, pdoindex) %>% rename(smoothed_pdo = fitted_pdo)
 write.csv(smoothedpdo,'data/smoothed_pdo_gam.csv', row.names=F)
 
 # ==================================================================
-# plot both together
+# plot both together -- WIP! Have to figure out the dual axis thing, and how to make them line up without normalizing
 coeff <- 20
 ggplot() +
   geom_line(data=modeloutput_pdo, aes(x=year, y=fitted_pdo, color='PDO')) +
@@ -78,18 +77,4 @@ ggplot() +
   )
 
 
-# pdo_yearly$pdo_norm = normalize(pdo_yearly$pdo_year)
-# pdo_10y = moving_avg_10y(pdo_yearly$pdo_year, year=pdo_yearly$year) %>%
-#   mutate(pdo_smooth=normalize(index_smooth))
-# 
-# 
-# grassgampdo = ggplot(grass_hist, aes(x=project_year, y=grass_norm)) +
-#   geom_point() +
-#   xlab('') +
-#   ylab('grass cover per m^2') +
-#   geom_line(data=modeloutput, aes(y=fitted_grass, color='Smoothed grass')) +
-#   geom_line(data=pdo_10y[pdo_10y$year<1980,], aes(x=year, y=pdo_smooth, color='Smoothed PDO'), show.legend=T) +
-#   theme_bw()
-# grassgampdo
-# 
-# ggsave('Figures/grass_pdo_smoothed.png', plot=grassgampdo, width=6, height=3)
+

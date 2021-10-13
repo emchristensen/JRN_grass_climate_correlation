@@ -13,7 +13,7 @@ JER.border <- read_sf(dsn = "R:/Quadrat/Location_conflicts_Adler", layer = "jer_
 quad.locations <- read_sf(dsn = "C:/Users/echriste/Desktop/JRN shapefiles", layer = "Study_351_USDA_Permanent_Quadrats")
 
 # get data used in this project
-veg_data <- read.csv('data/grass_shrub_timeseries_imputed.csv')
+veg_data <- read.csv('data/grass_total_timeseries_imputed.csv')
 selected_quadrats = unique(veg_data$quadrat)
 
 # which groups will be used in analysis

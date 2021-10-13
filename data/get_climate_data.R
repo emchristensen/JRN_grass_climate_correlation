@@ -14,7 +14,7 @@ library(lubridate)
 library(SPEI)
 
 # read in PDSI data
-pdsi = read.csv('data/PDSI_DonaAna_1895_2021.csv')
+pdsi = read.csv('data/raw_climate_data/PDSI_DonaAna_1895_2021.csv')
 
 # read in PDO index
 pdo = read.csv('data/raw_climate_data/PDO_long_1900_2020.csv')

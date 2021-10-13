@@ -43,6 +43,8 @@ Files:
 
 * __raw_climate_data/NOAA_Jornada_temp.csv__ raw data file from which temperature data is taken. From https://www.ncdc.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND:USC00294426/detail 
 
+* __raw_climate_data/PDSI_DonaAna_1895_2021.csv__ Dona Ana county PDSI index. From West Wide drought tracker: https://wrcc.dri.edu/wwdt/time/
+
 * __raw_climate_data/PRISM_ppt_tmin_tmean_tmax_tdmean_vpdmin_vpdmax_stable_4km_189501_202001_Headquarters.csv__ PRISM data
 
 * __raw_climate_data/Nino34_long_1870_2020.csv__ Nino 3.4 index monthly. Downloaded from https://psl.noaa.gov/enso/dashboard.lanina.html and converted to long format.
@@ -51,10 +53,13 @@ Files:
 
 * __climate_variables_monthly.csv__ monthly ppt, mean temp, spei, pdsi, nino34, pdo.
 
-* __ENSO_phases_byyear.csv__ exploring different ENSO indices for determining Nino/Nina/neutral years. The most common method seems to be using ONI data based on 3-month averages (https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php), and the year is nina if below -0.5 for 5 consecutive points (ASO-FMA). However this index only goes back to 1950. Nino3.4 and SOI indices go back to 1870; I defined a year as la nina if index is below -0.5 for 5 consecutive months Sept-March. SOI same definition. The two indices return very different results; I use Nino 3.4 in further analyses because it is known to correlate well to teleconnections in North America. Created by determine_enso_categories.R.
+* __ENSO_phases_byyear.csv__ The most common method seems to be using ONI data based on 3-month averages (https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php), and the year is nina if below -0.5 for 5 consecutive points (ASO-FMA). However this index only goes back to 1950. Nino3.4 and SOI indices go back to 1870; I defined a year as la nina if index is below -0.5 for 5 consecutive months Sept-March. SOI same definition. The two indices return very different results; I use Nino 3.4 in further analyses because it is known to correlate well to teleconnections in North America. Created by determine_enso_categories.R.
 
 * __PDO_phases_byyear.csv__ PDO phases (cool/warm) as determined by Mantua and Hare 2002 and Collins et al. 2020.
 
+* __smoothed_grass_gam.csv__ grass smoothed using GAM method. Created by GAMs_grass_pdo.R
+
+* __smoothed_pdo_gam.csv__ PDO index smoothed using GAM method. Created by GAMs_grass_pdo.R
 
 
 

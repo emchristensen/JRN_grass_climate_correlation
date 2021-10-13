@@ -1,14 +1,14 @@
 #' does total perennial grass cover differ by PDO phase?
 #' EMC 4/12/21
-#' last run: 8/20/21
+#' last run: 10/13/21
 
 library(dplyr)
 library(ggplot2)
 
 phases = read.csv('data/PDO_phases_byyear.csv')
-# these data files were created in JRN_quadrat_timeseries/trends/overall_grass_shrub_trends_interpolate.R
-veg = read.csv('data/grass_shrub_timeseries_imputed.csv') 
-yearlygrass = read.csv('data/grass_shrub_median_yearly.csv')
+
+veg = read.csv('data/grass_total_timeseries_imputed.csv') 
+yearlygrass = read.csv('data/grass_median_yearly.csv')
 
 # merge grass data w pdo data
 grass_pdo = merge(yearlygrass, phases, by.x='project_year', by.y='year')
@@ -63,21 +63,22 @@ summary(res.aov)
 
 # =============================================================
 # plot raw PDO index vs grass
-pdo_long = read.csv('data/PDO_long_1900_2020.csv')
+
 # get yearly average 
-pdo_yearly = pdo_long %>% group_by(year) %>% summarize(pdo_nolag = mean(pdo))
+climatevars = read.csv('data/climate_variables.csv') %>%
+  mutate(pdo_nolag = pdo)
 
 # shift pdo index to 1 and 2 year lag
-pdo_yearly$pdo1lag = c(NA,pdo_yearly$pdo_nolag[1:120])
-pdo_yearly$pdo2lag = c(NA,NA,pdo_yearly$pdo_nolag[1:119])
+climatevars$pdo1lag = c(NA,climatevars$pdo_nolag[1:105])
+climatevars$pdo2lag = c(NA,NA,climatevars$pdo_nolag[1:104])
 
 # look at the time series
-ggplot(pdo_yearly, aes(x=year, y=pdo_nolag)) +
+ggplot(climatevars, aes(x=water_yr, y=pdo_nolag)) +
   geom_point() +
   geom_line()
 
 # merge with grass
-pdo_index_grass = merge(pdo_yearly, grass_pdo, by.x='year', by.y='project_year')
+pdo_index_grass = merge(climatevars, grass_pdo, by.x='water_yr', by.y='project_year')
 # plot pdo index vs grass
 ggplot(pdo_index_grass, aes(x=pdo_nolag, y=median_grass)) +
   geom_point()
