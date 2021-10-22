@@ -11,8 +11,9 @@ library(ggplot2)
 library(MuMIn)
 
 # load data functions
-source('data_functions.R')
-
+#source('data_functions.R')
+# colors for figures
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # read in data
 #grass = read.csv('data/grass_shrub_trends_yearly.csv')
@@ -92,31 +93,31 @@ model_data = combined_data %>%
   dplyr::filter(year>=1916, year<1980)
 
 # models with single predictors
-model1 = lm(fitted_grass ~ pdo, data=model_data)
-model2 = lm(fitted_grass ~ pdo_phase, data=model_data)
-model3 = lm(fitted_grass ~ fitted_pdo, data=model_data)
-model4 = lm(fitted_grass ~ nino34, data=model_data)
-model5 = lm(fitted_grass ~ yearly_ppt_mm, data=model_data)
-model6 = lm(fitted_grass ~ winter_ppt_mm, data=model_data)
-model7 = lm(fitted_grass ~ summer_ppt_mm, data=model_data)
-model8 = lm(fitted_grass ~ pdsi, data=model_data)
-model9 = lm(fitted_grass ~ spei, data=model_data)
-model10 = lm(fitted_grass ~ mean_temp, data=model_data)
-model11 = lm(fitted_grass ~ category_nino34, data=model_data)
+model1 = lm(smoothed_grass ~ pdo, data=model_data)
+model2 = lm(smoothed_grass ~ pdo_phase, data=model_data)
+model3 = lm(smoothed_grass ~ smoothed_pdo, data=model_data)
+model4 = lm(smoothed_grass ~ nino34, data=model_data)
+model5 = lm(smoothed_grass ~ yearly_ppt_mm, data=model_data)
+model6 = lm(smoothed_grass ~ winter_ppt_mm, data=model_data)
+model7 = lm(smoothed_grass ~ summer_ppt_mm, data=model_data)
+model8 = lm(smoothed_grass ~ pdsi, data=model_data)
+model9 = lm(smoothed_grass ~ spei, data=model_data)
+model10 = lm(smoothed_grass ~ mean_temp, data=model_data)
+model11 = lm(smoothed_grass ~ category_nino34, data=model_data)
 
 # models with two predictors
-model12 = lm(fitted_grass ~ fitted_pdo + yearly_ppt_mm, data=model_data)
-model13 = lm(fitted_grass ~ fitted_pdo + winter_ppt_mm, data=model_data)
-model14 = lm(fitted_grass ~ fitted_pdo + summer_ppt_mm, data=model_data)
-model15 = lm(fitted_grass ~ fitted_pdo + nino34, data=model_data)
-model16 = lm(fitted_grass ~ fitted_pdo + pdsi, data=model_data)
-model17 = lm(fitted_grass ~ fitted_pdo + spei, data=model_data)
-model18 = lm(fitted_grass ~ fitted_pdo + mean_temp, data=model_data)
+model12 = lm(smoothed_grass ~ smoothed_pdo + yearly_ppt_mm, data=model_data)
+model13 = lm(smoothed_grass ~ smoothed_pdo + winter_ppt_mm, data=model_data)
+model14 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm, data=model_data)
+model15 = lm(smoothed_grass ~ smoothed_pdo + nino34, data=model_data)
+model16 = lm(smoothed_grass ~ smoothed_pdo + pdsi, data=model_data)
+model17 = lm(smoothed_grass ~ smoothed_pdo + spei, data=model_data)
+model18 = lm(smoothed_grass ~ smoothed_pdo + mean_temp, data=model_data)
 
 # models with more predictors
-model19 = lm(fitted_grass ~ fitted_pdo + summer_ppt_mm + nino34, data=model_data)
-model20 = lm(fitted_grass ~ fitted_pdo + summer_ppt_mm + yearly_ppt_mm, data=model_data)
-model21 = lm(fitted_grass ~ fitted_pdo + summer_ppt_mm + spei, data=model_data)
+model19 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + nino34, data=model_data)
+model20 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + yearly_ppt_mm, data=model_data)
+model21 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + spei, data=model_data)
 
 
 # create table with aic and rsquared
@@ -138,13 +139,39 @@ write.csv(arrange(aictable, deltaAICc), 'results_aic_table.csv', row.names=F)
 
 There are several models almost tied for best AICc. The simplest of these has only pdo_smooth as a predictor. 
 
+```{r plot model}
+# plot results of best model
+bestmodel <- model3
+
+#coeff <- 0.04319
+coeff <- bestmodel$coefficients[2]
+#intercept <- 0.039939
+intercept <- bestmodel$coefficients[1]
+
+grass_pdo_plot = ggplot(data=model_data, aes(x=year)) +
+  geom_line(aes(y=smoothed_grass, color='Grass'), size=1.5) +
+  geom_line(aes(y=(smoothed_pdo*coeff)+intercept, color='PDO'), size=1.5) +
+  scale_y_continuous(
+    name='Grass cover',
+    sec.axis = sec_axis(~(.-intercept)/coeff, name='PDO index')
+  ) +
+  theme_bw() +
+  scale_color_manual(name='',values=cbPalette[c(7,3)]) +
+  theme(axis.title.y.left = element_text(color=cbPalette[7], face='bold'),
+        axis.title.y.right = element_text(color=cbPalette[3], face='bold')) +
+  xlab('') 
+grass_pdo_plot
+
+#ggsave('Figures/grass_pdo_smoothed_GAM.png', plot=grass_pdo_plot, height=3, width=5)
+```
+
 ## Predictions from model
 
 ```{r model predict}
 # prediction based on best model
 newdata = dplyr::filter(combined_data, year>1916) %>%
-  dplyr::select(year, fitted_pdo)
-predicted_grass = predict.lm(model3, newdata, interval='prediction') %>% as.data.frame()
+  dplyr::select(year, smoothed_pdo)
+predicted_grass = predict.lm(bestmodel, newdata, interval='prediction') %>% as.data.frame()
 
 modelprediction = data.frame(predicted_grass=predicted_grass$fit,
          lower=predicted_grass$lwr,
