@@ -27,7 +27,8 @@ nino_factor = read.csv('data/ENSO_phases_byyear.csv')
 
 # read in smoothed vars
 smoothgrass = read.csv('data/smoothed_grass_gam.csv')
-smoothpdo = read.csv('data/smoothed_pdo_gam.csv')
+#smoothpdo = read.csv('data/smoothed_pdo_gam.csv')
+smoothclimate = read.csv('data/smoothed_climate_variables.csv')
 
 # # convert monthly indices to yearly
 # pdo_yearly = pdoindex %>% group_by(year) %>%
@@ -64,9 +65,10 @@ combined_data = merge(grass, smoothgrass, all=T) %>%
   merge(pdo_factor, by.x='project_year', by.y='year', all=T) %>%
   merge(nino_factor, by.x='project_year', by.y='year', all=T) %>%
   merge(pptdat, by.x='project_year', by.y='water_yr', all=T) %>%
-  merge(smoothpdo, by.x='project_year', by.y='year', all=T) %>%
-  rename(year=project_year, pdo=pdo.x)%>%
-  dplyr::select(-pdo.y, -category_soi)
+  merge(smoothclimate, by.x='project_year', by.y='year', all=T) %>%
+  rename(year=project_year)
+  #rename(year=project_year, pdo=pdo.x)%>%
+  #dplyr::select(-pdo.y, -category_soi)
 ```
 
 ## Timeseries cross-correlation
@@ -97,12 +99,19 @@ model1 = lm(smoothed_grass ~ pdo, data=model_data)
 model2 = lm(smoothed_grass ~ pdo_phase, data=model_data)
 model3 = lm(smoothed_grass ~ smoothed_pdo, data=model_data)
 model4 = lm(smoothed_grass ~ nino34, data=model_data)
+model4s = lm(smoothed_grass ~ smoothed_nino, data=model_data)
 model5 = lm(smoothed_grass ~ yearly_ppt_mm, data=model_data)
+model5s = lm(smoothed_grass ~ smoothed_yearlyppt, data=model_data)
 model6 = lm(smoothed_grass ~ winter_ppt_mm, data=model_data)
+model6s = lm(smoothed_grass ~ smoothed_winterppt, data=model_data)
 model7 = lm(smoothed_grass ~ summer_ppt_mm, data=model_data)
+model7s = lm(smoothed_grass ~ smoothed_summerppt, data=model_data)
 model8 = lm(smoothed_grass ~ pdsi, data=model_data)
+model8s = lm(smoothed_grass ~ smoothed_pdsi, data=model_data)
 model9 = lm(smoothed_grass ~ spei, data=model_data)
+model9s = lm(smoothed_grass ~ smoothed_spei, data=model_data)
 model10 = lm(smoothed_grass ~ mean_temp, data=model_data)
+model10s = lm(smoothed_grass ~ smoothed_temp, data=model_data)
 model11 = lm(smoothed_grass ~ category_nino34, data=model_data)
 
 # models with two predictors
@@ -122,7 +131,8 @@ model21 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + spei, data=model_da
 
 # create table with aic and rsquared
 modellist = list(model1, model2, model3, model4, model5, model6, model7, model8, model9, model10, model11, model12, model13, model14,
-                 model15, model16, model17, model18, model19, model20, model21)
+                 model15, model16, model17, model18, model19, model20, model21,
+                 model4s, model5s, model6s, model7s, model8s, model9s, model10s)
 aictable = c()
 for (m in 1:length(modellist)) {
   model=modellist[[m]]
