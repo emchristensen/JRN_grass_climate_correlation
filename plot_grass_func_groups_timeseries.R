@@ -38,7 +38,7 @@ pdophases = data.frame(project_year = 1915:1979,
 ts1 = dplyr::filter(yearly_mean_groups, project_year<1995)
 ts2 = dplyr::filter(yearly_mean_groups, project_year>=1995)
 grassgroups <- ggplot(ts1, aes(x=project_year)) +
-  geom_area(aes(y=sum_cover, fill=functional_group)) +
+  geom_area(aes(y=sum_cover, fill=functional_group), position=position_stack(reverse=T)) +
   xlim(1915,1980) +
   geom_point(data=pdophases, aes(x=project_year, y=yint, color = pdo_phase), size=2, shape=15) +
   labs(x = '',
@@ -48,7 +48,7 @@ grassgroups <- ggplot(ts1, aes(x=project_year)) +
        title='Grass functional groups through time') +
   #  ylim(0,.2) +
   scale_color_manual(values=c('blue','red')) +
-  scale_fill_manual(values=cbPalette, labels=c('Dominant species','Non-dominant\n species')) +
+  scale_fill_manual(values=cbPalette, breaks=c('non-dominant','dominant'),labels=c('Non-dominant\n species','Dominant species')) +
   theme_bw()
 grassgroups
 ggsave('Figures/grass_func_groups_timeseries.png', plot=grassgroups, width=6, height=4)
@@ -80,12 +80,19 @@ relative_cover = merge(grassgroupspdo_mean, totalbyyear) %>%
 
 relative_cover_byphase = relative_cover %>%
   group_by(pdo_phase, functional_group) %>%
-  summarize(mean_rel_cover = mean(rel_cover))
+  summarize(mean_rel_cover = mean(rel_cover), 
+            min=min(rel_cover),
+            max=max(rel_cover))
 
+# what is the average dominant relative cover pre-1957 and after 1957
+relative_cover %>% dplyr::filter(project_year<1957, functional_group=='dominant') %>% 
+  summarize(meanrel = mean(rel_cover), min=min(rel_cover), max=max(rel_cover))
+relative_cover %>% dplyr::filter(project_year>1957, functional_group=='dominant') %>%
+  summarize(meanrel=mean(rel_cover), min=min(rel_cover), max=max(rel_cover))
 
 
 grassgroups_relative <- ggplot(relative_cover, aes(x=project_year)) +
-  geom_area(aes(y=rel_cover, fill=functional_group)) +
+  geom_area(aes(y=rel_cover, fill=functional_group), position=position_stack(reverse=T)) +
   xlim(1915,1980) +
   geom_point(data=pdophases, aes(x=project_year, y=yint, color = pdo_phase), size=2, shape=15) +
   labs(x = '',
@@ -95,7 +102,7 @@ grassgroups_relative <- ggplot(relative_cover, aes(x=project_year)) +
        title='Grass functional groups') +
   #  ylim(0,.2) +
   scale_color_manual(values=c('blue','red')) +
-  scale_fill_manual(values=cbPalette, labels=c('Dominant species','Non-dominant\n species')) +
+  scale_fill_manual(values=cbPalette, breaks=c('non-dominant','dominant'),labels=c('Non-dominant\n species','Dominant species')) +
   theme_bw()
 grassgroups_relative
 ggsave('Figures/grass_func_groups_timeseries_relative_cover.png', plot=grassgroups_relative, width=6, height=4)
