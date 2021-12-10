@@ -1,7 +1,7 @@
 #' plot grass species groupings timeseries
 #' 
 #' EMC 5/14/21
-#' last update: 10/7/21
+#' last update: 12/10/21
 
 library(dplyr)
 library(ggplot2)
@@ -43,15 +43,15 @@ grassgroups <- ggplot(ts1, aes(x=project_year)) +
   geom_point(data=pdophases, aes(x=project_year, y=yint, color = pdo_phase), size=2, shape=15) +
   labs(x = '',
        y='Total cover (m^2)',
-       fill='Species',
+       fill='Species Group',
        color='PDO phase',
        title='Grass functional groups through time') +
   #  ylim(0,.2) +
   scale_color_manual(values=c('blue','red')) +
-  scale_fill_manual(values=cbPalette, labels=c('Climax species','Early successional\n species','Seral species')) +
+  scale_fill_manual(values=cbPalette, labels=c('Dominant species','Non-dominant\n species')) +
   theme_bw()
 grassgroups
-#ggsave('Figures/grass_func_groups_timeseries.png', plot=grassgroups, width=6, height=4)
+ggsave('Figures/grass_func_groups_timeseries.png', plot=grassgroups, width=6, height=4)
 
 
 # =============================================================
@@ -59,30 +59,61 @@ grassgroups
 
 #pdo = read.csv('data/PDO_phases_byyear.csv')
 
-pdophases = data.frame(year = 1916:1976,
+pdophases_df = data.frame(year = 1916:1976,
                        pdo_phase = c(rep('Cool PDO \n1916-1924',9),
                                      rep('Warm PDO \n1925-1946',22),
                                      rep('Cool PDO \n1947-1976',30)))
 
-grassgroupspdo =merge(yearly_grass_groups, pdophases, by.x='project_year', by.y='year')
+grassgroupspdo =merge(yearly_grass_groups, pdophases_df, by.x='project_year', by.y='year')
 
 grassgroupspdo_mean = grassgroupspdo %>%
-  group_by(pdo_phase, functional_group) %>%
+  group_by(pdo_phase, project_year, functional_group) %>%
   summarize(mean_cover=mean(cover))
 
-# reorder factors
-grassgroupspdo_mean$pdo_phase = factor(grassgroupspdo_mean$pdo_phase, levels=c('Cool PDO \n1916-1924','Warm PDO \n1925-1946','Cool PDO \n1947-1976'))
-grassgroupspdo_mean$functional_group = factor(grassgroupspdo_mean$functional_group, levels=c('climax','seral','early'))
+# get relative proportion of dominant/nondominant in each phase
+totalbyyear = grassgroupspdo_mean %>%
+  group_by(pdo_phase, project_year) %>%
+  summarize(totalcover = sum(mean_cover))
 
-fungroupbox = ggplot(grassgroupspdo_mean, aes(x=pdo_phase, y=mean_cover, fill=functional_group)) +
-  geom_bar(position='stack', stat='identity') +
-  scale_fill_manual(values=cbPalette, labels=c('Climax','Seral','Early \nsuccessional'), name='Functional Group') +
-  xlab('') +
-  ylab('mean cover (m^2)') +
-  theme_bw() 
-fungroupbox
+relative_cover = merge(grassgroupspdo_mean, totalbyyear) %>%
+  mutate(rel_cover =mean_cover/totalcover)
 
-ggsave('Figures/species_func_groups_byphase.png', plot=fungroupbox, width=5, height=3)
+relative_cover_byphase = relative_cover %>%
+  group_by(pdo_phase, functional_group) %>%
+  summarize(mean_rel_cover = mean(rel_cover))
+
+
+
+grassgroups_relative <- ggplot(relative_cover, aes(x=project_year)) +
+  geom_area(aes(y=rel_cover, fill=functional_group)) +
+  xlim(1915,1980) +
+  geom_point(data=pdophases, aes(x=project_year, y=yint, color = pdo_phase), size=2, shape=15) +
+  labs(x = '',
+       y='Relative cover',
+       fill='Species Group',
+       color='PDO phase',
+       title='Grass functional groups') +
+  #  ylim(0,.2) +
+  scale_color_manual(values=c('blue','red')) +
+  scale_fill_manual(values=cbPalette, labels=c('Dominant species','Non-dominant\n species')) +
+  theme_bw()
+grassgroups_relative
+ggsave('Figures/grass_func_groups_timeseries_relative_cover.png', plot=grassgroups_relative, width=6, height=4)
+
+
+# # reorder factors
+# grassgroupspdo_mean$pdo_phase = factor(grassgroupspdo_mean$pdo_phase, levels=c('Cool PDO \n1916-1924','Warm PDO \n1925-1946','Cool PDO \n1947-1976'))
+# grassgroupspdo_mean$functional_group = factor(grassgroupspdo_mean$functional_group, levels=c('climax','seral','early'))
+# 
+# fungroupbox = ggplot(grassgroupspdo_mean, aes(x=pdo_phase, y=mean_cover, fill=functional_group)) +
+#   geom_bar(position='stack', stat='identity') +
+#   scale_fill_manual(values=cbPalette, labels=c('Climax','Seral','Early \nsuccessional'), name='Functional Group') +
+#   xlab('') +
+#   ylab('mean cover (m^2)') +
+#   theme_bw() 
+# fungroupbox
+# 
+# ggsave('Figures/species_func_groups_byphase.png', plot=fungroupbox, width=5, height=3)
 
 # old version
 # # =======================================================================
