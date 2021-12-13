@@ -6,7 +6,7 @@
 library(dplyr)
 library(ggplot2)
 
-soil = read.csv('data/knb-lter-jrn.210013003.16/JRNStudy013_npp_soil_water_content_calc.csv')
+soil = read.csv('data/soil water content/JRNStudy013_npp_soil_water_content_calc.csv')
 pdo = read.csv('data/PDO_phases_byyear.csv')
 
 # site closest to quadrats is IBPE
