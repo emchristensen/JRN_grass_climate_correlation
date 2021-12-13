@@ -59,9 +59,9 @@ Files:
 
 * __PDO_phases_byyear.csv__ PDO phases (cool/warm) as determined by Mantua and Hare 2002 and Collins et al. 2020.
 
-* __smoothed_grass_gam.csv__ grass smoothed using GAM method. Created by GAMs_grass_pdo.R
+* __smoothed_climate_variables.csv__ PDO index and other climate variables smoothed using GAM method. Created by GAMs_grass_pdo.R
 
-* __smoothed_pdo_gam.csv__ PDO index smoothed using GAM method. Created by GAMs_grass_pdo.R
+* __smoothed_grass_gam.csv__ grass smoothed using GAM method. Created by GAMs_grass_pdo.R
 
 
 
