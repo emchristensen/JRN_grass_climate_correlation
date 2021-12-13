@@ -7,7 +7,7 @@
 #' Temp 1914-2012 from Berkeley Earth project; 2012-2020 from NOAA
 #' Gaps in monthly data filled by PRISM
 # EMC
-# last run: 10/6/21
+# last run: 12/13/21
 
 library(dplyr)
 library(lubridate)
@@ -20,7 +20,6 @@ pdsi = read.csv('data/raw_climate_data/PDSI_DonaAna_1895_2021.csv')
 pdo = read.csv('data/raw_climate_data/PDO_long_1900_2020.csv')
 
 # read in Nino 3.4 index
-#soi = read.csv('data/SOI_long_1866_2020.csv')
 nino34 = read.csv('data/raw_climate_data/Nino34_long_1870_2020.csv')
 
 # read in PRISM data

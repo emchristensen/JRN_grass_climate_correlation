@@ -4,6 +4,7 @@
 #' Neutral: doesn't fit above criteria
 #' 
 #' EMC 10/13/21
+#' last update: 12/13/21
 
 library(dplyr)
 
@@ -40,39 +41,9 @@ ensocategories$category_nino34[ensocategories$nino==T & ensocategories$nina==F] 
 ensocategories$category_nino34[ensocategories$nino==F & ensocategories$nina==T] <- 'nina'
 ensocategories$category_nino34[ensocategories$nino==F & ensocategories$nina==F] <- 'neutral'
 
-
-# SOI index ----
-soi = read.csv('data/SOI_long_1866_2020.csv')
-
-# adjust year for fall, filter important months
-soi_long <- dplyr::filter(soi, month %in% c(1,2,3,9,10,11,12)) 
-soi_long$year[soi_long$month %in% c(9,10,11,12)] <- soi_long$year[soi_long$month %in% c(9,10,11,12)] +1
-
-# loop through years and determine if it meets the criteria for nino/nina
-soicategories = c()
-for (selected_year in unique(soi_long$year)) {
-  yearindex = dplyr::filter(soi_long, year==selected_year)
-  
-  # get number of months of consecutive nino or nina conditions
-  yearindex$ninomonth = yearindex$soi < -.5
-  yearindex$ninamonth = yearindex$soi > .5
-  consecutivenina = rle(yearindex$ninamonth)$lengths[rle(yearindex$ninamonth)$values==T]
-  consecutivenino = rle(yearindex$ninomonth)$lengths[rle(yearindex$ninomonth)$values==T]
-  
-  if (max(consecutivenina)>=5) {nina=T} else {nina=F}
-  if (max(consecutivenino)>=5) {nino=T} else {nino=F}
-  soicategories = rbind(soicategories, data.frame(year=selected_year, nino=nino, nina=nina))
-}
-
-# designate years as el nino, la nina, or neutral
-soicategories$category_soi = NA
-soicategories$category_soi[soicategories$nino==T & soicategories$nina==F] <- 'nino'
-soicategories$category_soi[soicategories$nino==F & soicategories$nina==T] <- 'nina'
-soicategories$category_soi[soicategories$nino==F & soicategories$nina==F] <- 'neutral'
-
-
 # write to csv ----
-finalenso = merge(ensocategories, soicategories, by='year', all=T) %>%
-  dplyr::select(year, category_nino34, category_soi) %>% arrange(year)
+finalenso = ensocategories %>%
+  dplyr::select(year, category_nino34) %>% arrange(year)
 
 write.csv(finalenso, 'data/ENSO_phases_byyear.csv', row.names=F)
+

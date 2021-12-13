@@ -37,7 +37,9 @@ Files:
 
 * __raw_climate_data/JRN_379001_NOAA_JER_HQ_daily_climate_data.csv__ raw data file from which precip 2014-2017 is taken. Downloaded from https://portal.edirepository.org/nis/mapbrowse?scope=knb-lter-jrn&identifier=210379001
 
-* __raw_climate_data/Nino34_long_1870_2020.csv__ Nino 3.4 index monthly. Downloaded from https://psl.noaa.gov/enso/dashboard.lanina.html and converted to long format.
+* __raw_climate_data/Nino34_1870_2020.csv__ Nino 3.4 index monthly. Downloaded from https://psl.noaa.gov/enso/dashboard.lanina.html
+
+* __raw_climate_data/Nino34_long_1870_2020.csv__ Nino 3.4 index monthly. Same as above, converted to long format.
 
 * __raw_climate_data/NOAA_Jornada_precip_downloaded20210809.csv__ raw data file from which precip 2017-2020 is taken. Downloaded from https://www.ncdc.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND:USC00294426/detail 
 
@@ -53,7 +55,7 @@ Files:
 
 * __climate_variables_monthly.csv__ monthly ppt, mean temp, spei, pdsi, nino34, pdo.
 
-* __ENSO_phases_byyear.csv__ The most common method for tracking ENSO seems to be using ONI data based on 3-month averages (https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php), and the year is nina if below -0.5 for 5 consecutive points (ASO-FMA). However this index only goes back to 1950. Nino3.4 and SOI indices go back to 1870; I defined a year as la nina if index is below -0.5 for 5 consecutive months Sept-March. SOI same definition. The two indices return very different results; I use Nino 3.4 in further analyses because it is known to correlate well to teleconnections in North America. Created by determine_enso_categories.R.
+* __ENSO_phases_byyear.csv__ The most common method for tracking ENSO seems to be using ONI data based on 3-month averages (https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php), and the year is nina if below -0.5 for 5 consecutive points (ASO-FMA). However this index only goes back to 1950. Nino3.4 index go back to 1870; I defined a year as la nina if index is below -0.5 for 5 consecutive months Sept-March. I chose Nino 3.4 to use in analyses because it is known to correlate well to teleconnections in North America. Created by determine_enso_categories.R.
 
 * __PDO_phases_byyear.csv__ PDO phases (cool/warm) as determined by Mantua and Hare 2002 and Collins et al. 2020.
 
