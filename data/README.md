@@ -13,11 +13,9 @@ __process_raw_plant_data.R__ takes raw data and prepares for analyses. Imputes d
 
 * __grass_median_yearly.csv__ Yearly median total grass cover over 31 quadrats
 
-Other grass data:
+Functional groups:
 
- * __JRN_011002_npp_quadrat_meas.csv__ data from the NPP quadrats (different study). Huge data set.
-
- * __grass_species_functional_grouping.csv__ categorizes each grass species in data set as climax, early successional, or seral. Classification based on traits in USDA PLANTS database and expert opinion of Jornada scientists.
+ * __grass_species_functional_grouping.csv__ categorizes each grass species in data set as dominant or non-dominant. Classification based on traits in USDA PLANTS database and expert opinion of Jornada scientists.
 
 ## Climate data
 Precipitation data 1914-2017 comes from the Jornada Headquarters data stream (Wooton et al 2020). More recent data (2017-2021) were downloaded from NOAA. The Jornada data and NOAA data are from the same station, but there may be data entry errors in the NOAA data prior to 2007 (Darren Jams, pers. comm.). Recent data (2017-2021) not needed for final version of paper. 
@@ -49,7 +47,7 @@ Files:
 
 * __raw_climate_data/Nino34_long_1870_2020.csv__ Nino 3.4 index monthly. Downloaded from https://psl.noaa.gov/enso/dashboard.lanina.html and converted to long format.
 
-* __climate_variables.csv__ yearly pdo, nino34, pdsi, spei, mean temp, total ppt, summer ppt, winter ppt. Summer = May-Sept, Winter = Oct-April (e.g. winter 1923 is the sum of precip from Oct 1922 - April 1923), Yearly = Jan-Dec. Number of missing data days (precip) or months (temperature) are included. File created by get_climate_data.R
+* __climate_variables.csv__ yearly pdo, nino34, pdsi, spei, mean temp, total ppt, summer ppt, winter ppt. Summer = May-Sept, Winter = Oct-April (e.g. winter 1923 is the sum of precip from Oct 1922 - April 1923), Yearly = October to following September for all variables (sum for precip, average for everything else). File created by get_climate_data.R
 
 * __climate_variables_monthly.csv__ monthly ppt, mean temp, spei, pdsi, nino34, pdo.
 
