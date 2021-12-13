@@ -1,5 +1,6 @@
 #' look at smoothed grass timeseries
 #' EMC 9/8/21
+#' last run: 12/13/21
 
 library(dplyr)
 library(ggplot2)
@@ -38,7 +39,7 @@ grassgam = ggplot(grass_hist, aes(x=project_year, y=grass)) +
   theme_bw()
 grassgam
 
-#ggsave('Figures/grass_smoothed_gam.png', plot=grassgam, width=4, height=3)
+ggsave('Figures/grass_smoothed_gam.png', plot=grassgam, width=4, height=3)
 
 smoothedgrass = merge(modeloutput, grass) %>% rename(smoothed_grass = fitted_grass)
 write.csv(smoothedgrass,'data/smoothed_grass_gam.csv', row.names = F)
@@ -47,7 +48,6 @@ write.csv(smoothedgrass,'data/smoothed_grass_gam.csv', row.names = F)
 # smooth pdo
 pdoindex = climate_variables %>%
   dplyr::select(year=water_yr, pdo)
-#pdoindex$pdo_norm = normalize(pdoindex$pdo)
 
 # smooth pdo with a gam
 y1 = pdoindex$pdo
@@ -69,7 +69,7 @@ pdogam
 
 
 smoothedpdo = merge(modeloutput_pdo, pdoindex) 
-write.csv(smoothedpdo,'data/smoothed_pdo_gam.csv', row.names=F)
+#write.csv(smoothedpdo,'data/smoothed_pdo_gam.csv', row.names=F)
 
 # =================================================
 # smooth enso
@@ -223,24 +223,4 @@ smoothed_climate_vars = merge(modeloutput_pdo, modeloutput_nino) %>%
   merge(modeloutput_winterppt)
 
 write.csv(smoothed_climate_vars, 'data/smoothed_climate_variables.csv', row.names = F)
-
-# ==================================================================
-# plot both together ----
-# coeff and intercept from best model in grass_pdo_model_selection.Rmd
-coeff <- 0.04319
-intercept <- 0.039939
-
-grass_pdo_plot = ggplot() +
-  geom_line(data=modeloutput, aes(x=project_year, y=fitted_grass, color='Grass')) +
-  geom_line(data=modeloutput_pdo, aes(x=year, y=(fitted_pdo*coeff)+intercept, color='PDO')) +
-  scale_y_continuous(
-    name='Grass cover',
-    sec.axis = sec_axis(~(.-intercept)/coeff, name='PDO index')
-  ) +
-  theme_bw() +
-  scale_color_manual(values=cbPalette[c(1,3)]) +
-  xlab('')
-grass_pdo_plot
-
-ggsave('Figures/grass_pdo_smoothed_GAM.png', plot=grass_pdo_plot, height=4, width=5)
 
