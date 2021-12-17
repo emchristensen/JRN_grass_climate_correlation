@@ -6,8 +6,11 @@
 #' Precip 1914-2017 from EDI Portal; 2017-2020 from NOAA
 #' Temp 1914-2012 from Berkeley Earth project; 2012-2020 from NOAA
 #' Gaps in monthly data filled by PRISM
+#' 
+#' Weather station at JRN began in June 1914, so data 1900-1914 filled by PRISM
+#' 
 # EMC
-# last run: 12/13/21
+# last run: 12/16/21
 
 library(dplyr)
 library(lubridate)
@@ -112,7 +115,7 @@ temp = rbind(temp1, temp2)
 
 # combine monthly files and in-fill with prism where NA
 monthlyclimate = merge(monthlyppt, temp, all=T) %>%
-  merge(prism, all.x=T) %>%
+  merge(prism, all=T) %>%
   mutate(ppt_mm = monthly_ppt_mm,
          tmean_c = monthly_tmean_c)
 
@@ -135,7 +138,6 @@ monthlyfinal = monthlyclimate %>%
   merge(pdsi) %>%
   merge(pdo) %>%
   merge(nino34) %>%
-  dplyr::filter(year>=1915, year<=2020) %>%
   dplyr::select(year, month, ppt_mm, tmean_c, spei1, pdsi, nino34_index, pdo)
 
 
@@ -171,7 +173,8 @@ yearlyclimate = monthlyfinal %>%
             mean_temp=mean(tmean_c),
             yearly_ppt_mm = sum(ppt_mm)) %>%
   merge(summerppt) %>%
-  merge(winterppt)
+  merge(winterppt) %>%
+  dplyr::filter(water_yr>=1901)
 
 
 write.csv(yearlyclimate, 'data/climate_variables.csv', row.names=F)

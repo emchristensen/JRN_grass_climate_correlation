@@ -1,6 +1,6 @@
 #' look at smoothed grass timeseries
 #' EMC 9/8/21
-#' last run: 12/13/21
+#' last run: 12/16/21
 
 library(dplyr)
 library(ggplot2)
