@@ -150,11 +150,47 @@ summary(sev.aov)
 # significantly different: p = 0.012
 sev_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(pct_cover))
 
+
+# ==========================================================
+# santa rita
+# for this data set, I treated the quadrats like the JRN quads: chose quads with most complete sampling record and imputed missing years, then took avg
+sr_dat = read.csv('other data sets/santa rita/santa_rita_timeseries_imputed.csv')
+
+# plot timeseries
+sr_figure = ggplot(sr_dat, aes(x=year, y=mean_cover)) +
+  geom_point() +
+  geom_line() +
+  xlab('') +
+  ylab('Percent cover') +
+  ggtitle('Santa Rita') +
+  geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
+  scale_color_manual(values=c('blue','red')) +
+  coord_cartesian(xlim=c(1916,1933)) +
+  theme_bw()
+sr_figure
+
+# boxplot: significant difference between phases?
+sr_pdo = merge(sr_dat, pdo, all.x=T)
+srbox = ggplot(sr_pdo, aes(x=pdo_phase, y=mean_cover)) +
+  geom_boxplot(na.rm=T) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T)+
+  ylab('Percent cover') +
+  ggtitle('Santa Rita') +
+  xlab('') +
+  theme_bw()
+srbox
+
+# is there a significant difference? aov
+sr.aov <- aov(mean_cover ~ pdo_phase, data=sr_pdo)
+summary(sr.aov)
+# not significantly different
+sr_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(mean_cover))
+
 # ===========================================================
 # combine into multi-part figures
  
-timeseries_plots = ggpubr::ggarrange(npp_figure, cdrrc_figure, sev_figure, nrow=1, common.legend = T, legend='bottom')
-box_plots = ggpubr::ggarrange(nppbox, cdrrcbox, sevbox, nrow=1)
+timeseries_plots = ggpubr::ggarrange(npp_figure, cdrrc_figure, sev_figure, sr_figure, nrow=1, common.legend = T, legend='bottom')
+box_plots = ggpubr::ggarrange(nppbox, cdrrcbox, sevbox, srbox, nrow=1)
 
-ggsave('Figures/other_data_timeseries.png', plot=timeseries_plots, width=6.5, height=3)
-ggsave('Figures/other_data_boxplots.png', plot=box_plots, width=6.5, height=3)
+ggsave('Figures/other_data_timeseries.png', plot=timeseries_plots, width=7.5, height=3)
+ggsave('Figures/other_data_boxplots.png', plot=box_plots, width=7.5, height=3)
