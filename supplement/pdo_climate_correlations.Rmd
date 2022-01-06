@@ -1,0 +1,128 @@
+---
+title: "PDO climate correlations"
+author: "Erica Christensen"
+date: "10/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+
+pdo_phases = read.csv('data/PDO_phases_byyear.csv')
+climate = read.csv('data/climate_variables.csv')
+
+
+alldata = merge(pdo_phases, climate, by.x='year', by.y='water_yr', all=T) %>%
+  dplyr::filter(year>=1915, year<=2020)
+
+```
+
+## Correlation between PDO phase and precip, SPEI
+
+There are predicted to be differences in precipitation patterns when the PDO is in a warm vs. cool phase.
+
+```{r yearly precip, echo=F}
+plotdata = dplyr::filter(alldata, !is.na(pdo_phase))
+
+yearly = ggplot(plotdata, aes(x=pdo_phase, y=yearly_ppt_mm)) +
+  geom_boxplot(na.rm=T) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T) +
+  ylab('Yearly ppt (mm)') +
+  xlab('') +
+  theme_bw()
+summer = ggplot(plotdata, aes(x=pdo_phase, y=summer_ppt_mm)) +
+  geom_boxplot(na.rm=T) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T) +
+  ylab('Summer ppt (mm)') +
+  xlab('') +
+  theme_bw()
+winter = ggplot(plotdata, aes(x=pdo_phase, y=winter_ppt_mm)) +
+  geom_boxplot(na.rm=T) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T) +
+  ylab('Winter ppt (mm)') +
+  xlab('') +
+  theme_bw()
+speiplot = ggplot(plotdata, aes(x=pdo_phase, y=spei)) +
+  geom_boxplot(na.rm=T) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T)+
+  ylab('SPEI') +
+  xlab('') +
+  theme_bw()
+pdsiplot = ggplot(plotdata, aes(x=pdo_phase, y=pdsi)) +
+  geom_boxplot(na.rm=T) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T)+
+  ylab('PDSI') +
+  xlab('') +
+  theme_bw()
+meantemp = ggplot(plotdata, aes(x=pdo_phase, y=mean_temp)) +
+  geom_boxplot(na.rm=T) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T)+
+  ylab('Mean temp (C)') +
+  xlab('') +
+  theme_bw()
+
+# get summary statistics of warm and cool
+summary(dplyr::filter(plotdata, pdo_phase=='warm'))
+summary(dplyr::filter(plotdata, pdo_phase=='cool'))
+
+gridExtra::grid.arrange(yearly, summer, winter, speiplot, pdsiplot, meantemp, nrow=2)
+```
+
+Are the differences significant?
+
+```{r significance, echo=T}
+# anova of grass cover by phase
+yearly.aov <- aov(yearly_ppt_mm ~ pdo_phase, data=plotdata)
+summary(yearly.aov)
+summer.aov <- aov(summer_ppt_mm ~ pdo_phase, data=plotdata)
+summary(summer.aov)
+winter.aov <- aov(winter_ppt_mm ~ pdo_phase, data=plotdata)
+summary(winter.aov)
+spei.aov <- aov(spei ~ pdo_phase, data=plotdata)
+summary(spei.aov)
+pdsi.aov <- aov(pdsi ~ pdo_phase, data=plotdata)
+summary(pdsi.aov)
+temp.aov <- aov(mean_temp ~ pdo_phase, data=plotdata)
+summary(temp.aov)
+```
+
+The differences are significant for yearly, summer, and winter precip. 
+
+
+```{r pdo-ppt, echo=F}
+# code from Darren 8/18/21
+library(emmeans)
+ggplot(plotdata, aes(x = pdo, y = yearly_ppt_mm, col = pdo_phase)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_point()
+
+# Run linear regression
+ppt.interaction <- lm(yearly_ppt_mm ~ pdo*pdo_phase, data = plotdata)
+
+anova(ppt.interaction) # Check pdo_index:pdo_phase effect for the test of different slopes
+
+# Obtain slopes
+ppt.emmeans <- emtrends(ppt.interaction, "pdo_phase", var="pdo")
+
+# Compare slopes -- look at yearly_pdo:pdo_phase interaction term
+pairs(ppt.emmeans)
+
+```
+
+The interaction term is not significant, p=0.36
+
+```{r y-intercept, echo=F}
+# code from Darren 8/19/21
+library(emmeans)
+ggplot(plotdata, aes(x = pdo, y = yearly_ppt_mm, col = pdo_phase)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_point()
+
+ppt.interaction <- lm(yearly_ppt_mm ~ pdo*pdo_phase, data = plotdata)
+ppt.intercept <- emmeans::emmeans(ppt.interaction, "pdo_phase", at = list(pdo_index = 0))
+pairs(ppt.intercept)
+```
+
+The difference in y-intercept is not significant, p=0.23
+

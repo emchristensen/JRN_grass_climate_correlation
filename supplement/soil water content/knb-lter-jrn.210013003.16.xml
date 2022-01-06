@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml packageId="knb-lter-jrn.210013003.16"
+  system="https://pasta.edirepository.org"
+  xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0"
+  xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1  http://nis.lternet.edu/schemas/EML/eml-2.1.1/eml.xsd">
+  <access authSystem="https://pasta.edirepository.org/authentication"
+    order="allowFirst" scope="document" system="https://pasta.edirepository.org">
+    <allow>
+      <principal>uid=JRN,o=LTER,dc=ecoinformatics,dc=org</principal>
+      <permission>all</permission>
+    </allow>
+    <allow>
+      <principal>public</principal>
+      <permission>read</permission>
+    </allow>
+  </access>
+  <dataset>
+    <alternateIdentifier system="https://doi.org">doi:10.6073/pasta/0efc7f8ca440d31e764c961a176c1c14</alternateIdentifier>
+    <title>Soil volumetric water content calculated from neutron hydroprobe data at 15 NPP study sites at the Jornada Basin LTER, 1989-ongoing</title>
+    <creator>
+      <individualName>
+        <givenName>Ross</givenName>
+        <surName>Virginia</surName>
+      </individualName>
+      <organizationName>Dartmouth College</organizationName>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0002-0890-0981</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Mike</givenName>
+        <surName>Duniway</surName>
+      </individualName>
+      <organizationName>USGS</organizationName>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0002-9643-2785</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Enrique</givenName>
+        <surName>Vivoni</surName>
+      </individualName>
+      <organizationName>Arizona State University</organizationName>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0002-2659-9459</userId>
+    </creator>
+    <pubDate>2019-10-29</pubDate>
+    <abstract>
+      <para>
+  This data package contains soil water content data calculated from
+  monthly neutron hydroprobe count measurements made at 15 net primary
+  production (NPP) study locations on Jornada Experimental Range (JER)
+  and Chihuahuan Desert Rangeland Research Center (CDRRC) lands. Once a
+  month, neutron probe measurements are made at 10 depths (where
+  possible) at each of 10 access tubes at each of the 15 NPP sites using
+  a neutron probe (CPN Model 503DR Hydroprobe). The raw dataset, also on
+  EDI (knb-lter-jrn.210013001), consists of the count of thermalized
+  neutrons at 30 cm depth intervals to a maximum depth of 300 cm. In
+  this data package, the raw neutron counts have been adjusted for
+  radioactive decay of the neutron source, then converted to volumetric
+  water content (VWC) to a maximum depth of 270 cm using calibration
+  equations (deepest probe depths are excluded from VWC calculations).
+  The NPP sites these measurements are made at represent the 5 dominant
+  vegetation types of the Jornada Basin, which consist of 3 shrub
+  (creosotebush, mesquite dune, and tarbush) and 2 grass (upland
+  grassland and playa) types. Three NPP sites are located in each of the
+  types. This data collection is ongoing with new data collected monthly
+  (updates to the EDI package may occur less frequently).
+</para>
+      <para>
+        <emphasis>NOTE: The next update to this data package will be delayed
+  until calibration equations can be developed for a new hydroprobe unit
+  that has recently been put into service. Repair parts were no longer
+  available for the older unit.</emphasis>
+      </para>
+    </abstract>
+    <keywordSet>
+      <keyword>Hydrology</keyword>
+      <keyword>Climate, Soils, and Atmosphere</keyword>
+      <keyword>long-term</keyword>
+      <keywordThesaurus>JRN Dataset Keywords</keywordThesaurus>
+    </keywordSet>
+    <keywordSet>
+      <keyword>C-CALI</keyword>
+      <keyword>C-GRAV</keyword>
+      <keyword>C-SAND</keyword>
+      <keyword>G-BASN</keyword>
+      <keyword>G-SAND</keyword>
+      <keyword>G-SUMM</keyword>
+      <keyword>M-NORT</keyword>
+      <keyword>M-RABB</keyword>
+      <keyword>M-WELL</keyword>
+      <keyword>P-COLL</keyword>
+      <keyword>P-SMAL</keyword>
+      <keyword>P-TOBO</keyword>
+      <keyword>T-EAST</keyword>
+      <keyword>T-TAYL</keyword>
+      <keyword>T-WEST</keyword>
+      <keyword>NPP locations</keyword>
+      <keywordThesaurus>Jornada Place Names</keywordThesaurus>
+    </keywordSet>
+    <keywordSet>
+      <keyword>NPP</keyword>
+      <keyword>study 013</keyword>
+      <keywordThesaurus>Jornada Study Names</keywordThesaurus>
+    </keywordSet>
+    <keywordSet>
+      <keyword>Inorganic Nutrients</keyword>
+      <keyword>Primary Production</keyword>
+      <keywordThesaurus>LTER Core Area</keywordThesaurus>
+    </keywordSet>
+    <keywordSet>
+      <keyword>soil</keyword>
+      <keyword>soil water content</keyword>
+      <keyword>soil moisture</keyword>
+      <keyword>soil water</keyword>
+      <keyword>net primary production</keyword>
+      <keyword>neutron probe</keyword>
+      <keywordThesaurus>LTER Controlled Vocabulary</keywordThesaurus>
+    </keywordSet>
+    <intellectualRights>
+      <para>
+  This information is released under the Creative Commons license -
+  Attribution - CC BY (https://creativecommons.org/licenses/by/4.0/).
+  The consumer of these data ("Data User" herein) is required
+  to cite it appropriately in any publication that results from its use.
+  The Data User should realize that these data may be actively used by
+  others for ongoing research and that coordination may be necessary to
+  prevent duplicate publication. The Data User is urged to contact the
+  authors of these data if any questions about methodology or results
+  occur. Where appropriate, the Data User is encouraged to consider
+  collaboration or co-authorship with the authors. The Data User should
+  realize that misinterpretation of data may occur if used out of
+  context of the original study. While substantial efforts are made to
+  ensure the accuracy of data and associated documentation, complete
+  accuracy of data sets cannot be guaranteed. All data are made
+  available "as is." The Data User should be aware, however,
+  that data are updated periodically and it is the responsibility of the
+  Data User to check for new versions of the data. The data authors and
+  the repository where these data were obtained shall not be liable for
+  damages resulting from any use or misinterpretation of the data. Thank
+  you.
+</para>
+    </intellectualRights>
+    <coverage>
+      <geographicCoverage>
+        <geographicDescription>NPP (and soil water) is measured at 15 sites, spanning 5 vegetation community types in the Jornada Basin. This bounding box includes all 15 sites. More precise geographic coordinates for this study may be requested from the JRN LTER Data Manager.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-106.865</westBoundingCoordinate>
+          <eastBoundingCoordinate>-106.713</eastBoundingCoordinate>
+          <northBoundingCoordinate>32.669</northBoundingCoordinate>
+          <southBoundingCoordinate>32.488</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <temporalCoverage>
+        <rangeOfDates>
+          <beginDate>
+            <calendarDate>1989-07-05</calendarDate>
+          </beginDate>
+          <endDate>
+            <calendarDate>2019-05-03</calendarDate>
+          </endDate>
+        </rangeOfDates>
+      </temporalCoverage>
+    </coverage>
+    <maintenance>
+      <description>This study is ongoing. Readings occur roughly once a month at all access tubes and sites.</description>
+    </maintenance>
+    <contact>
+      <individualName>
+        <givenName>Data</givenName>
+        <surName>Manager</surName>
+      </individualName>
+      <organizationName>Jornada Basin LTER</organizationName>
+      <electronicMailAddress>datamanager.jrn.lter@gmail.com</electronicMailAddress>
+    </contact>
+    <contact>
+      <individualName>
+        <givenName>Enrique</givenName>
+        <surName>Vivoni</surName>
+      </individualName>
+      <organizationName>Arizona State University</organizationName>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0002-2659-9459</userId>
+    </contact>
+    <contact>
+      <individualName>
+        <givenName>John</givenName>
+        <surName>Anderson</surName>
+      </individualName>
+      <organizationName>Jornada Basin LTER</organizationName>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0002-6417-8022</userId>
+    </contact>
+    <methods>
+      <methodStep>
+        <description>
+          <para>
+  Monthly soil water content measurements measurements are made at 10
+  depths (where possible) at each of 10 probe access tubes at each of
+  the 15 plant NPP sites. The 10 probe access tubes at each site are
+  paired on each of the four sides and in the middle of the 70m x 70m
+  area used for long term plant NPP measurements. At the time of access
+  tube installation (aluminum 2 inch diameter irrigation pipe), the
+  pairing consisted of an access tube inserted vertically into the
+  ground midway under a shrub canopy of the dominant species and one
+  between shrubs. For grass dominated habitats, an access tube was
+  installed in the middle of the dominant perennial grass with the
+  second in the bare area between grass patches. Changes in perennial
+  plant cover through mortality or establishment may have changed this
+  relationship for some access tubes over the years.
+</para>
+          <para>
+  Measurements with the neutron hydroprobe are taken at 30cm, 60cm,
+  90cm, 120cm, 150cm, 180cm, 210cm, 240cm, 270cm, and 300cm when
+  possible or to the greatest depth to which the associated access tube
+  could be installed before hitting an impenetrable petrocalcic layer
+  (caliche). Periodic "case standard" measurements are also
+  taken with the probe for each measurement campaign. The hydroprobe
+  detector totals the returning thermalized neutrons over a 16 second
+  sample time. This raw count value is then substituted into the proper
+  regression equation to calculate cubic centimeters of water per cubic
+  centimeter of soil (volumetric water content - VWC). Values of VWC for
+  the deepest available depth at each access tube are not calculated
+  because the soil volume directly below the probe is greater, and
+  therefore biased, relative to shallower depths.
+</para>
+          <para>
+  Initial calibration regression equations were derived for the LTER-I
+  Transect soil water content study and applied to the measurements at
+  the NPP sites. Between 2003 and 2007 individual site regressions were
+  developed by Mike Duniway to better represent the variation in
+  soil characteristics. All data since initiation of the study (1989)
+  have now been recalculated using the new equations. The raw counts
+  of thermalized neutrons have also been adjusted to account for drift
+  associated with the decay rate of the Americium 241/Beryllium used to
+  generated the neutrons.
+</para>
+          <para>
+  This data package provides the adjusted neutron counts, calculated
+  VWC, and ancillary calibration information (the attached
+  "Duniway_and_Crossland_2016_NeutronMoisture_Meter_Calibration.pdf").
+  The raw neutron count hydroprobe data, field methods, and measurement
+  history are provided in a separate Jornada Basin LTER data package on
+  EDI (knb-lter-jrn.210013001).
+</para>
+        </description>
+      </methodStep>
+    </methods>
+    <project>
+      <title>Jornada Basin LTER</title>
+      <personnel>
+        <individualName>
+          <givenName>Enrique</givenName>
+          <surName>Vivoni</surName>
+        </individualName>
+        <organizationName>Arizona State University</organizationName>
+        <userId directory="https://orcid.org">https://orcid.org/0000-0002-2659-9459</userId>
+        <role>Principal Investigator</role>
+      </personnel>
+      <funding>NSF: DEB-1832194</funding>
+    </project>
+    <dataTable>
+      <entityName>Soil water content calculated from neutron probe counts, by depth, at 15 NPP sites</entityName>
+      <entityDescription>Soil water content calculated from neutron probe counts, by depth, at 15 NPP sites</entityDescription>
+      <physical>
+        <objectName>JRNStudy013_npp_soil_water_content_calc.csv</objectName>
+        <size unit="bytes">22640317</size>
+        <authentication method="MD5">b79992a5bba063e906972e3de29c983a</authentication>
+        <dataFormat>
+          <textFormat>
+            <numHeaderLines>1</numHeaderLines>
+            <recordDelimiter>\n</recordDelimiter>
+            <attributeOrientation>column</attributeOrientation>
+            <simpleDelimited>
+              <fieldDelimiter>,</fieldDelimiter>
+            </simpleDelimited>
+          </textFormat>
+        </dataFormat>
+        <distribution>
+          <online>
+            <url>https://pasta.lternet.edu/package/data/eml/knb-lter-jrn/210013003/16/bcdac426820d1332f3a28e6c98b8d415</url>
+          </online>
+        </distribution>
+      </physical>
+      <attributeList>
+        <attribute>
+          <attributeName>Date</attributeName>
+          <attributeDefinition>Date of data collection</attributeDefinition>
+          <storageType>date</storageType>
+          <measurementScale>
+            <dateTime>
+              <formatString>YYYY-MM-DD</formatString>
+              <dateTimeDomain/>
+            </dateTime>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>DateFixed</attributeName>
+          <attributeDefinition>Nearest first-of-the-month to the date the data was collected</attributeDefinition>
+          <storageType>date</storageType>
+          <measurementScale>
+            <dateTime>
+              <formatString>YYYY-MM-DD</formatString>
+              <dateTimeDomain/>
+            </dateTime>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>SerialNumber</attributeName>
+          <attributeDefinition>Serial number (last 4 digits of the Hydraprobe serial number, beginning 1992)</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Serial number (last 4 digits of the Hydraprobe serial number, beginning 1992)</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Zone</attributeName>
+          <attributeDefinition>Vegetation zone [C, G, M, P, T]</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>C</code>
+                    <definition>Creosotebush</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>G</code>
+                    <definition>Grassland</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>P</code>
+                    <definition>Playa</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>T</code>
+                    <definition>Tarbush</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>M</code>
+                    <definition>Mesquite dune</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Site</attributeName>
+          <attributeDefinition>Site code [1 of 15 NPP site codes]</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>GRAV</code>
+                    <definition>Gravel</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>SAND</code>
+                    <definition>Sand</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>CALI</code>
+                    <definition>Caliche</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>SUMM</code>
+                    <definition>Mt.Summerford</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>BASN</code>
+                    <definition>Basin</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>IBPE</code>
+                    <definition>IBP exclosure</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>SMAL</code>
+                    <definition>Small</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>COLL</code>
+                    <definition>College ranch</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>TOBO</code>
+                    <definition>Tobosa tank</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>TAYL</code>
+                    <definition>Taylor well</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>EAST</code>
+                    <definition>East</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>WEST</code>
+                    <definition>West</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>NORT</code>
+                    <definition>North natural vegetation exclosure</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>RABB</code>
+                    <definition>Rabbit rain gauge</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>WELL</code>
+                    <definition>West well</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>ID</attributeName>
+          <attributeDefinition>Access tube site and number [First 2 digits identify vegetation zone and site (see site_id), last 2 identify access tube number (see tube_id)]</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>number</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">101</minimum>
+                  <maximum exclusive="false">1510</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>site_id</attributeName>
+          <attributeDefinition>NPP site code [100-1500, each mapped to a unique vegetation zone/site name]</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>100</code>
+                    <definition>C-GRAV</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>200</code>
+                    <definition>C-SAND</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>300</code>
+                    <definition>C-CALI</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>400</code>
+                    <definition>G-SUMM</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>500</code>
+                    <definition>G-BASN</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>600</code>
+                    <definition>G-IBPE</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>700</code>
+                    <definition>P-SMAL</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>800</code>
+                    <definition>P-COLL</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>900</code>
+                    <definition>P-TOBO</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>1000</code>
+                    <definition>T-TAYL</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>1100</code>
+                    <definition>T-EAST</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>1200</code>
+                    <definition>T-WEST</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>1300</code>
+                    <definition>M-NORT</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>1400</code>
+                    <definition>M-RABB</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>1500</code>
+                    <definition>M-WELL</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>tube_id</attributeName>
+          <attributeDefinition>Access tube number [ 01-10: Odd tubes = BETWEEN shrubs or perennial grasses, Even tubes = UNDER canopy of shrubs or perennial grasses ]</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>number</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">1</minimum>
+                  <maximum exclusive="false">10</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Depth</attributeName>
+          <attributeDefinition>Depth of probe measurement (cm)</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>centimeter</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">30</minimum>
+                  <maximum exclusive="false">270</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>CntsAdj</attributeName>
+          <attributeDefinition>Neutron count value adjusted for radioactive decay (of Americium 241/Beryllium) since probe calibration.</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>number</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">578.21</minimum>
+                  <maximum exclusive="false">63361.75</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>VWC</attributeName>
+          <attributeDefinition>Volumetric water content (cubic cm/cubic cm)</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">-0.11</minimum>
+                  <maximum exclusive="false">1.63</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+      </attributeList>
+      <numberOfRecords>322017</numberOfRecords>
+    </dataTable>
+    <otherEntity>
+      <entityName>Neutron moisture meter calibration (derivation of VWC regression equations)</entityName>
+      <entityDescription>Neutron moisture meter calibration (derivation of VWC regression equations)</entityDescription>
+      <physical>
+        <objectName>Duniway_and_Crossland_2016_NeutronMoisture_Meter_Calibration.pdf</objectName>
+        <size unit="bytes">819587</size>
+        <authentication method="MD5">79fe6eaa12429802225d1a8375225d92</authentication>
+        <dataFormat>
+          <externallyDefinedFormat>
+            <formatName>unknown</formatName>
+          </externallyDefinedFormat>
+        </dataFormat>
+        <distribution>
+          <online>
+            <url>https://pasta.lternet.edu/package/data/eml/knb-lter-jrn/210013003/16/43ef6c4fca24c60a8983447f8328bd92</url>
+          </online>
+        </distribution>
+      </physical>
+      <entityType>unknown</entityType>
+    </otherEntity>
+    <otherEntity>
+      <entityName>Summary figure for number 5 access tubes</entityName>
+      <entityDescription>Summary figure for number 5 access tubes</entityDescription>
+      <physical>
+        <objectName>NeutronVWC_figure.png</objectName>
+        <size unit="bytes">4794911</size>
+        <authentication method="MD5">b36009e10126954eedfed46fec9e539e</authentication>
+        <dataFormat>
+          <externallyDefinedFormat>
+            <formatName>unknown</formatName>
+          </externallyDefinedFormat>
+        </dataFormat>
+        <distribution>
+          <online>
+            <url>https://pasta.lternet.edu/package/data/eml/knb-lter-jrn/210013003/16/23b461d91a0f2c21e4d3e8081850879d</url>
+          </online>
+        </distribution>
+      </physical>
+      <entityType>unknown</entityType>
+    </otherEntity>
+  </dataset>
+  <additionalMetadata>
+    <metadata>
+      <unitList>
+        <unit id="count" multiplierToSI="1" name="count"
+          parentSI="count" unitType="dimensionless">
+          <description>number of thermalized neutrons</description>
+        </unit>
+      </unitList>
+    </metadata>
+  </additionalMetadata>
+</eml:eml>

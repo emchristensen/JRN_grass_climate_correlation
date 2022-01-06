@@ -1,0 +1,7 @@
+Manifest file for knb-lter-jrn.210013003.16-4c9184f37cff01bcdc32dc486ec36961.zip created on Thu Jun 03 15:04:06 MDT 2021
+JRNStudy013_npp_soil_water_content_calc.csv (22640317 bytes)
+Duniway_and_Crossland_2016_NeutronMoisture_Meter_Calibration.pdf (819587 bytes)
+NeutronVWC_figure.png (4794911 bytes)
+knb-lter-jrn.210013003.16.xml (27708 bytes)
+knb-lter-jrn.210013003.16.txt (16362 bytes)
+knb-lter-jrn.210013003.16.report.xml (53788 bytes)
