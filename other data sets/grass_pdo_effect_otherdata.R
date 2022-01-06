@@ -38,7 +38,7 @@ npp_figure = ggplot(npp_mean, aes(x=year, y=pct_cover)) +
   geom_line() +
   xlab('') +
   ylab('Percent cover') +
-  ggtitle('Jornada NPP quadrats') +
+  ggtitle('Jornada NPP') +
   geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
   scale_color_manual(values=c('blue','red')) +
   coord_cartesian(xlim=c(1988,2020)) +
@@ -52,8 +52,9 @@ npp_pdo = merge(npp_mean, pdo, all.x=T)
 nppbox = ggplot(npp_pdo, aes(x=pdo_phase, y=pct_cover)) +
   geom_boxplot(na.rm=T) +
   geom_jitter(width=.1, alpha=.4, na.rm=T)+
-  ylab('Percent cover') +
-  ggtitle('Jornada NPP quadrats') +
+  #ylab('Percent cover') +
+  ylab('') +
+  ggtitle('Jornada NPP') +
   xlab('') +
   theme_bw()
 nppbox
@@ -76,12 +77,13 @@ cdrrc = read.csv('other data sets/CDRRC/CDRRC pasture 1 long term forage product
 
 # plot timeseries
 cdrrc_figure = ggplot(cdrrc, aes(x=year, y=forage)) +
+  geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
   geom_point() +
   geom_line() +
   xlab('') +
-  ylab('Forage production (kg/ha)') +
-  ggtitle('CDRRC College Ranch') +
-  geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
+  ylab('Forage production \n(kg/ha)') +
+  ggtitle('CDRRC') +
+  
   scale_color_manual(values=c('blue','red')) +
   coord_cartesian(xlim=c(1966,2020)) +
   theme_bw()
@@ -94,8 +96,9 @@ cdrrc_pdo = merge(cdrrc, pdo, all.x=T)
 cdrrcbox = ggplot(cdrrc_pdo, aes(x=pdo_phase, y=forage)) +
   geom_boxplot(na.rm=T) +
   geom_jitter(width=.1, alpha=.4, na.rm=T)+
-  ylab('Forage production (kg/ha)') +
-  ggtitle('CDRRC College Ranch') +
+  #ylab('Forage production (kg/ha)') +
+  ylab('') +
+  ggtitle('CDRRC') +
   xlab('') +
   theme_bw()
 cdrrcbox
@@ -124,7 +127,7 @@ sev_figure = ggplot(sev_fp, aes(x=year, y=pct_cover)) +
   geom_line() +
   xlab('') +
   ylab('Percent cover') +
-  ggtitle('Sevilleta LPI transect') +
+  ggtitle('Sevilleta') +
   geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
   scale_color_manual(values=c('blue','red')) +
   coord_cartesian(xlim=c(1993,2020)) +
@@ -138,8 +141,9 @@ sev_pdo = merge(sev_fp, pdo, all.x=T)
 sevbox = ggplot(sev_pdo, aes(x=pdo_phase, y=pct_cover)) +
   geom_boxplot(na.rm=T) +
   geom_jitter(width=.1, alpha=.4, na.rm=T)+
-  ylab('Percent cover') +
-  ggtitle('Sevilleta LPI transect') +
+  #ylab('Percent cover') +
+  ylab('') +
+  ggtitle('Sevilleta') +
   xlab('') +
   theme_bw()
 sevbox
@@ -174,7 +178,8 @@ sr_pdo = merge(sr_dat, pdo, all.x=T)
 srbox = ggplot(sr_pdo, aes(x=pdo_phase, y=mean_cover)) +
   geom_boxplot(na.rm=T) +
   geom_jitter(width=.1, alpha=.4, na.rm=T)+
-  ylab('Percent cover') +
+  #ylab('Percent cover') +
+  ylab('') +
   ggtitle('Santa Rita') +
   xlab('') +
   theme_bw()
@@ -186,6 +191,43 @@ summary(sr.aov)
 # not significantly different
 sr_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(mean_cover))
 
+
+# =========================================================
+# Jornada quadrats for comparison
+jrngrass = read.csv('data/grass_median_yearly.csv') %>% dplyr::filter(project_year<1995)
+
+# plot timeseries
+jrn_figure = ggplot(jrngrass, aes(x=project_year, y=median_grass)) +
+  geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
+  geom_point() +
+  geom_line() +
+  xlab('') +
+  ylab('Percent cover') +
+  ggtitle('Jornada') +
+  
+  scale_color_manual(values=c('blue','red')) +
+  coord_cartesian(xlim=c(1915,1980)) +
+  theme_bw()
+jrn_figure
+
+# boxplot: significant difference between phases?
+jrn_pdo = merge(jrngrass, pdo, by.x = 'project_year', by.y='year', all.x=T)
+jrnbox = ggplot(jrn_pdo, aes(x=pdo_phase, y=median_grass)) +
+  geom_boxplot(na.rm=T) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T)+
+  #ylab('Percent cover') +
+  ylab('') +
+  ggtitle('Jornada') +
+  xlab('') +
+  theme_bw()
+jrnbox
+
+# is there a significant difference? aov
+jrn.aov <- aov(median_grass ~ pdo_phase, data=jrn_pdo)
+summary(jrn.aov)
+# not significantly different
+jrn_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(median_grass))
+
 # ===========================================================
 # combine into multi-part figures
  
@@ -194,3 +236,8 @@ box_plots = ggpubr::ggarrange(nppbox, cdrrcbox, sevbox, srbox, nrow=1)
 
 ggsave('Figures/other_data_timeseries.png', plot=timeseries_plots, width=7.5, height=3)
 ggsave('Figures/other_data_boxplots.png', plot=box_plots, width=7.5, height=3)
+
+allplots = ggpubr::ggarrange(jrn_figure, jrnbox, npp_figure, nppbox, cdrrc_figure, cdrrcbox, sev_figure, sevbox, sr_figure, srbox, 
+                             nrow=5, ncol=2, common.legend=T, legend='bottom', labels='AUTO')
+allplots
+ggsave('Figures/other_data_multifigure.png', plot=allplots, width=4, height=9)
