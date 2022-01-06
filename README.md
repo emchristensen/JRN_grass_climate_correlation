@@ -2,33 +2,27 @@
 
 Code and data for project investigating cycles of high and low grass cover on the Jornada for the past 100 years.
 
-__main model script:__ grass_pdo_model_selection.Rmd. Depends on:
+## Folders
+__data__ - Contains raw data files and R scripts for handling data
 
-* data/grass_median_yearly.csv
-* data/climate_variables.csv
-* data/PDO_phases_byyear.csv
-* data/ENSO_phases_byyear.csv
-* data/smoothed_grass_gam.csv
-* data/smoothed_climate_variables.csv
+__Figures__ - Contains final figures for paper
 
-### Folders
-__data__ contains raw data files and R scripts for handling data
+__supplement__  - Analyses for supplement of paper
 
-__Figures__ contains final figures for paper
-
-__other data sets__ exploring other data sets in the arid SW
+## Workflow
+### Prepare data
+Run scripts in 'data' folder to prepare quadrat grass data and climate variable data for analyses.
+ - __data/process_raw_plant_data.R__
+ - __data/get_climate_data.R__
+ - __data/determine_enso_categories.R__
 
 
-### Scripts
+### Run GAMs to smooth timeseries
+A GAM is used to model the long-term trends in the grass timeseries. GAMs are also used to smooth each of the climate variables. Creates _smoothed_grass_gam.csv_ and _smoothed_climate_variables.csv_.
+ - Run __GAMs_grass_pdo.R__
 
-* __create_quadrat_subset_map.R__ creates map of the quadrats used in this study. Saves to Figures.
 
-* __GAMs_grass_pdo.R__ uses GAM to smooth grass and PDO index timeseries. Saves smoothed timeseries to data folder. Option to save figures to Figures folder. Supports main model script. 
+### Main model scripts
+The main models correlating grass with climate variables are run in __grass_pdo_model_selection.Rmd__. This script depends on intermediate csv files created in the first two steps. Creates _results_aic_table.csv_. 
 
-* __pdo_climate_correlations.Rmd__ Document looking at correlations of local weather to PDO phase. Included in supplement of paper. 
-
-* __pdo_phase_grass_correlation.r__ Test for significant difference in grass cover by PDO phase. Saves Figures.
-
-* __pdo_soil_water.R__ tests for differences in soil water content (data from LTER) by PDO phase. No significant differences. Included in supplement of paper. 
-
-* __plot_grass_func_groups_timeseries.R__ creates plot of grass functional groups timeseries. Fig. 2 in paper. 
+The figure of grass functional groups is created by __plot_grass_func_groups_timeseries.R__.
