@@ -1,6 +1,8 @@
-#' look at smoothed grass timeseries
+#' Smooth grass and climate time series using GAMs
+#' 
+#' 
 #' EMC 9/8/21
-#' last run: 12/16/21
+#' last run: 1/6/22
 
 library(dplyr)
 library(ggplot2)
@@ -21,15 +23,19 @@ climate_variables = read.csv('data/climate_variables.csv')
 # =============================
 # smooth grass with a GAM
 
-y = grass_hist$grass
-xt = grass_hist$project_year
-time <- 1:length(y)
+# gam function from mgcv package
+m1 <- gam(grass ~ s(project_year, k=20), 
+          data=grass_hist, 
+          method='REML')
 
-# setting k = -1 (knots) turns on generalized cross-validation which automatically balances simplicity and explanatory power
-m1 <- gam(y ~ s(xt, k=-1))
+# summary of model
 summary(m1)
+# model checks
+k.check(m1) # check that k was large enough
+gratia::appraise(m1)
 
-modeloutput = data.frame(fitted_grass = fitted(m1), project_year = xt)
+# plot model output
+modeloutput = data.frame(fitted_grass = fitted(m1), project_year = grass_hist$project_year)
 
 grassgam = ggplot(grass_hist, aes(x=project_year, y=grass)) +
   geom_point() +
@@ -50,14 +56,16 @@ pdoindex = climate_variables %>%
   dplyr::select(year=water_yr, pdo)
 
 # smooth pdo with a gam
-y1 = pdoindex$pdo
-xt1 = pdoindex$year
-time1 <- 1:length(y1)
+m_pdo <- gam(pdo ~ s(year, k=10),
+             data = pdoindex,
+             method = 'REML')
 
-# setting k = -1 (knots) turns on generalized cross-validation which automatically balances simplicity and explanatory power
-m_pdo <- gam(y1 ~ s(xt1, k=-1))
+# model checks
+k.check(m_pdo)
+gratia::appraise(m_pdo)
 
-modeloutput_pdo = data.frame(smoothed_pdo = fitted(m_pdo), year = xt1)
+# plot model output
+modeloutput_pdo = data.frame(smoothed_pdo = fitted(m_pdo), year = pdoindex$year)
 
 pdogam = ggplot(pdoindex, aes(x=year, y=pdo)) +
   geom_point() +
@@ -74,14 +82,13 @@ smoothedpdo = merge(modeloutput_pdo, pdoindex)
 # =================================================
 # smooth enso
 
-y2 = climate_variables$nino34
-xt2 = climate_variables$water_yr
-time2 <- 1:length(y2)
+m_nino <- gam(nino34 ~ s(water_yr, k=10),
+              data=climate_variables,
+              method='REML')
 
-# setting k = -1 (knots) turns on generalized cross-validation which automatically balances simplicity and explanatory power
-m_nino <- gam(y2 ~ s(xt2, k=-1))
+k.check(m_nino)
 
-modeloutput_nino = data.frame(smoothed_nino = fitted(m_nino), year = xt2)
+modeloutput_nino = data.frame(smoothed_nino = fitted(m_nino), year = climate_variables$water_yr)
 
 ninogam = ggplot(climate_variables, aes(x=water_yr, y=nino34)) +
   geom_point() +
@@ -95,14 +102,13 @@ ninogam
 # =================================================
 # smooth pdsi
 
-y3 = climate_variables$pdsi
-xt3 = climate_variables$water_yr
-time3 <- 1:length(y3)
+m_pdsi <- gam(pdsi ~ s(water_yr, k=10),
+              data=climate_variables,
+              method='REML')
 
-# setting k = -1 (knots) turns on generalized cross-validation which automatically balances simplicity and explanatory power
-m_pdsi <- gam(y3 ~ s(xt3, k=-1))
+k.check(m_pdsi)
 
-modeloutput_pdsi = data.frame(smoothed_pdsi = fitted(m_pdsi), year = xt3)
+modeloutput_pdsi = data.frame(smoothed_pdsi = fitted(m_pdsi), year = climate_variables$water_yr)
 
 pdsigam = ggplot(climate_variables, aes(x=water_yr, y=pdsi)) +
   geom_point() +
@@ -115,14 +121,13 @@ pdsigam
 # =================================================
 # smooth spei
 
-y4 = climate_variables$spei
-xt4 = climate_variables$water_yr
-time4 <- 1:length(y4)
+m_spei <- gam(spei ~ s(water_yr, k=10),
+              data=climate_variables,
+              method='REML')
 
-# setting k = -1 (knots) turns on generalized cross-validation which automatically balances simplicity and explanatory power
-m_spei <- gam(y4 ~ s(xt4, k=-1))
+k.check(m_spei)
 
-modeloutput_spei = data.frame(smoothed_spei = fitted(m_spei), year = xt4)
+modeloutput_spei = data.frame(smoothed_spei = fitted(m_spei), year = climate_variables$water_yr)
 
 speigam = ggplot(climate_variables, aes(x=water_yr, y=spei)) +
   geom_point() +
@@ -135,14 +140,13 @@ speigam
 # =================================================
 # smooth meantemp
 
-y5 = climate_variables$mean_temp
-xt5 = climate_variables$water_yr
-time5 <- 1:length(y5)
+m_temp <- gam(mean_temp ~ s(water_yr, k=10),
+              data=climate_variables,
+              method='REML')
 
-# setting k = -1 (knots) turns on generalized cross-validation which automatically balances simplicity and explanatory power
-m_temp <- gam(y5 ~ s(xt5, k=-1))
-
-modeloutput_temp = data.frame(smoothed_temp = fitted(m_temp), year = xt5)
+k.check(m_temp)  
+  
+modeloutput_temp = data.frame(smoothed_temp = fitted(m_temp), year = climate_variables$water_yr)
 
 tempgam = ggplot(climate_variables, aes(x=water_yr, y=mean_temp)) +
   geom_point() +
@@ -155,14 +159,13 @@ tempgam
 # =================================================
 # smooth yearlyppt
 
-y6 = climate_variables$yearly_ppt_mm
-xt6 = climate_variables$water_yr
-time6 <- 1:length(y6)
+m_yearlyppt <- gam(yearly_ppt_mm ~ s(water_yr, k=10),
+                   data=climate_variables,
+                   method='REML')
 
-# setting k = -1 (knots) turns on generalized cross-validation which automatically balances simplicity and explanatory power
-m_yearlyppt <- gam(y6 ~ s(xt6, k=-1))
+k.check(m_yearlyppt)
 
-modeloutput_yearlyppt = data.frame(smoothed_yearlyppt = fitted(m_yearlyppt), year = xt6)
+modeloutput_yearlyppt = data.frame(smoothed_yearlyppt = fitted(m_yearlyppt), year = climate_variables$water_yr)
 
 pptgam = ggplot(climate_variables, aes(x=water_yr, y=yearly_ppt_mm)) +
   geom_point() +
@@ -175,14 +178,13 @@ pptgam
 # =================================================
 # smooth summer ppt
 
-y7 = climate_variables$summer_ppt_mm
-xt7 = climate_variables$water_yr
-time7 <- 1:length(y7)
+m_summerppt <- gam(summer_ppt_mm ~ s(water_yr, k=10),
+                   data=climate_variables,
+                   method='REML')
 
-# setting k = -1 (knots) turns on generalized cross-validation which automatically balances simplicity and explanatory power
-m_summerppt <- gam(y7 ~ s(xt7, k=-1))
+k.check(m_summerppt)
 
-modeloutput_summerppt = data.frame(smoothed_summerppt = fitted(m_summerppt), year = xt7)
+modeloutput_summerppt = data.frame(smoothed_summerppt = fitted(m_summerppt), year = climate_variables$water_yr)
 
 summergam = ggplot(climate_variables, aes(x=water_yr, y=summer_ppt_mm)) +
   geom_point() +
@@ -195,14 +197,13 @@ summergam
 # =================================================
 # smooth winter ppt
 
-y8 = climate_variables$winter_ppt_mm
-xt8 = climate_variables$water_yr
-time8 <- 1:length(y8)
+m_winterppt <- gam(winter_ppt_mm ~ s(water_yr, k=10),
+                   data=climate_variables,
+                   method='REML')
 
-# setting k = -1 (knots) turns on generalized cross-validation which automatically balances simplicity and explanatory power
-m_winterppt <- gam(y8 ~ s(xt8, k=-1))
+k.check(m_winterppt)
 
-modeloutput_winterppt = data.frame(smoothed_winterppt = fitted(m_winterppt), year = xt8)
+modeloutput_winterppt = data.frame(smoothed_winterppt = fitted(m_winterppt), year = climate_variables$water_yr)
 
 wintergam = ggplot(climate_variables, aes(x=water_yr, y=winter_ppt_mm)) +
   geom_point() +
