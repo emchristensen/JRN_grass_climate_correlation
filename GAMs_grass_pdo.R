@@ -2,7 +2,7 @@
 #' 
 #' 
 #' EMC 9/8/21
-#' last run: 1/6/22
+#' last run: 1/10/22
 
 library(dplyr)
 library(ggplot2)
@@ -24,7 +24,7 @@ climate_variables = read.csv('data/climate_variables.csv')
 # smooth grass with a GAM
 
 # gam function from mgcv package
-m1 <- gam(grass ~ s(project_year, k=20), 
+m1 <- gam(grass ~ s(project_year, k=15), 
           data=grass_hist, 
           method='REML')
 

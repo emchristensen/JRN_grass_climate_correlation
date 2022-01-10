@@ -1,12 +1,12 @@
 ---
 title: "Grass/PDO model selection"
 author: "Erica Christensen"
-date: "10/8/2021"
+date: "1/10/2022"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-# last update: 12/13/21
+# last update: 1/10/22
 
 library(dplyr)
 library(ggplot2)
@@ -86,16 +86,17 @@ model14 = lm(smoothed_grass ~ smoothed_pdo + nino34, data=model_data)
 model15 = lm(smoothed_grass ~ smoothed_pdo + pdsi, data=model_data)
 model16 = lm(smoothed_grass ~ smoothed_pdo + spei, data=model_data)
 model17 = lm(smoothed_grass ~ smoothed_pdo + mean_temp, data=model_data)
+model18 = lm(smoothed_grass ~ smoothed_pdo + category_nino34, data=model_data)
 
 # models with more predictors
-model18 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + nino34, data=model_data)
-model19 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + yearly_ppt_mm, data=model_data)
-model20 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + spei, data=model_data)
+model19 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + nino34, data=model_data)
+model20 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + yearly_ppt_mm, data=model_data)
+model21 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + spei, data=model_data)
 
 
 # create table with aic and rsquared
 modellist = list(model1, model2, model3, model4, model5, model6, model7, model8, model9, model10, model11, model12, model13, model14,
-                 model15, model16, model17, model18, model19, model20,
+                 model15, model16, model17, model18, model19, model20,model21,
                  model1s, model2s, model3s, model4s, model5s, model6s, model7s, model8s)
 aictable = c()
 for (m in 1:length(modellist)) {
@@ -163,7 +164,7 @@ grasspred = ggplot(modelprediction, aes(x=year)) +
   geom_point(data=combined_data, aes(x=year, y=grass)) +
   xlim(1916, 2020) +
   theme_bw() +
-  coord_cartesian(ylim=c(0,.1)) +
+  coord_cartesian(ylim=c(-.005,.1)) +
   xlab('') +
   ylab('Grass cover (m^2)')
 grasspred

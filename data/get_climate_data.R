@@ -10,7 +10,7 @@
 #' Weather station at JRN began in June 1914, so data 1900-1914 filled by PRISM
 #' 
 # EMC
-# last run: 12/16/21
+# last run: 1/7/22
 
 library(dplyr)
 library(lubridate)
