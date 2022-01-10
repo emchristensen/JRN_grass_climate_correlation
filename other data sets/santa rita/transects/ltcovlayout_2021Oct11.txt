@@ -1,0 +1,53 @@
+		DATA FILE LAYOUT: LONG-TERM COVER
+				(FILE: ltcover.xls)
+
+
+        ITEM	    ITEM	DATA	NUM	ITEM
+COL.	NAME	    WIDTH	TYPE	DEC	DESCRIPTION
+
+  A	PASTTRAN	3	NUMBER	  0	Pasture-transect unique ID number.
+  B	PASTURE		3	TEXT	  -	Pasture name/number.
+  C	TRANSECT	3	TEXT	  -	Transect number.
+  D	ORIGIN	       13	TEXT	  -	Study in which transect was first measured.
+  E	ECOSITE	       58	TEXT	  -	Ecological Site Name, Major Land Resource Area and 
+						Precipitation Zone.	
+  F	MESQSTAT	4	TEXT	  -	Mesquite treatment in previous studies.
+  G	1994 BURN	9	TEXT	  -	Burned in June 1994 fire.
+  H	2017 BURN	3	TEXT	  -	Burned in April 2017 fire.  
+  I	2018 BURN	3	TEXT	  -	Burned in February 2018 fire.
+  J	SPECIES		9	TEXT	  -	Code for scientific plant name.
+  K	YR1953		8	NUMBER	  1	Summer 1953 measurement.
+  L	YR1954		8	NUMBER	  1	Summer 1954 measurement.
+  M	YR1955		8	NUMBER	  1	Summer 1955 measurement.
+  N	YR1956		8	NUMBER	  1	Summer 1956 measurement.
+  O	YR1957		8  	NUMBER	  1	Summer or fall 1957 measurement.
+  P	YR1958		8  	NUMBER	  1	Summer or fall 1958 measurement.
+  Q	YR1959		8	NUMBER	  1	Summer or fall 1959 measurement.
+  R	YR1960		8	NUMBER	  1	Summer or fall 1960 measurement.
+  S	YR1961		8	NUMBER	  1	Summer or fall 1961 measurement.
+  T	YR1962		8	NUMBER	  1	Summer or fall 1962 measurement.
+  U 	YR1963		8	NUMBER	  1	Summer or fall 1963 measurement.
+  V	YR1964		8	NUMBER	  1	Summer or fall 1964 measurement.
+  W	YR1965		8	NUMBER	  1	Summer or fall 1965 measurement.
+  X	YR1966		8	NUMBER	  1	Summer or fall 1966 measurement.
+  Y	YR1970		8	NUMBER	  1	Summer or fall 1970 measurement.
+  Z	YR1975		8	NUMBER	  1	Summer 1975 measurement.
+ AA	YR1978		8	NUMBER	  1	Summer 1978 measurement.
+ AB	YR1981		8	NUMBER	  1	Summer 1981 measurement.
+ AC	YR1984		8	NUMBER	  1	Summer 1984 measurement.
+ AD	YR1991		8	NUMBER	  1	Summer 1991 measurement.
+ AE	YR1994		8	NUMBER	  1	Winter 1994 measurement.
+ AF	YR1997		8	NUMBER	  1	Winter 1997 measurement.
+ AG	YR2000		8	NUMBER	  1	Winter 2000 measurement.
+ AH	YR2003		8	NUMBER	  1	Winter 2003 measurement.
+ AI	YR2006		8	NUMBER	  1	Winter 2006 measurement.
+ AJ	YR2009		5	NUMBER	  1	Winter 2009 measurement.				
+ AK	YR2012		5	NUMBER	  1	Winter 2012 measurement.
+ AL	YR2015		5	NUMBER	  1	Winter 2015 measurement.
+ AM	YR2018		5	NUMBER 	  1	Winter 2018 measurement.	
+ AM	YR2021		5	NUMBER 	  1	Winter 2021 measurement.	
+
+
+ltcovlayout.doc
+11 October 2021
+

@@ -1,0 +1,45 @@
+File: ltcover.xls
+
+Ltcover.xls refers to long-term cover measurements on selected transects established in USFS Studies FSRM 1706-09, FSRM 1706-12, FSRM 1706-15, and FSRM 1706-25. This file includes all measures of cover made on these transects since they were established (as early as 1953) through 2009.
+
+Perennial grass and shrub cover were measured at varying intervals during the four USFS studies, and measurements were continued every three years between 1991 and 2009. Perennial grass was recorded as basal intercept; i.e., length of live root crown portion of tuft at ground level. Shrub cover was recorded as the entire live crown intercept excluding conspicuous openings or areas of dead crown.
+
+Cover was recorded in units of 0.01 ft. during the USFS studies. Beginning in 1991, however, cover was recorded in units of 0.1 ft. In this data set, cover measurements in units of 0.01 ft. were converted to units of 0.1 ft. and all measurements are reported in 0.1-ft. units.
+
+Measurements were taken on permanent 100-ft. line transects in 12 pastures. Prior to 1991, ten transects were measured in pastures 2N, 2S, 3, 5N, 5S, 8, 12B, 21, and 22; 25 transects in pasture 6A; and 20 transects in pasture 6B.
+
+Beginning in 2000, only eight transects in pasture 2S were measured because one of the original nine could not be relocated.
+
+Mesquite treatments performed on transects during the USFS studies are coded as follows: DEAD for transects on which mesquite (Prosopis velutina) was killed in USFS Studies FSRM 1706-09 and FSRM 1706-12, and LIVE for transects on which mesquite was left untreated. The 1994 burn occurred in the first week of June 1994, and 23 transects were burned at that time. The occurrence of the fire is noted in the spreadsheet column "1994 Burn".
+
+Grazing records for the USFS studies and other individual study protocols are available in the study plans for FSRM 1706-09, FSRM 1706-12, FSRM 1706-15, and FSRM 1706-25. A grazing plan summary for subsequent years is available, but note the following clarifications:
+
+A grazing year begins on November 1 and ends on October 31 of the following year.
+
+Pasture 2S from Study 1706-25 was divided into two parts after the 1984-85 grazing year. In the table, 2S refers to the western part of the original pasture which contains transects 1-4. The eastern part of 2S (called 2SE and containing transects 5-10) became part of the UA Cell in 1987-88.
+
+The UA (HRM) Cell was formed in 1987-88 from pastures 2SE, 21, and 22; this unit has eight cells. The cattle grazing the UA Cell are rotated through the eight cells during each grazing year.
+
+Pasture 2S has been grazed in a Santa Rita three-pasture rotation system with pastures 4 and 12A since 1985-86.
+
+Since 1989-90 cattle have been rotated through pastures 3, 5N, and 5S as needed.
+
+Pastures 6A and 6B have been grazed in a Santa Rita three-pasture rotation system with pasture 6D since 1984-85.
+
+Pasture 12B has been used only as needed for bulls since 1984-85.
+
+Sources of grazing data were SRER stocking plans for the McGibbon Ranch except for 1987-88 and 1989-90. No plans were available for these two years so grazing season is based on information from McGibbon Ranch personnel.
+
+Taxa were recorded separately to the species level in most cases and sometimes to the genus level only. The codes OTHERPG and OTHSHRUB refer to unidentified perennial grass and shrub species. In this file ARIS refers to all perennial Aristida spp., including A. glabrata formerly recorded as ARGL1 or ARGL. As for the species Bouteloua chondrosioides (BOCH), Bouteloua hirsuta (BOHI), and Bouteloua repens (BOFI), use caution in using the data due to the possible misidentification of those species at their vegetative stage. It may be wise to lump these species together for analysis.
+
+Please be aware that Forbs were not measured after 1984.
+
+Sources of vegetation data were the original field data sheets.
+
+A value of -9999 in a field means that no data were available because a reading was not made for that date.
+
+
+
+sltcovnote.txt
+13 October 2021
+
