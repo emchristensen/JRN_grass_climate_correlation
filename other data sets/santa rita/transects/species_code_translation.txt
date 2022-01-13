@@ -1,176 +1,170 @@
-                        SPECIES CODE TRANSLATION
-                             SORTED BY CODE
-
-CODE       CURRENT SCIENTIFIC NAME              AUTHORITY
-_____      ____________________________________ _________________________
-
-ACAN       Acacia angustissima                  (Mill.) Kuntze           
-ACCO       Acacia constricta                    Benth.                   
-ACGR       Acacia greggii                       Gray                     
-AGAV       Agave spp.                                                    
-AGPA3      Agave parryi                         Engelm.                  
-ALLI       Allionia spp.                                                 
-AMBR       Ambrosia spp.                                                 
-ANBA       Bothriochloa barbinodis              (Lag.) Herter            
-ANCI       Andropogon cirratus                  Hack.                    
-ANSC       Schizachyrium scoparium              (Michx.) Nash            
-ANTH       Anisacanthus thurberi                (Torr.) Gray             
-APLA       Haplopappus laricifolius             Gray                     
-APTE       Haplopappus tenuisectus              (Greene) Blake           
-ARFE       Aristida fendleriana                 Steud.                   
-ARGE       Argemone spp.                                                 
-ARGL       Aristida glabrata                    (Vasey) Hitchc.          
-ARGL1      Aristida glabrata                    (Vasey) Hitchc.          
-ARIS       Aristida spp.                        L.                       
-ARWA       Aristolochia watsoni                 Woot.& Standl.           
-ASC        Schizachyrium scoparium              (Michx.) Nash            
-ASTE       Aster spp.                                                    
-ASTR       Astragalus spp.                                               
-ATCA       Atriplex canescens                   (Pursh) Nutt.            
-ATCO       Atriplex corrugata                   Wats.                    
-AYEN       Ayenia spp.                                                   
-BAAB       Bahia absinthifolia                  Benth.                   
-BABR       Baccharis brachyphylla               Gray                     
-BACC       Baccharis spp.                                                
-BACH       Baccharis spp.                                                
-BAMU       Baileya multiradiata                 Harv. & Gray             
-BARA       Baccharis pteronioides               DC.                      
-BASA       Baccharis sarothroides               Gray                     
-ACAC       Acacia spp.                                                   
-ALWR       Aloysia wrightii                     (Gray) Heller            
-DICA       Digitaria californica                (Benth.) Chase           
-ERCU       Eragrostis curvula v. conferta       (Schrod.) Nees           
-HIBI       Hibiscus spp.                                                 
-LYCI       Lycium spp.                                                   
-MENT       Mentzelia spp.                                                
-MURE       Muhlenbergia repens                  (Presl) Hitchc.          
-PAOB       Panicum obtusum                      H.B.K.                   
-PRVE       Prosopis velutina                    Woot.                    
-TEHI       Tetramerium hispidum                 Nees                     
-TRCA2      Trixis californica                   Kell.                    
-BOCH       Bouteloua chondrosioides             (H.B.K.) Benth.          
-BOCO       Boerhaavia coccinea                  Mill.                    
-BOCU       Bouteloua curtipendula               (Michx.) Torr.           
-BOEL       Bouteloua eludens                    Griffiths                
-BOER       Bouteloua eriopoda                   Torr.                    
-BOFI       Bouteloua filiformis                 (Fourn.) Griffiths       
-BOHA       Boerhaavia spp.                                               
-BOHI       Bouteloua hirsuta                    Lag.                     
-BORO       Bouteloua rothrockii                 Vasey                    
-BRDE       Brayulinea densa                     (Humb.& Bonpl.) Small    
-BRIC       Brickellia spp.                                               
-CAAR       Carlowrightia arizonica              Gray                     
-CAER       Calliandra eriophylla                Benth.                   
-CARL       Carlowrightia arizonica              Gray                     
-CASS       Cassia spp.                                                   
-CEFL       Cercidium floridum                   Benth.                   
-CEMI       Cercidium microphyllum               (Torr.) Rose & Johnston  
-CEPA       Celtis pallida                       Torr.                    
-CEPA2      Celtis pallida                       Torr.                    
-CIRS       Cirsium spp.                                                  
-COLY       Zizyphus obtusifolia                 (Hooker) Gray            
-COOB       Zizyphus obtusifolia                 (Hooker) Gray            
-COPA       Cottea pappophoroides                Kunth.                   
-COSC       Commicarpus scandens                 (L.) Standl.             
-CRCO       Croton corymbulosus                  Engelm.                  
-DALE       Dalea spp.                                                    
-DAME       Datura meteloides                    DC.                      
-DAWH       Dasylirion wheeleri                  Wats.                    
-DITA       Ditaxis spp.                                                  
-DYSS       Dyssodia spp.                                                 
-ECHI       Echinocereus spp.                                             
-ECHI2      Echinocereus spp.                                             
-ECPER      Echinocereus pectinatus v. rigidissi (Scheidw.) Engelm.       
-ENDE       Enneapogon desvauxii                 Beauv.                   
-ENFR       Encelia frutescens                   Gray                     
-EPTR       Ephedra trifurca                     Torr.                    
-ERAG       Eragrostis spp.                      Beauv.                   
-ERCH       Eragrostis curvula v. conferta       (Schrod.) Nees           
-ERCH1      Eragrostis curvula v. conferta       (Schrod.) Nees           
-ERIN       Eragrostis intermedia                Hitchc.                  
-ERIN1      Eragrostis intermedia                Hitchc.                  
-ERIO       Eriogonum spp.                                                
-ERLE       Eragrostis lehmanniana               Nees                     
-ERPU       Erioneuron pulchellum                (H.B.K.) Tateoka         
-ERSU       Eragrostis superba                   Peyr.                    
-ERWR       Eriogonum wrightii                   Torr.                    
-EUPH       Euphorbia spp.                                                
-EVAR       Evolvulus arizonicus                 Gray                     
-EYPO       Eysenhardtia polystachya             (Ort.) Sarg.             
-FEWI       Ferocactus wislizeni                 (Engelm.) Britt. & Rose  
-FOSP       Fouquieria splendens                 Engelm.                  
-FOSP2      Fouquieria splendens                 Engelm.                  
-FRAM       Ambrosia ambrosioides                (Cav.) Payne             
-GILI       Gilia spp.                                                    
-GNAP       Gnaphalium spp.                                               
-GUSA       Gutierrezia sarothrae                (Pursh) Britt. & Rusby   
-GUTI       Gutierrezia sarothrae                (Pursh) Britt. & Rusby   
-HAFR       Haplopappus fremontii                Gray                     
-HALA       Haplopappus laricifolius             Gray                     
-HASP       Haplopappus spinulosus               (Pursh) DC.              
-HECO       Heteropogon contortus                (L.) Beauv.              
-HECO1      Heteropogon contortus                (L.) Beauv.              
-HETE       Heterotheca spp.                                              
-HIBE       Hilaria belangeri                    (Steud.) Nash            
-HIEM       Hyptis emoryi                        Torr.                    
-HOFF       Hoffmanseggia spp.                                            
-JAGR       Janusia gracilis                     Gray                     
-JANU       Janusia gracilis                     Gray                     
-KRGR       Krameria grayi                       Rose & Painter           
-KRPA       Krameria parvifolia                  Benth.                   
-LATR	     Larrea tridentata                    (DC.) Coville
-LECO       Leptoloma cognatum                   (Schult.) Chase          
-LEDU       Leptochloa dubia                     (H.B.K.) Nees            
-LOTU       Lotus spp.                                                    
-LYAN       Lycium andersonii                    Gray                     
-LYPA       Lycium pallidum                      Miers                    
-LYPH       Lycurus phleoides                    H.B.K.                   
-LYTO       Lycium torreyi                       Gray                     
-MAMA       Mammillaria spp.                                              
-MAMM       Mammillaria spp.                                              
-MIBI       Mimosa biuncifera                    Benth.                   
-MIBI3      Mimosa biuncifera                    Benth.                   
-MIDY       Mimosa dysocarpa                     Benth.                   
-MUAR       Muhlenbergia arizonica               Scribn.                  
-MUEM       Muhlenbergia emersleyi               Vasey                    
-MUHL       Muhlenbergia spp.                    Schreb.                  
-MUPO       Muhlenbergia porteri                 Scribn.                  
-MUPO1      Muhlenbergia porteri                 Scribn.                  
-NOMI       Nolina microcarpa                    Wats.                    
-OPAC       Opuntia acanthocarpa                 Engelm. & Bigel.         
-OPAR       Opuntia arbuscula                    Engelm.                  
-OPEN       Opuntia engelmannii                  Salm-Dyck                
-OPFU       Opuntia fulgida                      Engelm.                  
-OPLE       Opuntia leptocaulis                  DC.                      
-OPSP       Opuntia spinosior                    (Engelm. & Bigel.) Toumey
-OPUN       Opuntia spp.                                                  
-OPVE       Opuntia versicolor                   Engelm.                  
-PAHA       Panicum hallii                       Vasey                    
-PAMU       Pappophorum mucronulatum             Nees                     
-PECI       Pennisetum ciliare                   (L.) Link
-PENA       Perezia nana                         Gray                     
-PHYS       Physalis spp.                                                 
-PORT       Portulaca spp.                                                
-PRJU       Prosopis velutina                    Woot.                    
-PRJUV      Prosopis velutina                    Woot.                    
-QUEM       Quercus emoryi                       Torr.                    
-RUME       Rumex spp.                                                    
-SELO       Senecio longilobus                   Benth.                   
-SEMA       Setaria macrostachya                 H.B.K.                   
-SIDA       Sida spp.                                                     
-SIHY       Sitanion hystrix                     (Nutt.) J.G. Smith       
-SOEL       Solanum elaeagnifolium               Cav.                     
-SPCO       Sporobolus contractus                Hitch.                   
-SPOR       Sporobolus spp.                      R. Br.                   
-STEP       Stephanomeria spp.                                            
-STIP       Stipa spp.                           L.                       
-TALI       Talinum spp.                                                  
-TRCA1      Digitaria californica                (Benth.) Chase           
-TRMU       Tridens muticus                      (Torr.) Nash             
-TRPU       Erioneuron pulchellum                (H.B.K.) Tateoka         
-VICI       Vicia spp.                           L.                       
-VIGU       Viguiera spp.                                                 
-YUEL       Yucca elata                          Engelm.                  
-ZIOB       Zizyphus obtusifolia                 (Hooker) Gray            
-ZIPU       Zinnia pumila                        A. Gray                  
-
+CODE	CURRENT SCIENTIFIC NAME	AUTHORITY	Form
+ACAN	Acacia angustissima	(Mill.) Kuntze	
+ACCO	Acacia constricta	Benth.	
+ACGR	Acacia greggii	Gray	
+AGAV	Agave spp.		
+AGPA3	Agave parryi	Engelm.	
+ALLI	Allionia spp.		
+AMBR	Ambrosia spp.		
+ANBA	Bothriochloa barbinodis	(Lag.) Herter	grass
+ANCI	Andropogon cirratus	Hack.	grass
+ANSC	Schizachyrium scoparium	(Michx.) Nash	grass
+ANTH	Anisacanthus thurberi	(Torr.) Gray	
+APLA	Haplopappus laricifolius	Gray	
+APTE	Haplopappus tenuisectus	(Greene) Blake	
+ARFE	Aristida fendleriana	Steud.	grass
+ARGE	Argemone spp.		
+ARGL	Aristida glabrata	(Vasey) Hitchc.	grass
+ARGL1	Aristida glabrata	(Vasey) Hitchc.	grass
+ARIS	Aristida spp.	L.	grass
+ARWA	Aristolochia watsoni	Woot.& Standl.	
+ASC	Schizachyrium scoparium	(Michx.) Nash	grass
+ASTE	Aster spp.		
+ASTR	Astragalus spp.		
+ATCA	Atriplex canescens	(Pursh) Nutt.	
+ATCO	Atriplex corrugata	Wats.	
+AYEN	Ayenia spp.		
+BAAB	Bahia absinthifolia	Benth.	
+BABR	Baccharis brachyphylla	Gray	
+BACC	Baccharis spp.		
+BACH	Baccharis spp.		
+BAMU	Baileya multiradiata	Harv. & Gray	
+BARA	Baccharis pteronioides	DC.	
+BASA	Baccharis sarothroides	Gray	
+ACAC	Acacia spp.		
+ALWR	Aloysia wrightii	(Gray) Heller	
+DICA	Digitaria californica	(Benth.) Chase	grass
+ERCU	Eragrostis curvula v. conferta	(Schrod.) Nees	grass
+HIBI	Hibiscus spp.		
+LYCI	Lycium spp.		
+MENT	Mentzelia spp.		
+MURE	Muhlenbergia repens	(Presl) Hitchc.	grass
+PAOB	Panicum obtusum	H.B.K.	grass
+PRVE	Prosopis velutina	Woot.	
+TEHI	Tetramerium hispidum	Nees	
+TRCA2	Trixis californica	Kell.	
+BOCH	Bouteloua chondrosioides	(H.B.K.) Benth.	grass
+BOCO	Boerhaavia coccinea	Mill.	
+BOCU	Bouteloua curtipendula	(Michx.) Torr.	grass
+BOEL	Bouteloua eludens	Griffiths	grass
+BOER	Bouteloua eriopoda	Torr.	grass
+BOFI	Bouteloua filiformis	(Fourn.) Griffiths	grass
+BOHA	Boerhaavia spp.		
+BOHI	Bouteloua hirsuta	Lag.	grass
+BORO	Bouteloua rothrockii	Vasey	grass
+BRDE	Brayulinea densa	(Humb.& Bonpl.) Small	
+BRIC	Brickellia spp.		
+CAAR	Carlowrightia arizonica	Gray	
+CAER	Calliandra eriophylla	Benth.	
+CARL	Carlowrightia arizonica	Gray	
+CASS	Cassia spp.		
+CEFL	Cercidium floridum	Benth.	
+CEMI	Cercidium microphyllum	(Torr.) Rose & Johnston	
+CEPA	Celtis pallida	Torr.	
+CEPA2	Celtis pallida	Torr.	
+CIRS	Cirsium spp.		
+COLY	Zizyphus obtusifolia	(Hooker) Gray	
+COOB	Zizyphus obtusifolia	(Hooker) Gray	
+COPA	Cottea pappophoroides	Kunth.	grass
+COSC	Commicarpus scandens	(L.) Standl.	
+CRCO	Croton corymbulosus	Engelm.	
+DALE	Dalea spp.		
+DAME	Datura meteloides	DC.	
+DAWH	Dasylirion wheeleri	Wats.	
+DITA	Ditaxis spp.		
+DYSS	Dyssodia spp.		
+ECHI	Echinocereus spp.		
+ECHI2	Echinocereus spp.		
+ECPER	Echinocereus pectinatus v. rigidissi	(Scheidw.) Engelm.	
+ENDE	Enneapogon desvauxii	Beauv.	grass
+ENFR	Encelia frutescens	Gray	
+EPTR	Ephedra trifurca	Torr.	
+ERAG	Eragrostis spp.	Beauv.	grass
+ERCH	Eragrostis curvula v. conferta	(Schrod.) Nees	grass
+ERCH1	Eragrostis curvula v. conferta	(Schrod.) Nees	grass
+ERIN	Eragrostis intermedia	Hitchc.	grass
+ERIN1	Eragrostis intermedia	Hitchc.	grass
+ERIO	Eriogonum spp.		
+ERLE	Eragrostis lehmanniana	Nees	grass
+ERPU	Erioneuron pulchellum	(H.B.K.) Tateoka	grass
+ERSU	Eragrostis superba	Peyr.	grass
+ERWR	Eriogonum wrightii	Torr.	
+EUPH	Euphorbia spp.		
+EVAR	Evolvulus arizonicus	Gray	
+EYPO	Eysenhardtia polystachya	(Ort.) Sarg.	
+FEWI	Ferocactus wislizeni	(Engelm.) Britt. & Rose	
+FOSP	Fouquieria splendens	Engelm.	
+FOSP2	Fouquieria splendens	Engelm.	
+FRAM	Ambrosia ambrosioides	(Cav.) Payne	
+GILI	Gilia spp.		
+GNAP	Gnaphalium spp.		
+GUSA	Gutierrezia sarothrae	(Pursh) Britt. & Rusby	
+GUTI	Gutierrezia sarothrae	(Pursh) Britt. & Rusby	
+HAFR	Haplopappus fremontii	Gray	
+HALA	Haplopappus laricifolius	Gray	
+HASP	Haplopappus spinulosus	(Pursh) DC.	
+HECO	Heteropogon contortus	(L.) Beauv.	grass
+HECO1	Heteropogon contortus	(L.) Beauv.	grass
+HETE	Heterotheca spp.		
+HIBE	Hilaria belangeri	(Steud.) Nash	grass
+HIEM	Hyptis emoryi	Torr.	
+HOFF	Hoffmanseggia spp.		
+JAGR	Janusia gracilis	Gray	
+JANU	Janusia gracilis	Gray	
+KRGR	Krameria grayi	Rose & Painter	
+KRPA	Krameria parvifolia	Benth.	
+"LATR	     L"	arrea tridentata                    (	DC.) Coville	
+LECO	Leptoloma cognatum	(Schult.) Chase	grass
+LEDU	Leptochloa dubia	(H.B.K.) Nees	grass
+LOTU	Lotus spp.		
+LYAN	Lycium andersonii	Gray	
+LYPA	Lycium pallidum	Miers	
+LYPH	Lycurus phleoides	H.B.K.	grass
+LYTO	Lycium torreyi	Gray	
+MAMA	Mammillaria spp.		
+MAMM	Mammillaria spp.		
+MIBI	Mimosa biuncifera	Benth.	
+MIBI3	Mimosa biuncifera	Benth.	
+MIDY	Mimosa dysocarpa	Benth.	
+MUAR	Muhlenbergia arizonica	Scribn.	grass
+MUEM	Muhlenbergia emersleyi	Vasey	grass
+MUHL	Muhlenbergia spp.	Schreb.	grass
+MUPO	Muhlenbergia porteri	Scribn.	grass
+MUPO1	Muhlenbergia porteri	Scribn.	grass
+NOMI	Nolina microcarpa	Wats.	
+OPAC	Opuntia acanthocarpa	Engelm. & Bigel.	
+OPAR	Opuntia arbuscula	Engelm.	
+OPEN	Opuntia engelmannii	Salm-Dyck	
+OPFU	Opuntia fulgida	Engelm.	
+OPLE	Opuntia leptocaulis	DC.	
+OPSP	Opuntia spinosior	(Engelm. & Bigel.) Toumey	
+OPUN	Opuntia spp.		
+OPVE	Opuntia versicolor	Engelm.	
+PAHA	Panicum hallii	Vasey	grass
+PAMU	Pappophorum mucronulatum	Nees	grass
+PECI	Pennisetum ciliare	(L.) Link	grass
+PENA	Perezia nana	Gray	
+PHYS	Physalis spp.		
+PORT	Portulaca spp.		
+PRJU	Prosopis velutina	Woot.	
+PRJUV	Prosopis velutina	Woot.	
+QUEM	Quercus emoryi	Torr.	
+RUME	Rumex spp.		
+SELO	Senecio longilobus	Benth.	
+SEMA	Setaria macrostachya	H.B.K.	grass
+SIDA	Sida spp.		
+SIHY	Sitanion hystrix	(Nutt.) J.G. Smith	grass
+SOEL	Solanum elaeagnifolium	Cav.	
+SPCO	Sporobolus contractus	Hitch.	grass
+SPOR	Sporobolus spp.	R. Br.	grass
+STEP	Stephanomeria spp.		
+STIP	Stipa spp.	L.	grass
+TALI	Talinum spp.		
+TRCA1	Digitaria californica	(Benth.) Chase	grass
+TRMU	Tridens muticus	(Torr.) Nash	grass
+TRPU	Erioneuron pulchellum	(H.B.K.) Tateoka	grass
+VICI	Vicia spp.	L.	
+VIGU	Viguiera spp.		
+YUEL	Yucca elata	Engelm.	
+ZIOB	Zizyphus obtusifolia	(Hooker) Gray	
+ZIPU	Zinnia pumila	A. Gray	

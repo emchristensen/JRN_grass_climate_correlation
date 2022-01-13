@@ -1,6 +1,8 @@
 #' Testing for effect of PDO using other vegetation data sets from the area
 #' 
-#' last run: 1/10/22
+#' Processing of raw data from each site is done in other scripts
+#' 
+#' last run: 1/13/22
 
 library(ggplot2)
 library(dplyr)
@@ -13,8 +15,8 @@ pdophases = mutate(pdo, yint=rep(0))
 
 
 # ========================================================
-# CDRRC college ranch
-# data is kg/ha, may include species other than perennial grasses
+# NMSU college ranch (CDRRC)
+# data is kg/ha, "forage" may include species other than perennial grasses
 
 # forage production data from college ranch
 cdrrc = read.csv('other data sets/CDRRC/CDRRC pasture 1 long term forage production.csv', skip=2) %>%
@@ -29,14 +31,12 @@ cdrrc_figure = ggplot(cdrrc, aes(x=year, y=forage)) +
   geom_line() +
   xlab('') +
   ylab('Forage production \n(kg/ha)') +
-  ggtitle('CDRRC') +
+  ggtitle('NMSU Ranch') +
   
   scale_color_manual(values=c('blue','red')) +
   coord_cartesian(xlim=c(1966,2020)) +
   theme_bw()
 cdrrc_figure
-
-#ggsave('Figures/CDRRC_forage_timeseries.png', plot=cdrrc_figure, height=4, width=5)
 
 # boxplot: significant difference between phases?
 cdrrc_pdo = merge(cdrrc, pdo, all.x=T)
@@ -45,31 +45,33 @@ cdrrcbox = ggplot(cdrrc_pdo, aes(x=pdo_phase, y=forage)) +
   geom_jitter(width=.1, alpha=.4, na.rm=T)+
   #ylab('Forage production (kg/ha)') +
   ylab('') +
-  ggtitle('CDRRC') +
+  ggtitle('NMSU Ranch') +
   xlab('') +
   theme_bw()
 cdrrcbox
 
-# is there a significant difference? aov
+# is there a significant difference?
 cdrrc.aov <- aov(forage ~ pdo_phase, data=cdrrc_pdo)
 summary(cdrrc.aov)
-# significantly different: p = 0.012
+# significantly different
 cdrrc_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(forage))
 
 
 # ========================================================
 # Sevilleta 
 # line point intercept transects 
-# DW location had a fire in 2009. Use FP location instead.
+# used FP location because other location had a fire in 2009
+# Sum of all perennial grass cover
+# Used max of spring and fall samplings per year (following Collins et al 2020)
 
-sev = read.csv('other data sets/SEV/SEV_transects_fall_1994_2019.csv')
+sev = read.csv('other data sets/SEV/SEV_transects_1989_2019.csv')
 
-# restrict to one location, and convert to % cover
-sev_fp = sev %>% dplyr::filter(location=='FP') %>%
-  mutate(pct_cover = total_grass/400)
+# convert to % cover
+sev_pct = sev %>% 
+  mutate(pct_cover = total_grass/400) 
 
 # plot timeseries
-sev_figure = ggplot(sev_fp, aes(x=year, y=pct_cover)) +
+sev_figure = ggplot(sev_pct, aes(x=year, y=pct_cover)) +
   geom_point() +
   geom_line() +
   xlab('') +
@@ -77,14 +79,12 @@ sev_figure = ggplot(sev_fp, aes(x=year, y=pct_cover)) +
   ggtitle('Sevilleta') +
   geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
   scale_color_manual(values=c('blue','red')) +
-  coord_cartesian(xlim=c(1993,2020)) +
+  coord_cartesian(xlim=c(1988,2020)) +
   theme_bw()
 sev_figure
 
-#ggsave('Figures/CDRRC_forage_timeseries.png', plot=cdrrc_figure, height=4, width=5)
-
 # boxplot: significant difference between phases?
-sev_pdo = merge(sev_fp, pdo, all.x=T)
+sev_pdo = merge(sev_pct, pdo, all.x=T)
 sevbox = ggplot(sev_pdo, aes(x=pdo_phase, y=pct_cover)) +
   geom_boxplot(na.rm=T) +
   geom_jitter(width=.1, alpha=.4, na.rm=T)+
@@ -98,13 +98,13 @@ sevbox
 # is there a significant difference? aov
 sev.aov <- aov(pct_cover ~ pdo_phase, data=sev_pdo)
 summary(sev.aov)
-# significantly different: p = 0.012
+# significantly different
 sev_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(pct_cover))
 
 
 # ==========================================================
 # santa rita
-# these data are based on 8 transects in pasture 8 -- the longest-running data
+# these data are based on 8 transects in pasture 8 -- the longest-running data (1953-2021)
 # I summed grass species for each transect and took the mean of the 8 transects
 sr_dat = read.csv('other data sets/santa rita/transects/pasture8_transects_mean.csv')
 
@@ -176,72 +176,13 @@ summary(jrn.aov)
 # significantly different
 jrn_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(median_grass))
 
+
 # ===========================================================
 # combine into multi-part figures
- 
-# timeseries_plots = ggpubr::ggarrange(cdrrc_figure, sev_figure, sr_figure, nrow=1, common.legend = T, legend='bottom')
-# box_plots = ggpubr::ggarrange(cdrrcbox, sevbox, srbox, nrow=1)
-# 
-# ggsave('Figures/other_data_timeseries.png', plot=timeseries_plots, width=7.5, height=3)
-# ggsave('Figures/other_data_boxplots.png', plot=box_plots, width=7.5, height=3)
 
-allplots = ggpubr::ggarrange(jrn_figure, jrnbox, cdrrc_figure, cdrrcbox, sev_figure, sevbox, sr_figure, srbox, 
+allplots = ggpubr::ggarrange(jrn_figure, jrnbox, cdrrc_figure, cdrrcbox, sr_figure, srbox, sev_figure, sevbox, 
                              nrow=4, ncol=2, common.legend=T, legend='bottom', labels='AUTO')
 allplots
-ggsave('Figures/other_data_multifigure.png', plot=allplots, width=4, height=8)
+ggsave('Figures/other_data_multifigure.png', plot=allplots, width=5, height=8)
 
 
-# 
-# # ==============================================
-# # Jornada NPP quadrats: 1989-2018
-# # data consists of cover by species, 1m2 quadrats, 49 quadrats per site, using 14 sites
-# 
-# npp = read.csv('other data sets/npp/JRN_011002_npp_quadrat_meas.csv')
-# 
-# # data filters: fall sampling only, perennial grass species only, no cyperus, exclude site with 48 quadrats
-# npp_perenn_grasses = npp %>% 
-#   dplyr::filter(season=='F', form=='GRASS', habit=='P', USDA_code != 'CYES', site != 'COLL')
-# 
-# # get average perenn grass cover by site and year (total/49 quadrats)
-# npp_site_year = npp_perenn_grasses %>%
-#   group_by(year, site) %>%
-#   summarize(mean_cover = sum(cover, na.rm=T)/49)
-# 
-# # get overall mean
-# npp_mean = npp_site_year %>%
-#   ungroup() %>% group_by(year) %>%
-#   summarize(mean_cover = mean(mean_cover)) %>%
-#   mutate(pct_cover=mean_cover/100)
-# 
-# # plot timeseries
-# npp_figure = ggplot(npp_mean, aes(x=year, y=pct_cover)) +
-#   geom_point() +
-#   geom_line() +
-#   xlab('') +
-#   ylab('Percent cover') +
-#   ggtitle('Jornada NPP') +
-#   geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
-#   scale_color_manual(values=c('blue','red')) +
-#   coord_cartesian(xlim=c(1988,2020)) +
-#   theme_bw() 
-# npp_figure
-# 
-# #ggsave('Figures/Jornada_NPP_quadrat_timeseries.png', plot=npp_figure, height=4, width=5)
-# 
-# # boxplot: significant difference between phases?
-# npp_pdo = merge(npp_mean, pdo, all.x=T)
-# nppbox = ggplot(npp_pdo, aes(x=pdo_phase, y=pct_cover)) +
-#   geom_boxplot(na.rm=T) +
-#   geom_jitter(width=.1, alpha=.4, na.rm=T)+
-#   #ylab('Percent cover') +
-#   ylab('') +
-#   ggtitle('Jornada NPP') +
-#   xlab('') +
-#   theme_bw()
-# nppbox
-# 
-# # is there a significant difference? aov
-# npp.aov <- aov(pct_cover ~ pdo_phase, data=npp_pdo)
-# summary(npp.aov)
-# # no significant difference in cover between warm/cool
-# npp_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(pct_cover))
