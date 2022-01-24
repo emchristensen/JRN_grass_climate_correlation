@@ -7,6 +7,7 @@
 library(ggplot2)
 library(dplyr)
 library(ggpubr)
+library(emmeans)
 
 # read in PDO phases
 pdo = read.csv('data/PDO_phases_byyear.csv')
@@ -54,8 +55,9 @@ cdrrcbox
 cdrrc.aov <- aov(forage ~ pdo_phase, data=cdrrc_pdo)
 summary(cdrrc.aov)
 # significantly different
-cdrrc_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(forage))
 
+# get estimated marginal means
+emmeans(cdrrc.aov, ~ pdo_phase)
 
 # ========================================================
 # Sevilleta 
@@ -99,8 +101,9 @@ sevbox
 sev.aov <- aov(pct_cover ~ pdo_phase, data=sev_pdo)
 summary(sev.aov)
 # significantly different
-sev_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(pct_cover))
 
+# get estimated marginal means
+emmeans(sev.aov, ~ pdo_phase)
 
 # ==========================================================
 # santa rita
@@ -137,7 +140,9 @@ srbox
 sr.aov <- aov(mean_grass ~ pdo_phase, data=sr_pdo)
 summary(sr.aov)
 # different
-sr_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(mean_grass))
+
+# get estimated marginal means
+emmeans(sr.aov, ~ pdo_phase)
 
 
 # =========================================================
@@ -174,7 +179,9 @@ jrnbox
 jrn.aov <- aov(median_grass ~ pdo_phase, data=jrn_pdo)
 summary(jrn.aov)
 # significantly different
-jrn_pdo %>% group_by(pdo_phase) %>% summarize(mean=mean(median_grass))
+
+# get estimated marginal means
+emmeans(jrn.aov, ~ pdo_phase)
 
 
 # ===========================================================

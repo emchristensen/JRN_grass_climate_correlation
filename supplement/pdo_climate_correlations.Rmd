@@ -8,9 +8,10 @@ output: html_document
 ```{r setup, include=FALSE}
 library(dplyr)
 library(ggplot2)
+library(emmeans)
 
-pdo_phases = read.csv('data/PDO_phases_byyear.csv')
-climate = read.csv('data/climate_variables.csv')
+pdo_phases = read.csv('../data/PDO_phases_byyear.csv')
+climate = read.csv('../data/climate_variables.csv')
 
 
 alldata = merge(pdo_phases, climate, by.x='year', by.y='water_yr', all=T) %>%
@@ -67,6 +68,8 @@ summary(dplyr::filter(plotdata, pdo_phase=='warm'))
 summary(dplyr::filter(plotdata, pdo_phase=='cool'))
 
 gridExtra::grid.arrange(yearly, summer, winter, speiplot, pdsiplot, meantemp, nrow=2)
+
+
 ```
 
 Are the differences significant?
@@ -85,44 +88,16 @@ pdsi.aov <- aov(pdsi ~ pdo_phase, data=plotdata)
 summary(pdsi.aov)
 temp.aov <- aov(mean_temp ~ pdo_phase, data=plotdata)
 summary(temp.aov)
+
+
+# marginal means
+emmeans(yearly.aov, ~pdo_phase)
+emmeans(summer.aov, ~pdo_phase)
+emmeans(winter.aov, ~pdo_phase)
+emmeans(spei.aov, ~pdo_phase)
+emmeans(pdsi.aov, ~pdo_phase)
+emmeans(temp.aov, ~pdo_phase)
 ```
 
 The differences are significant for yearly, summer, and winter precip. 
-
-
-```{r pdo-ppt, echo=F}
-# code from Darren 8/18/21
-library(emmeans)
-ggplot(plotdata, aes(x = pdo, y = yearly_ppt_mm, col = pdo_phase)) +
-  geom_smooth(method = "lm", se = FALSE) +
-  geom_point()
-
-# Run linear regression
-ppt.interaction <- lm(yearly_ppt_mm ~ pdo*pdo_phase, data = plotdata)
-
-anova(ppt.interaction) # Check pdo_index:pdo_phase effect for the test of different slopes
-
-# Obtain slopes
-ppt.emmeans <- emtrends(ppt.interaction, "pdo_phase", var="pdo")
-
-# Compare slopes -- look at yearly_pdo:pdo_phase interaction term
-pairs(ppt.emmeans)
-
-```
-
-The interaction term is not significant, p=0.36
-
-```{r y-intercept, echo=F}
-# code from Darren 8/19/21
-library(emmeans)
-ggplot(plotdata, aes(x = pdo, y = yearly_ppt_mm, col = pdo_phase)) +
-  geom_smooth(method = "lm", se = FALSE) +
-  geom_point()
-
-ppt.interaction <- lm(yearly_ppt_mm ~ pdo*pdo_phase, data = plotdata)
-ppt.intercept <- emmeans::emmeans(ppt.interaction, "pdo_phase", at = list(pdo_index = 0))
-pairs(ppt.intercept)
-```
-
-The difference in y-intercept is not significant, p=0.23
 
