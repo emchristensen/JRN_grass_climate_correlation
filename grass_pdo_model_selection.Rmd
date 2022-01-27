@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-# last update: 1/10/22
+# last update: 1/27/22
 
 library(dplyr)
 library(ggplot2)
@@ -118,29 +118,28 @@ write.csv(arrange(aictable, deltaAICc), 'results_aic_table.csv', row.names=F)
 There are several models almost tied for best AICc. The simplest of these has only smoothed_pdo as a predictor. 
 
 ```{r plot model}
-# plot results of best model
-bestmodel <- model1s
 
-# get coefficient and intercept from best model
-coeff <- bestmodel$coefficients[2]
-intercept <- bestmodel$coefficients[1]
+# rescale data for plotting on same y-axis
+rescaled_data = combined_data %>%
+  dplyr::filter(year>1915, year<1980) %>%
+  dplyr::select(year, smoothed_grass, smoothed_pdo) %>%
+  mutate(grass_scaled = scales::rescale(smoothed_grass, to=c(0,1)),
+         pdo_scaled = scales::rescale(smoothed_pdo, to=c(0,1)))
 
-# plot grass and PDO timeseries on dual axes; derived from best lm
-grass_pdo_plot = ggplot(data=model_data, aes(x=year)) +
-  geom_line(aes(y=smoothed_grass, color='Grass'), size=1.5) +
-  geom_line(aes(y=(smoothed_pdo*coeff)+intercept, color='PDO'), size=1.5) +
-  scale_y_continuous(
-    name='Grass cover',
-    sec.axis = sec_axis(~(.-intercept)/coeff, name='PDO index')
-  ) +
-  theme_bw() +
+
+# Rescaled timeseries plot
+rescaled = ggplot(rescaled_data, aes(x=year)) +
+  geom_line(aes(y=grass_scaled, color='Grass'), size=1.5) +
+  geom_line(aes(y=pdo_scaled, color='PDO'), size=1.5) +
   scale_color_manual(name='',values=cbPalette[c(7,3)]) +
-  theme(axis.title.y.left = element_text(color=cbPalette[7], face='bold'),
-        axis.title.y.right = element_text(color=cbPalette[3], face='bold')) +
-  xlab('') 
-grass_pdo_plot
+  xlab('') +
+  ylab('Scaled Data') +
+  theme_bw()
 
-ggsave('Figures/grass_pdo_smoothed_GAM.png', plot=grass_pdo_plot, height=3, width=5)
+rescaled
+
+
+ggsave('Figures/grass_pdo_smoothed_GAM.png', plot=rescaled, height=3, width=5)
 ```
 
 ## Predictions from model
@@ -150,7 +149,11 @@ Using the best model based on the 1916-1979 timeseries, create predictions for g
 
 ```{r model predict}
 # prediction based on best model
-newdata = dplyr::filter(combined_data, year>1916) %>%
+
+# plot results of best model
+bestmodel <- model1s
+
+newdata = dplyr::filter(combined_data, year>1915) %>%
   dplyr::select(year, smoothed_pdo)
 predicted_grass = predict.lm(bestmodel, newdata, interval='prediction') %>% as.data.frame()
 
@@ -165,7 +168,7 @@ grasspred = ggplot(modelprediction, aes(x=year)) +
   geom_line(aes(y=predicted_grass)) +
   geom_ribbon(aes(ymin=lower, ymax=upper), alpha=.3) +
   geom_point(data=combined_data, aes(x=year, y=grass)) +
-  xlim(1916, 2020) +
+  xlim(1916, 2022) +
   theme_bw() +
   coord_cartesian(ylim=c(-.005,.1)) +
   xlab('') +
