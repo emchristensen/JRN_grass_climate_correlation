@@ -70,6 +70,11 @@ summary(dplyr::filter(plotdata, pdo_phase=='cool'))
 gridExtra::grid.arrange(yearly, summer, winter, speiplot, pdsiplot, meantemp, nrow=2)
 
 
+allplots = ggpubr::ggarrange(yearly, summer, winter, speiplot, pdsiplot, meantemp, 
+                             nrow=2, ncol=3, labels='AUTO')
+allplots
+ggsave('../Figures/pdo_climate_variable_boxplots.png', plot=allplots, width=7, height=4)
+
 ```
 
 Are the differences significant?
