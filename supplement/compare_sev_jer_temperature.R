@@ -108,13 +108,11 @@ maxyrtemp = ggplot(temps, aes(x=location, y=maxtemp)) +
 maxyrtemp
 
 # get average yearly temp of each location
-mean(jrn_temp$mintemp)
-mean(jrn_temp$maxtemp)
-mean(jrn_temp$meantemp)
+mean(temps$mintemp[temps$location=='Jornada'])
+mean(temps$maxtemp[temps$location=='Jornada'])
 
-mean(sev_temp$mintemp)
-mean(sev_temp$maxtemp)
-mean(sev_temp$meantemp)
+mean(temps$mintemp[temps$location=='Sevilleta'])
+mean(temps$maxtemp[temps$location=='Sevilleta'])
 
 # combine into one plot
 minmaxtemp = ggpubr::ggarrange( minyrtemp, maxyrtemp,
