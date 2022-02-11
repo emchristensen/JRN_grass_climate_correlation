@@ -95,3 +95,26 @@ shrub_plot = ggplot(shrub_timeseries, aes(x=project_year, y=avg_cover)) +
   theme_bw()
 shrub_plot
 ggsave('Figures/shrub_cover_timeseries.png', plot=shrub_plot, width=4, height=4)
+
+
+# ===================================================
+# look at shrub correlation to PDO
+
+pdo = read.csv('data/climate_variables.csv')
+
+pdo_shrub = merge(shrub_timeseries, pdo, by.x='project_year', by.y='water_yr') %>%
+  dplyr::select(year=project_year, pdo, avg_cover)
+
+shrub_pdo_plot = ggplot(pdo_shrub, aes(x=pdo, y=avg_cover)) +
+  geom_point() +
+  xlab('PDO index') +
+  ylab('Avg. shrub cover per m^2') +
+  theme_bw()
+shrub_pdo_plot
+
+ggsave('Figures/shrub_pdo_plot.png', plot=shrub_pdo_plot, width=4, height=4)
+
+
+# lm test
+model1 = lm(avg_cover ~ pdo, data=pdo_shrub)
+summary(model1)

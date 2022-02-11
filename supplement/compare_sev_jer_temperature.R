@@ -119,3 +119,6 @@ minmaxtemp = ggpubr::ggarrange( minyrtemp, maxyrtemp,
                              nrow=1, ncol=2, common.legend=T, legend='bottom', labels='AUTO')
 minmaxtemp
 ggsave('Figures/jrn_sev_temp_boxplot.png', plot=minmaxtemp, width=5, height=3)
+
+
+
