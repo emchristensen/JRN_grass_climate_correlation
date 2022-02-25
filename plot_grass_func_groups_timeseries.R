@@ -51,7 +51,7 @@ grassgroups <- ggplot(ts1, aes(x=project_year)) +
   scale_fill_manual(values=cbPalette, breaks=c('transient','core'),labels=c('Transient species','Core species')) +
   theme_bw()
 grassgroups
-ggsave('Figures/grass_func_groups_timeseries.png', plot=grassgroups, width=6, height=4)
+#ggsave('Figures/grass_func_groups_timeseries.png', plot=grassgroups, width=6, height=4)
 
 
 # =============================================================
