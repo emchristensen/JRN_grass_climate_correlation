@@ -15,7 +15,7 @@
 #'  The paper Collins et al 2020 used max of spring/fall sampling per year to create timeseries
 #'    
 #' EMC 8/11/21
-#' last update 1/12/22
+#' last run: 2/25/22
 
 library(dplyr)
 library(ggplot2)
@@ -91,3 +91,4 @@ ggplot(transect_ts, aes(x=year, y=total_grass)) +
   geom_point() +
   theme_bw()
 # this looks different from Fig 3 in Collins et al 2020. I'm not sure why.
+

@@ -1,0 +1,170 @@
+CODE,CURRENT SCIENTIFIC NAME,AUTHORITY,Form
+ECPER,Echinocereus pectinatus v. rigidissi,(Scheidw.) Engelm.,cactus
+ECHI,Echinocereus spp.,,cactus
+ECHI2,Echinocereus spp.,,cactus
+FEWI,Ferocactus wislizeni,(Engelm.) Britt. & Rose,cactus
+MAMA,Mammillaria spp.,,cactus
+MAMM,Mammillaria spp.,,cactus
+OPAC,Opuntia acanthocarpa,Engelm. & Bigel.,cactus
+OPAR,Opuntia arbuscula,Engelm.,cactus
+OPEN,Opuntia engelmannii,Salm-Dyck,cactus
+OPFU,Opuntia fulgida,Engelm.,cactus
+OPLE,Opuntia leptocaulis,DC.,cactus
+OPSP,Opuntia spinosior,(Engelm. & Bigel.) Toumey,cactus
+OPUN,Opuntia spp.,,cactus
+OPVE,Opuntia versicolor,Engelm.,cactus
+ALLI,Allionia spp.,,forb
+ARWA,Aristolochia watsoni,Woot.& Standl.,forb
+BAAB,Bahia absinthifolia,Benth.,forb
+BAMU,Baileya multiradiata,Harv. & Gray,forb
+BOCO,Boerhaavia coccinea,Mill.,forb
+BRDE,Brayulinea densa,(Humb.& Bonpl.) Small,forb
+COSC,Commicarpus scandens,(L.) Standl.,forb
+CRCO,Croton corymbulosus,Engelm.,forb
+DAME,Datura meteloides,DC.,forb
+ERWR,Eriogonum wrightii,Torr.,forb
+EVAR,Evolvulus arizonicus,Gray,forb
+HAFR,Haplopappus fremontii,Gray,forb
+HASP,Haplopappus spinulosus,(Pursh) DC.,forb
+JAGR,Janusia gracilis,Gray,forb
+JANU,Janusia gracilis,Gray,forb
+PENA,Perezia nana,Gray,forb
+SELO,Senecio longilobus,Benth.,forb
+SOEL,Solanum elaeagnifolium,Cav.,forb
+TEHI,Tetramerium hispidum,Nees,forb
+ZIPU,Zinnia pumila,A. Gray,forb
+ANCI,Andropogon cirratus,Hack.,grass
+ARFE,Aristida fendleriana,Steud.,grass
+ARGL,Aristida glabrata,(Vasey) Hitchc.,grass
+ARGL1,Aristida glabrata,(Vasey) Hitchc.,grass
+ARIS,Aristida spp.,L.,grass
+ANBA,Bothriochloa barbinodis,(Lag.) Herter,grass
+BOCH,Bouteloua chondrosioides,(H.B.K.) Benth.,grass
+BOCU,Bouteloua curtipendula,(Michx.) Torr.,grass
+BOEL,Bouteloua eludens,Griffiths,grass
+BOER,Bouteloua eriopoda,Torr.,grass
+BOFI,Bouteloua filiformis,(Fourn.) Griffiths,grass
+BOHI,Bouteloua hirsuta,Lag.,grass
+BORO,Bouteloua rothrockii,Vasey,grass
+COPA,Cottea pappophoroides,Kunth.,grass
+DICA,Digitaria californica,(Benth.) Chase,grass
+TRCA1,Digitaria californica,(Benth.) Chase,grass
+ENDE,Enneapogon desvauxii,Beauv.,grass
+ERCU,Eragrostis curvula v. conferta,(Schrod.) Nees,grass
+ERCH,Eragrostis curvula v. conferta,(Schrod.) Nees,grass
+ERCH1,Eragrostis curvula v. conferta,(Schrod.) Nees,grass
+ERIN,Eragrostis intermedia,Hitchc.,grass
+ERIN1,Eragrostis intermedia,Hitchc.,grass
+ERLE,Eragrostis lehmanniana,Nees,grass
+ERAG,Eragrostis spp.,Beauv.,grass
+ERSU,Eragrostis superba,Peyr.,grass
+ERPU,Erioneuron pulchellum,(H.B.K.) Tateoka,grass
+TRPU,Erioneuron pulchellum,(H.B.K.) Tateoka,grass
+HECO,Heteropogon contortus,(L.) Beauv.,grass
+HECO1,Heteropogon contortus,(L.) Beauv.,grass
+HIBE,Hilaria belangeri,(Steud.) Nash,grass
+LEDU,Leptochloa dubia,(H.B.K.) Nees,grass
+LECO,Leptoloma cognatum,(Schult.) Chase,grass
+LYPH,Lycurus phleoides,H.B.K.,grass
+MUAR,Muhlenbergia arizonica,Scribn.,grass
+MUEM,Muhlenbergia emersleyi,Vasey,grass
+MUPO,Muhlenbergia porteri,Scribn.,grass
+MUPO1,Muhlenbergia porteri,Scribn.,grass
+MURE,Muhlenbergia repens,(Presl) Hitchc.,grass
+MUHL,Muhlenbergia spp.,Schreb.,grass
+PAHA,Panicum hallii,Vasey,grass
+PAOB,Panicum obtusum,H.B.K.,grass
+PAMU,Pappophorum mucronulatum,Nees,grass
+PECI,Pennisetum ciliare,(L.) Link,grass
+ANSC,Schizachyrium scoparium,(Michx.) Nash,grass
+ASC,Schizachyrium scoparium,(Michx.) Nash,grass
+SEMA,Setaria macrostachya,H.B.K.,grass
+SIHY,Sitanion hystrix,(Nutt.) J.G. Smith,grass
+SPCO,Sporobolus contractus,Hitch.,grass
+SPOR,Sporobolus spp.,R. Br.,grass
+STIP,Stipa spp.,L.,grass
+TRMU,Tridens muticus,(Torr.) Nash,grass
+ACAN,Acacia angustissima,(Mill.) Kuntze,shrub
+ACCO,Acacia constricta,Benth.,shrub
+ACGR,Acacia greggii,Gray,shrub
+ACAC,Acacia spp.,,shrub
+AGPA3,Agave parryi,Engelm.,shrub
+AGAV,Agave spp.,,shrub
+ALWR,Aloysia wrightii,(Gray) Heller,shrub
+FRAM,Ambrosia ambrosioides,(Cav.) Payne,shrub
+ANTH,Anisacanthus thurberi,(Torr.) Gray,shrub
+ATCA,Atriplex canescens,(Pursh) Nutt.,shrub
+ATCO,Atriplex corrugata,Wats.,shrub
+BABR,Baccharis brachyphylla,Gray,shrub
+BARA,Baccharis pteronioides,DC.,shrub
+BASA,Baccharis sarothroides,Gray,shrub
+CAER,Calliandra eriophylla,Benth.,shrub
+CAAR,Carlowrightia arizonica,Gray,shrub
+CARL,Carlowrightia arizonica,Gray,shrub
+CEPA,Celtis pallida,Torr.,shrub
+CEPA2,Celtis pallida,Torr.,shrub
+CEFL,Cercidium floridum,Benth.,shrub
+CEMI,Cercidium microphyllum,(Torr.) Rose & Johnston,shrub
+DAWH,Dasylirion wheeleri,Wats.,shrub
+ENFR,Encelia frutescens,Gray,shrub
+EPTR,Ephedra trifurca,Torr.,shrub
+FOSP,Fouquieria splendens,Engelm.,shrub
+FOSP2,Fouquieria splendens,Engelm.,shrub
+GUSA,Gutierrezia sarothrae,(Pursh) Britt. & Rusby,shrub
+GUTI,Gutierrezia sarothrae,(Pursh) Britt. & Rusby,shrub
+APLA,Haplopappus laricifolius,Gray,shrub
+HALA,Haplopappus laricifolius,Gray,shrub
+HIEM,Hyptis emoryi,Torr.,shrub
+KRGR,Krameria grayi,Rose & Painter,shrub
+KRPA,Krameria parvifolia,Benth.,shrub
+LATR,Larrea tridentata                    (,DC.) Coville,shrub
+LYAN,Lycium andersonii,Gray,shrub
+LYPA,Lycium pallidum,Miers,shrub
+LYCI,Lycium spp.,,shrub
+LYTO,Lycium torreyi,Gray,shrub
+MIBI,Mimosa biuncifera,Benth.,shrub
+MIBI3,Mimosa biuncifera,Benth.,shrub
+MIDY,Mimosa dysocarpa,Benth.,shrub
+NOMI,Nolina microcarpa,Wats.,shrub
+PRVE,Prosopis velutina,Woot.,shrub
+PRJU,Prosopis velutina,Woot.,shrub
+PRJUV,Prosopis velutina,Woot.,shrub
+QUEM,Quercus emoryi,Torr.,shrub
+TRCA2,Trixis californica,Kell.,shrub
+YUEL,Yucca elata,Engelm.,shrub
+COLY,Zizyphus obtusifolia,(Hooker) Gray,shrub
+COOB,Zizyphus obtusifolia,(Hooker) Gray,shrub
+ZIOB,Zizyphus obtusifolia,(Hooker) Gray,shrub
+APTE,Haplopappus tenuisectus,(Greene) Blake,subshrub
+EYPO,Eysenhardtia polystachya,(Ort.) Sarg.,tree
+AMBR,Ambrosia spp.,,
+ARGE,Argemone spp.,,
+ASTE,Aster spp.,,
+ASTR,Astragalus spp.,,
+AYEN,Ayenia spp.,,
+BACC,Baccharis spp.,,
+BACH,Baccharis spp.,,
+BOHA,Boerhaavia spp.,,
+BRIC,Brickellia spp.,,
+CASS,Cassia spp.,,
+CIRS,Cirsium spp.,,
+DALE,Dalea spp.,,
+DITA,Ditaxis spp.,,
+DYSS,Dyssodia spp.,,
+ERIO,Eriogonum spp.,,
+EUPH,Euphorbia spp.,,
+GILI,Gilia spp.,,
+GNAP,Gnaphalium spp.,,
+HETE,Heterotheca spp.,,
+HIBI,Hibiscus spp.,,
+HOFF,Hoffmanseggia spp.,,
+LOTU,Lotus spp.,,
+MENT,Mentzelia spp.,,
+PHYS,Physalis spp.,,
+PORT,Portulaca spp.,,
+RUME,Rumex spp.,,
+SIDA,Sida spp.,,
+STEP,Stephanomeria spp.,,
+TALI,Talinum spp.,,
+VICI,Vicia spp.,L.,
+VIGU,Viguiera spp.,,
