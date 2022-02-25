@@ -2,14 +2,10 @@
 
 ### Scripts
 
-* __create_quadrat_subset_map.R__ creates map of the quadrats used in this study. Saves to Figures.
+* __compare_sev_jer_temperature.R__ Comparing min/max temperature at the Sevilleta vs. Jornada. Included in supplement of paper.
 
-* __GAMs_grass_pdo.R__ uses GAM to smooth grass and PDO index timeseries. Saves smoothed timeseries to data folder. Option to save figures to Figures folder. Supports main model script. 
+* __HQ temp data.R__ Timeseries of temperature at Jornada Headquarters 1915-2020. Shows significant warming trend since 1980.
 
 * __pdo_climate_correlations.Rmd__ Document looking at correlations of local weather to PDO phase. Included in supplement of paper. 
 
-* __pdo_phase_grass_correlation.r__ Test for significant difference in grass cover by PDO phase. Saves Figures.
-
-* __pdo_soil_water.R__ tests for differences in soil water content (data from LTER) by PDO phase. No significant differences. Included in supplement of paper. 
-
-* __plot_grass_func_groups_timeseries.R__ creates plot of grass functional groups timeseries. Fig. 2 in paper. 
+* __plot_shrub_timeseries.R__ Creates plots for supplement. Shrub increase timeseries 1915-2016, and lack of correlation between shrub cover and PDO index. 
