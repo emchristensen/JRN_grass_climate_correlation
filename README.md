@@ -26,3 +26,7 @@ A GAM is used to model the long-term trends in the grass timeseries. GAMs are al
 The main models correlating grass with climate variables are run in __grass_pdo_model_selection.Rmd__. This script depends on intermediate csv files created in the first two steps. Creates _results_aic_table.csv_. 
 
 The figure of grass functional groups is created by __plot_grass_func_groups_timeseries.R__.
+
+### Additional scripts
+
+* __plot_grass_func_groups_timeseries.R__ creates plot of grass functional groups timeseries. Fig. 2 in paper. 
