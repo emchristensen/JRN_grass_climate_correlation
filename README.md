@@ -7,6 +7,8 @@ __data__ - Contains raw data files and R scripts for handling data
 
 __Figures__ - Contains final figures for paper
 
+__other data sets__ - Contains data and scripts analyzing data from other locations
+
 __supplement__  - Analyses for supplement of paper
 
 ## Workflow
