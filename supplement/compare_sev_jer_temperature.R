@@ -28,13 +28,13 @@ jrn = temp_noaa %>%
 jrn$tmean = rowMeans(jrn[,c('TMIN_C','TMAX_C')], na.rm=T)
 
 # read in sev data
-sev1 = read.csv('data/raw_climate_data/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_1988_1994.csv')
-sev2 = read.csv('data/raw_climate_data/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_1995_1999.csv')
-sev3 = read.csv('data/raw_climate_data/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2000_2004.csv')
-sev4 = read.csv('data/raw_climate_data/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2005_2009.csv')
-sev5 = read.csv('data/raw_climate_data/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2010_2014.csv')
-sev6 = read.csv('data/raw_climate_data/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2015_2019.csv')
-sev7 = read.csv('data/raw_climate_data/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2020.csv')
+sev1 = read.csv('supplement/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_1988_1994.csv')
+sev2 = read.csv('supplement/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_1995_1999.csv')
+sev3 = read.csv('supplement/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2000_2004.csv')
+sev4 = read.csv('supplement/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2005_2009.csv')
+sev5 = read.csv('supplement/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2010_2014.csv')
+sev6 = read.csv('supplement/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2015_2019.csv')
+sev7 = read.csv('supplement/knb-lter-sev.1.14/Sevilleta_LTER_Hourly_Meteorological_Data_2020.csv')
 
 # to match jornada data, get daily avg T of SEV
 sev = rbind(sev1, sev2, sev3, sev4, sev5, sev6, sev7) 
