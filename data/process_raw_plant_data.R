@@ -113,38 +113,20 @@ total_by_quad = all_grass_species %>%
 write.csv(total_by_quad, 'data/grass_total_timeseries_imputed.csv', row.names=F)
 
 
-# # ===============================================================
-# # mean grass cover over all quadrats by year -- not used
-# 
-# # read in data from above
-# total_by_quad = read.csv('data/grass_total_timeseries_imputed.csv')
-# 
-# # get mean
-# mean_grass = total_by_quad %>%
-#   group_by(project_year) %>%
-#   summarize(mean_grass = mean(grass_cover))
-# 
-# ggplot(mean_grass, aes(x=project_year, y=mean_grass)) +
-#   geom_point() +
-#   geom_line()
-# 
-# # write to file
-# #write.csv(mean_grass, 'data/grass_mean_yearly.csv', row.names=F)
-
 # ===============================================================
-# # median grass cover over all quadrats by year
-# 
-# # read in data from above
-# total_by_quad = read.csv('data/grass_total_timeseries_imputed.csv')
-# 
-# # get median
-# median_grass = total_by_quad %>%
-#   group_by(project_year) %>%
-#   summarize(median_grass = median(grass_cover))
-# 
-# ggplot(median_grass, aes(x=project_year, y=median_grass)) +
-#   geom_point() +
-#   geom_line()
-# 
-# # write to file
-# write.csv(median_grass, 'data/grass_median_yearly.csv', row.names=F)
+# median grass cover over all quadrats by year
+
+# read in data from above
+total_by_quad = read.csv('data/grass_total_timeseries_imputed.csv')
+
+# get median
+median_grass = total_by_quad %>%
+  group_by(project_year) %>%
+  summarize(median_grass = median(grass_cover))
+
+ggplot(median_grass, aes(x=project_year, y=median_grass)) +
+  geom_point() +
+  geom_line()
+
+# write to file
+write.csv(median_grass, 'data/grass_median_yearly.csv', row.names=F)
