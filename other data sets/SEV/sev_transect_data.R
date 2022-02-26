@@ -90,5 +90,4 @@ ggplot(transect_ts, aes(x=year, y=total_grass)) +
   geom_line() +
   geom_point() +
   theme_bw()
-# this looks different from Fig 3 in Collins et al 2020. I'm not sure why.
 
