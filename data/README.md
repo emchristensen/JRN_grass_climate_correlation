@@ -61,7 +61,6 @@ Files:
 
 * __smoothed_climate_variables.csv__ PDO index and other climate variables smoothed using GAM method. Created by GAMs_grass_pdo.R
 
-* __smoothed_grass_gam.csv__ grass smoothed using GAM method. Created by GAMs_grass_pdo.R
 
 
 
