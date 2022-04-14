@@ -20,8 +20,8 @@ Run scripts in 'data' folder to prepare quadrat grass data and climate variable 
 
 
 ### Run GAMs to smooth timeseries
-A GAM is used to model the long-term trends in the grass timeseries. GAMs are also used to smooth each of the climate variables. Creates _smoothed_grass_gam.csv_ and _smoothed_climate_variables.csv_.
- - Run __GAMs_grass_pdo.R__
+GAMs are used to smooth each of the climate variables. Creates _data/smoothed_climate_variables.csv_.
+ - Run __GAMs_smooth.R__
 
 
 ### Main model scripts
