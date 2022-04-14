@@ -189,6 +189,9 @@ smoothed_climate_vars = merge(modeloutput_pdo, modeloutput_nino) %>%
 
 write.csv(smoothed_climate_vars, 'data/smoothed_climate_variables.csv', row.names = F)
 
+trendplots = cowplot::plot_grid(pdogam, ninogam, tempgam, pptgam, summergam, wintergam, pdsigam, speigam, nrow=3)
+trendplots
+ggsave(plot=trendplots, 'Figures/climate_smooth_trendplots.png', width=7, height=6)
 
 # # =============================
 # # smooth grass with a GAM
