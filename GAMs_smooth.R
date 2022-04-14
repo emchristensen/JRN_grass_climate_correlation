@@ -1,8 +1,8 @@
-#' Smooth grass and climate time series using GAMs
+#' Smooth climate time series using GAMs
 #' 
 #' 
 #' EMC 9/8/21
-#' last run: 2/25/22
+#' last run: 4/14/22
 
 library(dplyr)
 library(ggplot2)
@@ -11,44 +11,10 @@ library(mgcv)
 # colors for figures
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-# read in data
-grass = read.csv('data/grass_median_yearly.csv') %>% rename(grass = median_grass)
-
-# restrict to historical section of timeseries
-grass_hist = dplyr::filter(grass, project_year<1995)
 
 # read in climate variables
 climate_variables = read.csv('data/climate_variables.csv') 
 
-# =============================
-# smooth grass with a GAM
-
-# gam function from mgcv package
-m1 <- gam(grass ~ s(project_year, k=15), 
-          data=grass_hist, 
-          method='REML')
-
-# summary of model
-summary(m1)
-# model checks
-k.check(m1) # check that k was large enough
-gratia::appraise(m1)
-
-# plot model output
-modeloutput = data.frame(fitted_grass = fitted(m1), project_year = grass_hist$project_year)
-
-grassgam = ggplot(grass_hist, aes(x=project_year, y=grass)) +
-  geom_point() +
-  xlab('') +
-  ylab('grass cover per m^2') +
-  geom_line(data=modeloutput, aes(y=fitted_grass)) +
-  theme_bw()
-grassgam
-
-ggsave('Figures/grass_smoothed_gam.png', plot=grassgam, width=4, height=3)
-
-smoothedgrass = merge(modeloutput, grass) %>% rename(smoothed_grass = fitted_grass)
-write.csv(smoothedgrass,'data/smoothed_grass_gam.csv', row.names = F)
 
 # ===================================================================
 # smooth pdo
@@ -75,9 +41,7 @@ pdogam = ggplot(pdoindex, aes(x=year, y=pdo)) +
   theme_bw()
 pdogam
 
-
 smoothedpdo = merge(modeloutput_pdo, pdoindex) 
-#write.csv(smoothedpdo,'data/smoothed_pdo_gam.csv', row.names=F)
 
 # =================================================
 # smooth enso
@@ -224,4 +188,41 @@ smoothed_climate_vars = merge(modeloutput_pdo, modeloutput_nino) %>%
   merge(modeloutput_winterppt)
 
 write.csv(smoothed_climate_vars, 'data/smoothed_climate_variables.csv', row.names = F)
+
+
+# # =============================
+# # smooth grass with a GAM
+# 
+# # read in data
+# grass = read.csv('data/grass_median_yearly.csv') %>% rename(grass = median_grass)
+# 
+# #  restrict to historical section of timeseries
+# grass_hist = dplyr::filter(grass, project_year<1995)
+#
+# # gam function from mgcv package
+# m1 <- gam(grass ~ s(project_year, k=15), 
+#           data=grass_hist, 
+#           method='REML')
+# 
+# # summary of model
+# summary(m1)
+# # model checks
+# k.check(m1) # check that k was large enough
+# gratia::appraise(m1)
+# 
+# # plot model output
+# modeloutput = data.frame(fitted_grass = fitted(m1), project_year = grass_hist$project_year)
+# 
+# grassgam = ggplot(grass_hist, aes(x=project_year, y=grass)) +
+#   geom_point() +
+#   xlab('') +
+#   ylab('grass cover per m^2') +
+#   geom_line(data=modeloutput, aes(y=fitted_grass)) +
+#   theme_bw()
+# grassgam
+# 
+# ggsave('Figures/grass_smoothed_gam.png', plot=grassgam, width=4, height=3)
+# 
+# smoothedgrass = merge(modeloutput, grass) %>% rename(smoothed_grass = fitted_grass)
+# write.csv(smoothedgrass,'data/smoothed_grass_gam.csv', row.names = F)
 
