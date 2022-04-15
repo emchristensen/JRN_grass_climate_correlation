@@ -10,17 +10,19 @@
 #' Weather station at JRN began in June 1914, so data 1900-1914 filled by PRISM
 #' 
 # EMC
-# last run: 2/25/22
+# last run: 4/15/22
 
 library(dplyr)
 library(lubridate)
 library(SPEI)
+library(rsoi)
 
 # read in PDSI data
 pdsi = read.csv('data/raw_climate_data/PDSI_DonaAna_1895_2021.csv')
 
-# read in PDO index
-pdo = read.csv('data/raw_climate_data/PDO_long_1900_2020.csv')
+# download PDO index
+#pdo_old = read.csv('data/raw_climate_data/PDO_long_1900_2020.csv')
+pdo = rsoi::download_pdo() %>% rename(year=Year) %>% mutate(month = month(Date))
 
 # read in Nino 3.4 index
 nino34 = read.csv('data/raw_climate_data/Nino34_long_1870_2020.csv')
@@ -109,6 +111,19 @@ temp2 = temp_noaa_monthly %>%
   dplyr::select(year, month, monthly_tmean_c)
 temp = rbind(temp1, temp2)
 
+# =================================
+# El Nino index
+
+# get 3-month rolling average of nino 3.4 index (ONI)
+nino = nino34 %>% mutate(ONI=rep(NA))
+for (n in 2:length(nino$ONI)) {
+  nino$ONI[n] <- mean(nino$nino34_index[(n-1):(n+1)])
+} 
+
+# categorize as nino/nina/neutral
+nino$enso_phase = rep('Neutral')
+nino$enso_phase[nino$ONI< -0.5] <- 'LaNina'
+nino$enso_phase[nino$ONI> 0.5] <- 'ElNino'
 
 # ====================================================
 # put together final data files
@@ -137,8 +152,10 @@ monthlyclimate$spei1[is.infinite(monthlyclimate$spei1)] <- NA
 monthlyfinal = monthlyclimate %>%
   merge(pdsi) %>%
   merge(pdo) %>%
-  merge(nino34) %>%
-  dplyr::select(year, month, ppt_mm, tmean_c, spei1, pdsi, nino34_index, pdo)
+  merge(nino) %>%
+  dplyr::select(year, month, ppt_mm, tmean_c, spei1, pdsi, nino34_index, ONI, enso_phase, pdo=PDO) %>%
+  mutate(date = as.Date(paste(year, month, '01',sep='-'))) %>%
+  arrange(date)
 
 
 
@@ -146,6 +163,22 @@ write.csv(monthlyfinal, 'data/climate_variables_monthly.csv', row.names=F)
 
 # =============================================================================
 # get yearly and seasonal summary
+
+# read in PDO phases
+pdophase = read.csv('data/PDO_phases_byyear.csv')
+
+# determine if a year was nino/nina/neutral
+#    el nino = ONI > 0.5 for 5 months Sept-March
+#    la nina = ONI < -0.5 for 5 months Sept-March
+ensophases = dplyr::select(monthlyfinal, year, month, ONI, enso_phase) %>% 
+  dplyr::filter(month %in% c(1,2,3,9,10,11,12)) %>%
+  mutate(winteryear = ifelse (month %in% c(9:12), year+1, year)) %>%
+  group_by(winteryear) %>%
+  summarize(nino=sum(enso_phase=='ElNino'),
+            nina=sum(enso_phase=='LaNina')) %>%
+  mutate(enso_phase = ifelse(nino>=5, 'ElNino', ifelse(nina>=5, 'LaNina', 'Neutral'))) %>%
+  dplyr::select(winteryear, enso_phase)
+
 
 # create water_yr column so winter (Oct-Apr) ppt can be calculated
 monthlyfinal$water_yr = monthlyfinal$year
@@ -163,17 +196,20 @@ winterppt = monthlyfinal %>%
   group_by(water_yr) %>%
   summarize(winter_ppt_mm = sum(ppt_mm))
 
-# aggregate precip, temp, spei to yearly; merge with summer and winter precip
+# aggregate precip, temp, spei to yearly; merge with summer and winter precip; merge with pdo and enso phases
 yearlyclimate = monthlyfinal %>%
   group_by(water_yr) %>%
   summarize(pdo = mean(pdo),
             nino34 = mean(nino34_index),
+            oni = mean(ONI),
             pdsi = mean(pdsi),
             spei = mean(spei1, na.rm=T),
             mean_temp=mean(tmean_c),
             yearly_ppt_mm = sum(ppt_mm)) %>%
   merge(summerppt) %>%
   merge(winterppt) %>%
+  merge(pdophase, by.x='water_yr', by.y='year') %>%
+  merge(ensophases, by.x='water_yr', by.y='winteryear') %>%
   dplyr::filter(water_yr>=1901)
 
 
