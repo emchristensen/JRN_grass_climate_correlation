@@ -1,4 +1,5 @@
 #' read in raw climate data and create monthly and yearly time series
+#' 
 #' yearly = October-September
 #' Takes daily headquarters weather station data, aggregate to monthly and yearly. 
 #'  - summer = May-Sept
@@ -10,7 +11,7 @@
 #' Weather station at JRN began in June 1914, so data 1900-1914 filled by PRISM
 #' 
 # EMC
-# last run: 4/15/22
+# last run: 5/5/22
 
 library(dplyr)
 library(lubridate)
@@ -20,8 +21,7 @@ library(rsoi)
 # read in PDSI data
 pdsi = read.csv('data/raw_climate_data/PDSI_DonaAna_1895_2021.csv')
 
-# download PDO index
-#pdo_old = read.csv('data/raw_climate_data/PDO_long_1900_2020.csv')
+# download PDO index using rsoi package
 pdo = rsoi::download_pdo() %>% rename(year=Year) %>% mutate(month = month(Date))
 
 # read in Nino 3.4 index
@@ -184,17 +184,20 @@ ensophases = dplyr::select(monthlyfinal, year, month, ONI, enso_phase) %>%
 monthlyfinal$water_yr = monthlyfinal$year
 monthlyfinal$water_yr[monthlyfinal$month %in% c(10,11,12)] <- monthlyfinal$year[monthlyfinal$month %in% c(10,11,12)] +1
 
-# summer precip
+# summer precip, spei, pdsi
 summerppt = monthlyfinal %>%
   dplyr::filter(month %in% c(5,6,7,8,9)) %>%
   group_by(water_yr) %>%
-  summarize(summer_ppt_mm = sum(ppt_mm))
+  summarize(summer_ppt_mm = sum(ppt_mm),
+            summer_pdsi = mean(pdsi),
+            summer_spei = mean(spei1))
 
 # winter precip
 winterppt = monthlyfinal %>%
   dplyr::filter(month %in% c(1,2,3,4,10,11,12)) %>%
   group_by(water_yr) %>%
   summarize(winter_ppt_mm = sum(ppt_mm))
+
 
 # aggregate precip, temp, spei to yearly; merge with summer and winter precip; merge with pdo and enso phases
 yearlyclimate = monthlyfinal %>%
