@@ -198,6 +198,13 @@ winterppt = monthlyfinal %>%
   group_by(water_yr) %>%
   summarize(winter_ppt_mm = sum(ppt_mm))
 
+# growing season De Martonne aridity index
+demartonne = monthlyfinal %>%
+  dplyr::filter(month %in% c(6,7,8,9)) %>%
+  group_by(year) %>%
+  summarize(meanppt = mean(ppt_mm),
+            meantemp = mean(tmean_c)) %>%
+  mutate(demartonne = meanppt/(meantemp + 10))
 
 # aggregate precip, temp, spei to yearly; merge with summer and winter precip; merge with pdo and enso phases
 yearlyclimate = monthlyfinal %>%
@@ -213,8 +220,8 @@ yearlyclimate = monthlyfinal %>%
   merge(winterppt) %>%
   merge(pdophase, by.x='water_yr', by.y='year') %>%
   merge(ensophases, by.x='water_yr', by.y='winteryear') %>%
-  dplyr::filter(water_yr>=1901)
-
+  dplyr::filter(water_yr>=1901) %>%
+  merge(demartonne[,c('year','demartonne')], by.x='water_yr',by.y='year')
 
 write.csv(yearlyclimate, 'data/climate_variables.csv', row.names=F)
 
