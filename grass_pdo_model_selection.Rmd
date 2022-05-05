@@ -1,16 +1,17 @@
 ---
 title: "Grass/PDO model selection"
 author: "Erica Christensen"
-date: "1/10/2022"
+date: "5/5/2022"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-# last run: 2/25/22
+# last run: 5/5/22
 
 library(dplyr)
 library(ggplot2)
 library(MuMIn)
+library(astsa)
 
 # colors for figures
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -18,86 +19,148 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 # read in data
 grass = read.csv('data/grass_median_yearly.csv') %>% rename(grass = median_grass)
 pptdat = read.csv('data/climate_variables.csv')
-pdo_factor = read.csv('data/PDO_phases_byyear.csv')
-nino_factor = read.csv('data/ENSO_phases_byyear.csv')
-
-# read in smoothed vars
-smoothgrass = read.csv('data/smoothed_grass_gam.csv')
-smoothclimate = read.csv('data/smoothed_climate_variables.csv')
 
 # create one big data frame
-combined_data = merge(grass, smoothgrass, all=T) %>% 
-  merge(pdo_factor, by.x='project_year', by.y='year', all=T) %>%
-  merge(nino_factor, by.x='project_year', by.y='year', all=T) %>%
+combined_data = grass %>%
   merge(pptdat, by.x='project_year', by.y='water_yr', all=T) %>%
-  merge(smoothclimate, by.x='project_year', by.y='year', all=T) %>%
   rename(year=project_year)
 
 ```
 
-## Timeseries cross-correlation
 
-The first thing I did was look at the cross-correlation function between grass and the climate variables. PDO had significant correlation terms going back to lag 10, while Nino 3.4, yearly precip, winter precip, and summer precip had no significant terms.
+## Lags and cross-correlation
+
+Are lags important to variables? 
+
+```{r lags, echo=F}
+# remove categorical variables
+corr_data = combined_data %>%
+  dplyr::filter(year %in% 1916:1979) %>%
+  dplyr::select(-year, -pdo_phase, -enso_phase)
+
+# look at lags between climate and grass
+par(mfrow=c(3,4))
+ccf(corr_data$pdo, corr_data$grass, main='PDO')
+ccf(corr_data$nino34, corr_data$grass, main='NINO 3.4')
+ccf(corr_data$oni, corr_data$grass, main='ONI')
+ccf(corr_data$pdsi, corr_data$grass, main='PDSI')
+ccf(corr_data$summer_pdsi, corr_data$grass, main='Summer PDSI')
+ccf(corr_data$spei, corr_data$grass, main='SPEI')
+ccf(corr_data$summer_spei, corr_data$grass, main='Summer SPEI')
+ccf(corr_data$demartonne, corr_data$grass, main='De Martonne Aridity')
+ccf(corr_data$mean_temp, corr_data$grass, main='Temp')
+ccf(corr_data$yearly_ppt_mm, corr_data$grass, main='yearly ppt')
+ccf(corr_data$summer_ppt_mm, corr_data$grass, main='summer ppt')
+ccf(corr_data$winter_ppt_mm, corr_data$grass, main='winter ppt')
+
+```
+
+Cross-correlation plots suggest lag 0-10 for pdo, lag 0-1 for pdsi and summer pdsi, lag 1 for spei may be important. I created a new variable by calculating the 10-year moving average of the PDO. 
+
+
+## Pearson's correlation
+
+I looked at the Pearson's correlation coefficient between grass and climate time series. I also plotted scatterplots of grass against each variable to determine if a non-linear relationship was more appropriate. 
 
 ```{r cars, echo=F}
-# cross-correlation functions
-corr_data = dplyr::filter(combined_data, !is.na(grass))
-acf(corr_data$grass)
-ccf(corr_data$pdo, corr_data$grass)
-ccf(corr_data$nino34, corr_data$grass)
-ccf(corr_data$yearly_ppt, corr_data$grass)
-ccf(corr_data$winter_ppt, corr_data$grass)
-ccf(corr_data$summer_ppt, corr_data$grass)
+# Pearsons correlation
+
+# create lag variables for pdsi (1), spei (1), and 10-year moving average for pdo
+combined_data = combined_data %>%
+  mutate(pdo_lag5=lag(pdo, 5),
+         spei_lag1=lag(spei, 1),
+         pdsi_lag1=lag(pdsi,1),
+         pdo_mean_10y = c(rep(NA,9),
+                      zoo::rollmean(pdo, 10)))
+
+corr_data2 = combined_data %>%
+  dplyr::filter(year %in% 1916:1979) %>%
+  dplyr::select(-year, -pdo_phase, -enso_phase)
+
+# pearson correlation test for whole dataset
+res = Hmisc::rcorr(as.matrix(corr_data2), type='pearson')
+
+# get correlation coefficients and p-values
+pearsons = data.frame(variable=row.names(res$r),
+                      pearsons=round(res$r[,1],3),
+                      pvalue=round(res$P[,1],3))
+pearsons
+
+# scatterplots of grass vs each variable
+scatter_data = combined_data %>%
+  dplyr::filter(year %in% 1916:1979)
+
+par(mfrow=c(3,3))
+plot(scatter_data$pdo, scatter_data$grass, main='PDO', xlab='')
+plot(scatter_data$nino34, scatter_data$grass, main='NINO 3.4', xlab='')
+plot(scatter_data$oni, scatter_data$grass, main='ONI', xlab='')
+plot(scatter_data$pdsi, scatter_data$grass, main='PDSI', xlab='')
+plot(scatter_data$spei, scatter_data$grass, main='SPEI', xlab='')
+plot(scatter_data$mean_temp, scatter_data$grass, main='Temp', xlab='')
+plot(scatter_data$yearly_ppt_mm, scatter_data$grass, main='Yearly ppt', xlab='')
+plot(scatter_data$summer_ppt_mm, scatter_data$grass, main='Summer ppt', xlab='')
+plot(scatter_data$winter_ppt_mm, scatter_data$grass, main='Winter ppt', xlab='')
+par(mfrow=c(3,3))
+plot(as.factor(scatter_data$pdo_phase), scatter_data$grass, main='PDO phase', xlab='')
+plot(as.factor(scatter_data$enso_phase), scatter_data$grass, main='ENSO phase', xlab='')
+plot(scatter_data$pdo_lag5, scatter_data$grass, main='PDO lag 5', xlab='')
+plot(scatter_data$spei_lag1, scatter_data$grass, main='SPEI lag 1', xlab='')
+plot(scatter_data$pdsi_lag1, scatter_data$grass, main='PDSI lag 1', xlab='')
+plot(scatter_data$pdo_mean_10y, scatter_data$grass, main='PDO 10y mean', xlab='')
+plot(scatter_data$demartonne, scatter_data$grass, main='De Martonne', xlab='')
+plot(scatter_data$summer_pdsi, scatter_data$grass, main = 'Summer PDSI', xlab='')
+plot(scatter_data$summer_spei, scatter_data$grass, main = 'Summer SPEI', xlab='')
+
+#plot(scatter_data$smoothed_oni, scatter_data$grass, main='smooth ONI', xlab='')
 ```
+
+There are significant correlations (p<0.05) with pdo, smoothed pdo, pdo with lag 5, pdsi, pdsi with lag 1, spei with lag 1, summer pdsi, and almost spei (p = 0.06). These variables will be used in subsequent models. 
 
 ## Models and model comparison
 
-Linear models were constructed between grass cover (smoothed) and all single climate variables (yearly precip, winter precip, summer precip, PDSI, SPEI, PDO index, Nino 3.4 index, yearly mean temperature), and all smoothed single variables. Smoothed timeseries for each variable were created using GAMs (see GAMs_grass_pdo.R). I also included factor variables of PDO phase (warm/cool) and Nino 3.4 phase (nino/nina/neutral). The predictors best models containing a single climate variable predictor were combined in additional models to see if fit could be improved by including multiple predictors. 
+Linear models were constructed between grass cover the variables identified above. I also included factor variables of PDO phase (warm/cool) and ENSO phase (nino/nina/neutral). The best models containing a single climate variable predictor were combined in additional models to see if fit could be improved by including multiple predictors. 
 
 ```{r pressure, echo=F}
 model_data = combined_data %>%
   dplyr::filter(year>=1916, year<1980)
 
 # models with single predictors
-model1 = lm(smoothed_grass ~ pdo, data=model_data)
-model1s = lm(smoothed_grass ~ smoothed_pdo, data=model_data)
-model2 = lm(smoothed_grass ~ nino34, data=model_data)
-model2s = lm(smoothed_grass ~ smoothed_nino, data=model_data)
-model3 = lm(smoothed_grass ~ yearly_ppt_mm, data=model_data)
-model3s = lm(smoothed_grass ~ smoothed_yearlyppt, data=model_data)
-model4 = lm(smoothed_grass ~ winter_ppt_mm, data=model_data)
-model4s = lm(smoothed_grass ~ smoothed_winterppt, data=model_data)
-model5 = lm(smoothed_grass ~ summer_ppt_mm, data=model_data)
-model5s = lm(smoothed_grass ~ smoothed_summerppt, data=model_data)
-model6 = lm(smoothed_grass ~ pdsi, data=model_data)
-model6s = lm(smoothed_grass ~ smoothed_pdsi, data=model_data)
-model7 = lm(smoothed_grass ~ spei, data=model_data)
-model7s = lm(smoothed_grass ~ smoothed_spei, data=model_data)
-model8 = lm(smoothed_grass ~ mean_temp, data=model_data)
-model8s = lm(smoothed_grass ~ smoothed_temp, data=model_data)
-model9 = lm(smoothed_grass ~ category_nino34, data=model_data)
-model10 = lm(smoothed_grass ~ pdo_phase, data=model_data)
+model1 = lm(grass ~ pdo, data=model_data)
+model2 = lm(grass ~ pdo_lag5, data=model_data)
+model3 = lm(grass ~ pdo_mean_10y, data=model_data)
+model4 = lm(grass ~ pdsi, data=model_data)
+model4a = lm(grass ~ summer_pdsi, data=model_data)
+model5 = lm(grass ~ pdsi_lag1, data=model_data)
+model6 = lm(grass ~ spei, data=model_data)
+model7 = lm(grass ~ spei_lag1, data=model_data)
+model8 = lm(grass ~ enso_phase, data=model_data)
+model9 = lm(grass ~ pdo_phase, data=model_data)
+
 
 # models with two predictors
-model11 = lm(smoothed_grass ~ smoothed_pdo + yearly_ppt_mm, data=model_data)
-model12 = lm(smoothed_grass ~ smoothed_pdo + winter_ppt_mm, data=model_data)
-model13 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm, data=model_data)
-model14 = lm(smoothed_grass ~ smoothed_pdo + nino34, data=model_data)
-model15 = lm(smoothed_grass ~ smoothed_pdo + pdsi, data=model_data)
-model16 = lm(smoothed_grass ~ smoothed_pdo + spei, data=model_data)
-model17 = lm(smoothed_grass ~ smoothed_pdo + mean_temp, data=model_data)
-model18 = lm(smoothed_grass ~ smoothed_pdo + category_nino34, data=model_data)
+model10 = lm(grass ~ pdo_mean_10y + yearly_ppt_mm, data=model_data)
+model11 = lm(grass ~ pdo_mean_10y + pdsi, data=model_data)
+model12 = lm(grass ~ pdo_mean_10y + pdsi_lag1, data=model_data)
+model13 = lm(grass ~ pdo_mean_10y + spei, data=model_data)
+model14 = lm(grass ~ pdo_mean_10y + spei_lag1, data=model_data)
+model15 = lm(grass ~ pdo_mean_10y + summer_ppt_mm, data=model_data)
+model16 = lm(grass ~ pdo_mean_10y + enso_phase, data=model_data)
+model17 = lm(grass ~ pdo_mean_10y + summer_pdsi, data=model_data)
+model18 = lm(grass ~ pdo_mean_10y + summer_spei, data=model_data)
+model19 = lm(grass ~ pdo_mean_10y + demartonne, data=model_data)
 
 # models with more predictors
-model19 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + nino34, data=model_data)
-model20 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + yearly_ppt_mm, data=model_data)
-model21 = lm(smoothed_grass ~ smoothed_pdo + summer_ppt_mm + spei, data=model_data)
+model20 = lm(grass ~ pdo_mean_10y + pdsi + pdsi_lag1, data=model_data)
+model21 = lm(grass ~ pdo_mean_10y + enso_phase + yearly_ppt_mm, data=model_data)
+model22 = lm(grass ~ pdo_mean_10y + spei + spei_lag1, data=model_data)
 
+modelnull = lm(grass ~ 1, data=model_data)
 
 # create table with aic and rsquared
-modellist = list(model1, model2, model3, model4, model5, model6, model7, model8, model9, model10, model11, model12, model13, model14,
-                 model15, model16, model17, model18, model19, model20,model21,
-                 model1s, model2s, model3s, model4s, model5s, model6s, model7s, model8s)
+modellist = list(model1, model2, model3, model4, model4a, model5, model6, model7, model8, model9, model10,
+                 model11, model12, model13, model14, model15, model16,
+                 model17, model18,model19, model20, model21, model22, modelnull)
+                 
 aictable = c()
 for (m in 1:length(modellist)) {
   model=modellist[[m]]
@@ -115,46 +178,62 @@ aictable$adj.r.squared = aictable$adj.r.squared * 100
 write.csv(arrange(aictable, deltaAICc), 'results_aic_table.csv', row.names=F)
 ```
 
-There are several models almost tied for best AICc. The simplest of these has only smoothed_pdo as a predictor. 
+There are several models almost tied for best AICc. The simplest of these has only 10-year mean of pdo as a predictor. 
 
-```{r plot model}
+```{r plot model, echo=F}
 
-# rescale data for plotting on same y-axis
-rescaled_data = combined_data %>%
-  dplyr::filter(year>1915, year<1980) %>%
-  dplyr::select(year, smoothed_grass, smoothed_pdo) %>%
-  mutate(grass_scaled = scales::rescale(smoothed_grass, to=c(0,1)),
-         pdo_scaled = scales::rescale(smoothed_pdo, to=c(0,1)))
+# best models: 22 (smoothed pdo, spei, spei_lag1)
+# simplest and within 2 AICc units: 3 (just smoothed pdo)
 
+bestmodel = model3
 
-# Rescaled timeseries plot
-rescaled = ggplot(rescaled_data, aes(x=year)) +
-  geom_line(aes(y=grass_scaled, color='Grass'), size=1.5) +
-  geom_line(aes(y=pdo_scaled, color='PDO'), size=1.5) +
+summary(bestmodel)
+gratia::appraise(bestmodel)
+
+# x, y plot
+scatterplot = ggplot(model_data, aes(x=pdo_mean_10y, y=grass)) +
+  geom_point() +
+  geom_smooth(method='lm', formula=y~x) +
+  xlab('PDO 10-year avg.') +
+  ylab('Median Grass Cover (m^2)') +
+  theme_bw() 
+scatterplot
+
+ggsave('Figures/scatterplot_pdo10y_grass.png', plot=scatterplot, width=4, height=3)
+
+# timeseries plot
+
+newdata = model_data 
+predicted_grass = predict.lm(bestmodel, newdata, interval='prediction') %>% as.data.frame()
+
+modelprediction = data.frame(predicted_grass=predicted_grass$fit,
+         lower=predicted_grass$lwr,
+         upper=predicted_grass$upr) %>%
+  cbind(newdata)
+timeplot = ggplot(modelprediction, aes(x=year, y=predicted_grass)) +
+  geom_line(aes(color = 'Model \nprediction'), size=1.5) +
+  geom_point(data=model_data, aes(y=grass, color='Grass \nmeasurement')) +
   scale_color_manual(name='',values=cbPalette[c(7,3)]) +
   xlab('') +
-  ylab('Scaled Data') +
-  theme_bw()
+  ylab('Grass Cover (m^2)') +
+  theme_bw() 
+timeplot
 
-rescaled
-
-
-ggsave('Figures/grass_pdo_smoothed_GAM.png', plot=rescaled, height=3, width=5)
+ggsave('Figures/grass_pdo10y_timeseries.png', plot=timeplot, width=5, height=3)
 ```
 
-## Predictions from model
+## Predict grass 1980-2020 from model
 
-Using the best model based on the 1916-1979 timeseries, create predictions for grass up to the present. Compare to data collected in 1995, 2001, 2006, 2011, and 2016.
+Using the best model based on the 1916-1979 timeseries, create predictions for grass up to 2020. Compare to data collected in 1995, 2001, 2006, 2011, and 2016.
 
 
-```{r model predict}
+```{r model predict, echo=F}
 # prediction based on best model
 
 # plot results of best model
-bestmodel <- model1s
 
-newdata = dplyr::filter(combined_data, year>1915) %>%
-  dplyr::select(year, smoothed_pdo)
+
+newdata = dplyr::filter(combined_data, year>1915) 
 predicted_grass = predict.lm(bestmodel, newdata, interval='prediction') %>% as.data.frame()
 
 modelprediction = data.frame(predicted_grass=predicted_grass$fit,
@@ -170,7 +249,7 @@ grasspred = ggplot(modelprediction, aes(x=year)) +
   geom_point(data=combined_data, aes(x=year, y=grass)) +
   xlim(1916, 2022) +
   theme_bw() +
-  coord_cartesian(ylim=c(-.005,.1)) +
+  #coord_cartesian(ylim=c(-.005,.1)) +
   xlab('') +
   ylab('Grass cover (m^2)')
 grasspred
