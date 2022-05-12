@@ -1,12 +1,12 @@
 ---
 title: "Grass/PDO model selection"
 author: "Erica Christensen"
-date: "5/5/2022"
+date: "5/12/2022"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-# last run: 5/5/22
+# last run: 5/12/22
 
 library(dplyr)
 library(ggplot2)
@@ -25,141 +25,49 @@ combined_data = grass %>%
   merge(pptdat, by.x='project_year', by.y='water_yr', all=T) %>%
   rename(year=project_year)
 
-```
-
-
-## Lags and cross-correlation
-
-Are lags important to variables? 
-
-```{r lags, echo=F}
-# remove categorical variables
-corr_data = combined_data %>%
-  dplyr::filter(year %in% 1916:1979) %>%
-  dplyr::select(-year, -pdo_phase, -enso_phase)
-
-# look at lags between climate and grass
-par(mfrow=c(3,4))
-ccf(corr_data$pdo, corr_data$grass, main='PDO')
-ccf(corr_data$nino34, corr_data$grass, main='NINO 3.4')
-ccf(corr_data$oni, corr_data$grass, main='ONI')
-ccf(corr_data$pdsi, corr_data$grass, main='PDSI')
-ccf(corr_data$summer_pdsi, corr_data$grass, main='Summer PDSI')
-ccf(corr_data$spei, corr_data$grass, main='SPEI')
-ccf(corr_data$summer_spei, corr_data$grass, main='Summer SPEI')
-ccf(corr_data$demartonne, corr_data$grass, main='De Martonne Aridity')
-ccf(corr_data$mean_temp, corr_data$grass, main='Temp')
-ccf(corr_data$yearly_ppt_mm, corr_data$grass, main='yearly ppt')
-ccf(corr_data$summer_ppt_mm, corr_data$grass, main='summer ppt')
-ccf(corr_data$winter_ppt_mm, corr_data$grass, main='winter ppt')
-
-```
-
-Cross-correlation plots suggest lag 0-10 for pdo, lag 0-1 for pdsi and summer pdsi, lag 1 for spei may be important. I created a new variable by calculating the 10-year moving average of the PDO. 
-
-
-## Pearson's correlation
-
-I looked at the Pearson's correlation coefficient between grass and climate time series. I also plotted scatterplots of grass against each variable to determine if a non-linear relationship was more appropriate. 
-
-```{r cars, echo=F}
-# Pearsons correlation
-
-# create lag variables for pdsi (1), spei (1), and 10-year moving average for pdo
+# we know from select_variables_for_models.Rmd that a 10-year moving average of PDO should be included in models, and a 1-year lag of pdsi
 combined_data = combined_data %>%
-  mutate(pdo_lag5=lag(pdo, 5),
-         spei_lag1=lag(spei, 1),
-         pdsi_lag1=lag(pdsi,1),
-         pdo_mean_10y = c(rep(NA,9),
-                      zoo::rollmean(pdo, 10)))
+  mutate(pdo_mean_10y = c(rep(NA,9),
+                      zoo::rollmean(pdo, 10)),
+         pdsi_lag1 = lag(pdsi,1))
 
-corr_data2 = combined_data %>%
-  dplyr::filter(year %in% 1916:1979) %>%
-  dplyr::select(-year, -pdo_phase, -enso_phase)
-
-# pearson correlation test for whole dataset
-res = Hmisc::rcorr(as.matrix(corr_data2), type='pearson')
-
-# get correlation coefficients and p-values
-pearsons = data.frame(variable=row.names(res$r),
-                      pearsons=round(res$r[,1],3),
-                      pvalue=round(res$P[,1],3))
-pearsons
-
-# scatterplots of grass vs each variable
-scatter_data = combined_data %>%
-  dplyr::filter(year %in% 1916:1979)
-
-par(mfrow=c(3,3))
-plot(scatter_data$pdo, scatter_data$grass, main='PDO', xlab='')
-plot(scatter_data$nino34, scatter_data$grass, main='NINO 3.4', xlab='')
-plot(scatter_data$oni, scatter_data$grass, main='ONI', xlab='')
-plot(scatter_data$pdsi, scatter_data$grass, main='PDSI', xlab='')
-plot(scatter_data$spei, scatter_data$grass, main='SPEI', xlab='')
-plot(scatter_data$mean_temp, scatter_data$grass, main='Temp', xlab='')
-plot(scatter_data$yearly_ppt_mm, scatter_data$grass, main='Yearly ppt', xlab='')
-plot(scatter_data$summer_ppt_mm, scatter_data$grass, main='Summer ppt', xlab='')
-plot(scatter_data$winter_ppt_mm, scatter_data$grass, main='Winter ppt', xlab='')
-par(mfrow=c(3,3))
-plot(as.factor(scatter_data$pdo_phase), scatter_data$grass, main='PDO phase', xlab='')
-plot(as.factor(scatter_data$enso_phase), scatter_data$grass, main='ENSO phase', xlab='')
-plot(scatter_data$pdo_lag5, scatter_data$grass, main='PDO lag 5', xlab='')
-plot(scatter_data$spei_lag1, scatter_data$grass, main='SPEI lag 1', xlab='')
-plot(scatter_data$pdsi_lag1, scatter_data$grass, main='PDSI lag 1', xlab='')
-plot(scatter_data$pdo_mean_10y, scatter_data$grass, main='PDO 10y mean', xlab='')
-plot(scatter_data$demartonne, scatter_data$grass, main='De Martonne', xlab='')
-plot(scatter_data$summer_pdsi, scatter_data$grass, main = 'Summer PDSI', xlab='')
-plot(scatter_data$summer_spei, scatter_data$grass, main = 'Summer SPEI', xlab='')
-
-#plot(scatter_data$smoothed_oni, scatter_data$grass, main='smooth ONI', xlab='')
 ```
 
-There are significant correlations (p<0.05) with pdo, smoothed pdo, pdo with lag 5, pdsi, pdsi with lag 1, spei with lag 1, summer pdsi, and almost spei (p = 0.06). These variables will be used in subsequent models. 
+
+From the variable selection process (in select_variables_for_models.Rmd) we chose PDSI, PDSI lagged 1 year, and a 10-year moving average of the PDO index as candidate predictors for grass cover.  
+
 
 ## Models and model comparison
 
-Linear models were constructed between grass cover the variables identified above. I also included factor variables of PDO phase (warm/cool) and ENSO phase (nino/nina/neutral). The best models containing a single climate variable predictor were combined in additional models to see if fit could be improved by including multiple predictors. 
+Linear models were constructed between grass cover the variables identified above.  
 
-```{r pressure, echo=F}
+```{r linearmodels, echo=F}
 model_data = combined_data %>%
-  dplyr::filter(year>=1916, year<1980)
+  dplyr::filter(year>=1916, year<1980) %>%
+  dplyr::select(year, grass, pdo_mean_10y, pdsi, pdsi_lag1, enso_phase)
 
 # models with single predictors
-model1 = lm(grass ~ pdo, data=model_data)
-model2 = lm(grass ~ pdo_lag5, data=model_data)
-model3 = lm(grass ~ pdo_mean_10y, data=model_data)
-model4 = lm(grass ~ pdsi, data=model_data)
-model4a = lm(grass ~ summer_pdsi, data=model_data)
-model5 = lm(grass ~ pdsi_lag1, data=model_data)
-model6 = lm(grass ~ spei, data=model_data)
-model7 = lm(grass ~ spei_lag1, data=model_data)
-model8 = lm(grass ~ enso_phase, data=model_data)
-model9 = lm(grass ~ pdo_phase, data=model_data)
+model1 = lm(grass ~ pdo_mean_10y, data=model_data)
+model2 = lm(grass ~ pdsi, data=model_data)
+model3 = lm(grass ~ pdsi_lag1, data=model_data)
+model4 = lm(grass ~ enso_phase, data=model_data)
 
 
-# models with two predictors
-model10 = lm(grass ~ pdo_mean_10y + yearly_ppt_mm, data=model_data)
-model11 = lm(grass ~ pdo_mean_10y + pdsi, data=model_data)
-model12 = lm(grass ~ pdo_mean_10y + pdsi_lag1, data=model_data)
-model13 = lm(grass ~ pdo_mean_10y + spei, data=model_data)
-model14 = lm(grass ~ pdo_mean_10y + spei_lag1, data=model_data)
-model15 = lm(grass ~ pdo_mean_10y + summer_ppt_mm, data=model_data)
-model16 = lm(grass ~ pdo_mean_10y + enso_phase, data=model_data)
-model17 = lm(grass ~ pdo_mean_10y + summer_pdsi, data=model_data)
-model18 = lm(grass ~ pdo_mean_10y + summer_spei, data=model_data)
-model19 = lm(grass ~ pdo_mean_10y + demartonne, data=model_data)
+# models with multiple predictors
+model5 = lm(grass ~ pdo_mean_10y + pdsi, data=model_data)
+model6 = lm(grass ~ pdo_mean_10y + pdsi_lag1, data=model_data)
+model7 = lm(grass ~ pdsi + pdsi_lag1, data=model_data)
+model8 = lm(grass ~ pdo_mean_10y + pdsi + pdsi_lag1, data=model_data)
 
-# models with more predictors
-model20 = lm(grass ~ pdo_mean_10y + pdsi + pdsi_lag1, data=model_data)
-model21 = lm(grass ~ pdo_mean_10y + enso_phase + yearly_ppt_mm, data=model_data)
-model22 = lm(grass ~ pdo_mean_10y + spei + spei_lag1, data=model_data)
+model9 = lm(grass ~ pdo_mean_10y + enso_phase, data=model_data)
+model10 = lm(grass ~ pdo_mean_10y + enso_phase + pdsi, data=model_data)
+model11 = lm(grass ~ pdo_mean_10y + enso_phase + pdsi_lag1, data=model_data)
+model12 = lm(grass ~ pdo_mean_10y + enso_phase + pdsi + pdsi_lag1, data=model_data)
 
 modelnull = lm(grass ~ 1, data=model_data)
 
 # create table with aic and rsquared
-modellist = list(model1, model2, model3, model4, model4a, model5, model6, model7, model8, model9, model10,
-                 model11, model12, model13, model14, model15, model16,
-                 model17, model18,model19, model20, model21, model22, modelnull)
+modellist = list(model1, model2, model3, model4, model5, model6, model7, model8, model9, model10, model11, model12, modelnull)
                  
 aictable = c()
 for (m in 1:length(modellist)) {
@@ -182,10 +90,10 @@ There are several models almost tied for best AICc. The simplest of these has on
 
 ```{r plot model, echo=F}
 
-# best models: 22 (smoothed pdo, spei, spei_lag1)
-# simplest and within 2 AICc units: 3 (just smoothed pdo)
+# best model: 5 (smoothed pdo, pdsi_lag1)
+# simplest and within 2 AICc units: 1 (just smoothed pdo)
 
-bestmodel = model3
+bestmodel = model1
 
 summary(bestmodel)
 gratia::appraise(bestmodel)

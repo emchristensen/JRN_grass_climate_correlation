@@ -1,0 +1,244 @@
+---
+title: "Grass/PDO model selection"
+author: "Erica Christensen"
+date: "5/12/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# last run: 5/12/22
+
+library(dplyr)
+library(ggplot2)
+library(MuMIn)
+library(astsa)
+
+# colors for figures
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# read in data
+grass = read.csv('data/grass_median_yearly.csv') %>% rename(grass = median_grass)
+pptdat = read.csv('data/climate_variables.csv')
+
+# create one big data frame
+combined_data = grass %>%
+  merge(pptdat, by.x='project_year', by.y='water_yr', all=T) %>%
+  rename(year=project_year)
+
+```
+
+
+What components of climate are best correlated to perennial grass cover 1916-1979? We start with a list of climate variables that vary at different time scales: short-term variables that vary year to year, El Nino Southern Oscillation (ENSO)-related variables that vary on a 5-7 year time scale, and Pacific Decadal Oscillation (PDO)-related variables that vary on a 30-40 year time scale. First we select variables that are independent from each other and have the best correlative values with grass cover, then test variables in linear models.
+
+## Select short-term variables
+Short-term climate variables that are expected to affect perennial grasses: total yearly precipitation, total summer (growing season) precipitation, total winter (non-growing season) precipitation, yearly average Palmer Drought Severity Index (PDSI), summer average PDSI, yearly average Standardized Precipitation-Evapotranspiration Index (SPEI), summer average SPEI, summer De Martonne index, and mean annual temperature.
+
+We looked at cross-correlation plots to determine if lags should be considered.
+
+```{r shortterm, echo=F}
+# remove categorical variables
+corr_data = combined_data %>%
+  dplyr::filter(year %in% 1916:1979) %>%
+  dplyr::select(-year, -pdo_phase, -enso_phase)
+
+# look at lags between climate and grass
+par(mfrow=c(3,3))
+ccf(corr_data$pdsi, corr_data$grass, main='PDSI')
+ccf(corr_data$summer_pdsi, corr_data$grass, main='Summer PDSI')
+ccf(corr_data$spei, corr_data$grass, main='SPEI')
+ccf(corr_data$summer_spei, corr_data$grass, main='Summer SPEI')
+ccf(corr_data$demartonne, corr_data$grass, main='De Martonne Aridity')
+ccf(corr_data$mean_temp, corr_data$grass, main='Temp')
+ccf(corr_data$yearly_ppt_mm, corr_data$grass, main='yearly ppt')
+ccf(corr_data$summer_ppt_mm, corr_data$grass, main='summer ppt')
+ccf(corr_data$winter_ppt_mm, corr_data$grass, main='winter ppt')
+```
+
+A lag of 1 may be important for yearly precip, PDSI, SPEI, and summer PDSI. We then looked at Pearson's correlation between each variable and grass to determine if a relationship likely exists. We also looked at scatterplots to determine if a non-linear relationship was needed. 
+
+```{r shorttermpearsons, echo=F}
+# Pearsons correlation
+
+# create lag variables for pdsi (1), spei (1), and summer pdsi (1)
+combined_data_short = combined_data %>%
+  dplyr::select(year, grass, pdsi, spei, mean_temp, summer_pdsi, summer_spei, yearly_ppt_mm, summer_ppt_mm, winter_ppt_mm, demartonne) %>%
+  mutate(summerpdsi_lag1=lag(summer_pdsi, 1),
+         spei_lag1=lag(spei, 1),
+         pdsi_lag1=lag(pdsi,1),
+         yearlyppt_lag1=lag(yearly_ppt_mm,1)) %>%
+  dplyr::filter(year %in% 1916:1979) 
+
+
+# pearson correlation test for whole dataset
+corr_short = combined_data_short %>% 
+  dplyr::select(-year) %>%
+  as.matrix() %>% 
+  Hmisc::rcorr(type='pearson')
+
+# get correlation coefficients and p-values
+pearsons_short = data.frame(variable=row.names(corr_short$r),
+                      pearsons=round(corr_short$r[,1],3),
+                      pvalue=round(corr_short$P[,1],3))
+pearsons_short
+
+# scatterplots of grass vs each variable
+scatter_data_short = combined_data_short %>%
+  dplyr::filter(year %in% 1916:1979)
+
+par(mfrow=c(3,5))
+plot(scatter_data_short$pdsi, scatter_data_short$grass, main='PDSI', xlab='')
+plot(scatter_data_short$pdsi_lag1, scatter_data_short$grass, main='PDSI lag1', xlab='')
+plot(scatter_data_short$summer_pdsi, scatter_data_short$grass, main='Summer PDSI', xlab='')
+plot(scatter_data_short$summerpdsi_lag1, scatter_data_short$grass, main='Summer PDSI lag1', xlab='')
+plot(scatter_data_short$spei, scatter_data_short$grass, main='SPEI', xlab='')
+plot(scatter_data_short$spei_lag1, scatter_data_short$grass, main='SPEI lag1', xlab='')
+plot(scatter_data_short$summer_spei, scatter_data_short$grass, main='Summer SPEI', xlab='')
+plot(scatter_data_short$mean_temp, scatter_data_short$grass, main='Temp', xlab='')
+plot(scatter_data_short$yearly_ppt_mm, scatter_data_short$grass, main='Yearly ppt', xlab='')
+plot(scatter_data_short$yearlyppt_lag1, scatter_data_short$grass, main='Yearly ppt lag1', xlab='')
+plot(scatter_data_short$summer_ppt_mm, scatter_data_short$grass, main='Summer ppt', xlab='')
+plot(scatter_data_short$winter_ppt_mm, scatter_data_short$grass, main='Winter ppt', xlab='')
+plot(scatter_data_short$demartonne, scatter_data_short$grass, main='De Martonne', xlab='')
+```
+
+There is no evidence that non-linear relationships need to be included. There is poor correlation between grass and De Martonne, temperature, summer ppt, summer spei, winter ppt, and yearly ppt so these were removed from consideration. Finally, we looked for correlations among remaining variables.
+
+```{r shorttermcorrelations, echo=F}
+scatter_data_short %>% dplyr::select(-year, -demartonne, -mean_temp, -summer_ppt_mm, -summer_spei, -winter_ppt_mm, -yearly_ppt_mm, -grass) %>% plot()
+```
+
+PDSI and SPEI are highly correlated. We chose to proceed with variables PDSI and PDSI lag1, as these variables had the highest correlation with grass and are not correlated with each other.
+
+## Select ENSO variables
+
+We repeated the above process with several ENSO-related variables: Nino 3.4 index, Oceanic Nino Index (ONI), and the categorical variable of ENSO phase (each year is categorized as El Nino, La Nina, or Neutral).
+
+We looked at cross-correlation plots to determine if lags should be considered.
+
+```{r enso, echo=F}
+
+# look at lags between climate and grass
+par(mfrow=c(1,2))
+ccf(corr_data$oni, corr_data$grass, main='ONI')
+ccf(corr_data$nino34, corr_data$grass, main='NINO 3.4')
+
+```
+
+No lags need be considered for these variables. Next we looked at Pearson's correlation and scatterplots
+
+
+```{r ensopearsons, echo=F}
+# Pearsons correlation
+
+# enso variables
+combined_data_enso = combined_data %>%
+  dplyr::select(year, grass, oni, nino34, enso_phase) %>%
+  dplyr::filter(year %in% 1916:1979) 
+
+
+# pearson correlation test for whole dataset
+corr_enso = combined_data_enso %>% 
+  dplyr::select(-year, -enso_phase) %>%
+  as.matrix() %>% 
+  Hmisc::rcorr(type='pearson')
+
+# get correlation coefficients and p-values
+pearsons_enso = data.frame(variable=row.names(corr_enso$r),
+                      pearsons=round(corr_enso$r[,1],3),
+                      pvalue=round(corr_enso$P[,1],3))
+pearsons_enso
+
+
+# is there a significant difference by phase?
+phase.aov <- aov(grass ~ enso_phase, data=combined_data_enso)
+summary(phase.aov)
+
+
+# scatterplots of grass vs each variable
+scatter_data_enso = combined_data_enso %>%
+  dplyr::filter(year %in% 1916:1979)
+
+par(mfrow=c(2,2))
+plot(scatter_data_enso$oni, scatter_data_enso$grass, main='ONI', xlab='')
+plot(scatter_data_enso$nino34, scatter_data_enso$grass, main='Nino 3.4', xlab='')
+plot(as.factor(scatter_data_enso$enso_phase), scatter_data_enso$grass, main='ENSO phase', xlab='')
+
+
+
+```
+
+There is no significant correlation between grass and any of the ENSO variables.
+
+## Select PDO variables
+
+We repeated the above process to determine the significance of the PDO index and PDO phase (categorical). 
+
+We first looked at cross-correlation plots to determine if lags should be considered.
+
+```{r pdo, echo=F}
+
+# look at lags between climate and grass
+par(mfrow=c(1,1))
+ccf(corr_data$pdo, corr_data$grass, main='PDO')
+
+
+```
+
+Lag of 0-10 appear to be significant for PDO index. Rather than creating a new variable for each lag, we created a 10-year moving average smooth of the PDO index. 
+
+We next looked at Pearson's correlation and scatterplots.
+
+```{r pdopearsons, echo=F}
+# Pearsons correlation
+
+# pdo variables; create 10-year moving average smooth
+combined_data_pdo = combined_data %>%
+  dplyr::select(year, grass, pdo, pdo_phase) %>%
+  mutate(pdo_mean_10y = c(rep(NA,9),
+                      zoo::rollmean(pdo, 10))) %>%
+  dplyr::filter(year %in% 1916:1979) 
+
+
+# pearson correlation test for whole dataset
+corr_pdo = combined_data_pdo %>% 
+  dplyr::select(-year, -pdo_phase) %>%
+  as.matrix() %>% 
+  Hmisc::rcorr(type='pearson')
+
+# get correlation coefficients and p-values
+pearsons_pdo = data.frame(variable=row.names(corr_pdo$r),
+                      pearsons=round(corr_pdo$r[,1],3),
+                      pvalue=round(corr_pdo$P[,1],3))
+pearsons_pdo
+
+
+# is there a significant difference by phase?
+pdo.aov <- aov(grass ~ pdo_phase, data=combined_data_pdo)
+summary(pdo.aov)
+
+
+# scatterplots of grass vs each variable
+scatter_data_pdo = combined_data_pdo %>%
+  dplyr::filter(year %in% 1916:1979)
+
+par(mfrow=c(2,2))
+plot(scatter_data_pdo$pdo, scatter_data_pdo$grass, main='PDO', xlab='')
+plot(scatter_data_pdo$pdo_mean_10y, scatter_data_pdo$grass, main='PDO smooth', xlab='')
+plot(as.factor(scatter_data_pdo$pdo_phase), scatter_data_pdo$grass, main='PDO phase', xlab='')
+
+
+
+```
+
+There is no evidence that nonlinear relationships should be considered. PDO, PDO phase, and the PDO smooth are all significantly correlated with grass. We looked for dependence among the variables.
+
+```{r pdocorrelations, echo=F}
+scatter_data_pdo %>% dplyr::select(pdo, pdo_mean_10y) %>% plot()
+# significant relationship between pdo and pdo smooth?
+summary(lm(pdo ~ pdo_mean_10y, data=scatter_data_pdo))
+# significant relationship between pdo smooth and phase?
+summary(aov(pdo_mean_10y ~ pdo_phase, data=combined_data_pdo))
+
+```
+
+Not surprisingly there is significant correlation between PDO and PDO smooth, and between PDO phase and PDO smooth. We chose to proceed with PDO smooth as this variable had the highest Pearson's correlation with grass. 
