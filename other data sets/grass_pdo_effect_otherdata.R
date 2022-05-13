@@ -2,7 +2,7 @@
 #' 
 #' Processing of raw data from each site is done in other scripts
 #' 
-#' last run: 2/25/22
+#' last run: 5/13/22
 
 library(ggplot2)
 library(dplyr)
@@ -58,6 +58,7 @@ summary(cdrrc.aov)
 
 # get estimated marginal means
 emmeans(cdrrc.aov, ~ pdo_phase)
+
 
 # ========================================================
 # Sevilleta 

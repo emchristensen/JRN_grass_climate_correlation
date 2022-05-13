@@ -1,7 +1,7 @@
 ---
 title: "PDO climate correlations"
 author: "Erica Christensen"
-date: "10/6/2021"
+date: "5/12/2022"
 output: html_document
 ---
 
@@ -10,12 +10,9 @@ library(dplyr)
 library(ggplot2)
 library(emmeans)
 
-pdo_phases = read.csv('../data/PDO_phases_byyear.csv')
+
 climate = read.csv('../data/climate_variables.csv')
 
-
-alldata = merge(pdo_phases, climate, by.x='year', by.y='water_yr', all=T) %>%
-  dplyr::filter(year>=1915, year<=2020)
 
 ```
 
@@ -24,7 +21,7 @@ alldata = merge(pdo_phases, climate, by.x='year', by.y='water_yr', all=T) %>%
 There are predicted to be differences in precipitation patterns when the PDO is in a warm vs. cool phase.
 
 ```{r yearly precip, echo=F}
-plotdata = dplyr::filter(alldata, !is.na(pdo_phase))
+plotdata = dplyr::filter(climate, !is.na(pdo_phase))
 
 yearly = ggplot(plotdata, aes(x=pdo_phase, y=yearly_ppt_mm)) +
   geom_boxplot(na.rm=T) +
@@ -64,8 +61,8 @@ meantemp = ggplot(plotdata, aes(x=pdo_phase, y=mean_temp)) +
   theme_bw()
 
 # get summary statistics of warm and cool
-summary(dplyr::filter(plotdata, pdo_phase=='warm'))
-summary(dplyr::filter(plotdata, pdo_phase=='cool'))
+#summary(dplyr::filter(plotdata, pdo_phase=='warm'))
+#summary(dplyr::filter(plotdata, pdo_phase=='cool'))
 
 gridExtra::grid.arrange(yearly, summer, winter, speiplot, pdsiplot, meantemp, nrow=2)
 
@@ -79,29 +76,40 @@ ggsave('../Figures/pdo_climate_variable_boxplots.png', plot=allplots, width=7, h
 
 Are the differences significant?
 
-```{r significance, echo=T}
+```{r significance, echo=F}
 # anova of grass cover by phase
 yearly.aov <- aov(yearly_ppt_mm ~ pdo_phase, data=plotdata)
+print('yearly ppt')
 summary(yearly.aov)
-summer.aov <- aov(summer_ppt_mm ~ pdo_phase, data=plotdata)
-summary(summer.aov)
-winter.aov <- aov(winter_ppt_mm ~ pdo_phase, data=plotdata)
-summary(winter.aov)
-spei.aov <- aov(spei ~ pdo_phase, data=plotdata)
-summary(spei.aov)
-pdsi.aov <- aov(pdsi ~ pdo_phase, data=plotdata)
-summary(pdsi.aov)
-temp.aov <- aov(mean_temp ~ pdo_phase, data=plotdata)
-summary(temp.aov)
-
-
 # marginal means
 emmeans(yearly.aov, ~pdo_phase)
+
+summer.aov <- aov(summer_ppt_mm ~ pdo_phase, data=plotdata)
+print('summer ppt')
+summary(summer.aov)
 emmeans(summer.aov, ~pdo_phase)
+
+winter.aov <- aov(winter_ppt_mm ~ pdo_phase, data=plotdata)
+print('winter ppt')
+summary(winter.aov)
 emmeans(winter.aov, ~pdo_phase)
+
+spei.aov <- aov(spei ~ pdo_phase, data=plotdata)
+print('spei')
+summary(spei.aov)
 emmeans(spei.aov, ~pdo_phase)
+
+pdsi.aov <- aov(pdsi ~ pdo_phase, data=plotdata)
+print('pdsi')
+summary(pdsi.aov)
 emmeans(pdsi.aov, ~pdo_phase)
+
+temp.aov <- aov(mean_temp ~ pdo_phase, data=plotdata)
+print('mean annual temp')
+summary(temp.aov)
 emmeans(temp.aov, ~pdo_phase)
+
+
 ```
 
 The differences are significant for yearly, summer, and winter precip. 
