@@ -19,6 +19,8 @@ Run scripts in 'data' folder to prepare quadrat grass data and climate variable 
 
 
 ### Main model scripts
+Variable selection analyses are run in __select_variables_for_models.Rmd__.  
+
 The main models correlating grass with climate variables are run in __grass_pdo_model_selection.Rmd__. This script depends on intermediate csv files created in the first step. Creates _results_aic_table.csv_. 
 
 
