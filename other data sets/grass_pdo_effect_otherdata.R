@@ -2,7 +2,7 @@
 #' 
 #' Processing of raw data from each site is done in other scripts
 #' 
-#' last run: 5/13/22
+#' last run: 6/2/22
 
 library(ggplot2)
 library(dplyr)
@@ -32,7 +32,7 @@ cdrrc_figure = ggplot(cdrrc, aes(x=year, y=forage)) +
   geom_line() +
   xlab('') +
   ylab('Forage production \n(kg/ha)') +
-  ggtitle('NMSU Ranch') +
+  ggtitle('CDRRC') +
   
   scale_color_manual(values=c('blue','red')) +
   coord_cartesian(xlim=c(1966,2020)) +
@@ -46,7 +46,7 @@ cdrrcbox = ggplot(cdrrc_pdo, aes(x=pdo_phase, y=forage)) +
   geom_jitter(width=.1, alpha=.4, na.rm=T)+
   #ylab('Forage production (kg/ha)') +
   ylab('') +
-  ggtitle('NMSU Ranch') +
+  ggtitle('CDRRC') +
   xlab('') +
   theme_bw()
 cdrrcbox
