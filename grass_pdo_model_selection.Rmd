@@ -162,5 +162,17 @@ grasspred = ggplot(modelprediction, aes(x=year)) +
   ylab('Grass cover (m^2)')
 grasspred
 ggsave('Figures/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
+
+
+# get RMSE for 1916-1979 and 1995-2016
+early_section = modelprediction %>%
+  dplyr::filter(year %in% 1916:1979) %>%
+  dplyr::select(year, predicted_grass, grass)
+late_section = modelprediction %>%
+  dplyr::filter(year >=1995, !is.na(grass)) %>%
+  dplyr::select(year, predicted_grass, grass)
+
+rmse_early = round(sqrt(mean((early_section$predicted_grass-early_section$grass)^2)), digits=2)
+rmse_late = round(sqrt(mean((late_section$predicted_grass-late_section$grass)^2)), digits=2)
 ```
 
