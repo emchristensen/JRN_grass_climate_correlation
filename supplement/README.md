@@ -1,6 +1,6 @@
 # Supplement
 
-### Scripts
+Scripts to create figures for supplement to paper.
 
 * __compare_sev_jer_temperature.R__ Comparing min/max temperature at the Sevilleta vs. Jornada. Included in supplement of paper.
 
