@@ -81,7 +81,7 @@ aictable['deltaAICc'] <- aictable['AICc']-min(aictable['AICc'])
 aictable %>% arrange(deltaAICc)
 
 # convert adjusted r squared to percent
-aictable$adj.r.squared = aictable$adj.r.squared * 100
+#aictable$adj.r.squared = aictable$adj.r.squared * 100
 
 write.csv(arrange(aictable, deltaAICc), 'results_aic_table.csv', row.names=F)
 ```
