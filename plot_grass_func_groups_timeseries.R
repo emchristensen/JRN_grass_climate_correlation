@@ -31,7 +31,7 @@ yearly_mean_groups = yearly_grass_groups %>%
 
 # PDO time periods
 pdophases = read.csv('data/PDO_phases_byyear.csv') %>%
-  dplyr::filter(year %in% 1915:1979) %>%
+  #dplyr::filter(year %in% 1915:1979) %>%
   mutate(yint = rep(-0.1))
 
 # Plot: mean grass species cover per quadrat per year
@@ -86,3 +86,27 @@ grassgroups_relative <- ggplot(relative_cover) +
 grassgroups_relative
 ggsave('Figures/grass_func_groups_timeseries_relative_cover.png', plot=grassgroups_relative, width=6, height=4)
 
+
+# =================================
+# relative cover of functional groups post-1995
+
+totalcover2 = ts2 %>%
+  group_by(project_year) %>%
+  summarize(totalcover = sum(sum_cover))
+
+relative_cover2 = merge(ts2, totalcover2) %>%
+  mutate(rel_cover = sum_cover/totalcover)
+
+grassgroups_relative2 <- ggplot(rbind(relative_cover,relative_cover2)) +
+  geom_area(aes(x = project_year, y=rel_cover, fill=functional_group), stat='identity', position=position_stack(reverse=T)) +
+  #geom_point(aes(x=project_year, y=rel_cover)) +
+  xlim(1915,2020) +
+  geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=2, shape=15) +
+  labs(x = '',
+       y='Relative cover',
+       fill='Species Group',
+       color='PDO phase') +
+  scale_color_manual(values=c('blue','red')) +
+  scale_fill_manual(values=cbPalette, breaks=c('transient','core'),labels=c('Transient\n species','Core species')) +
+  theme_bw()
+grassgroups_relative2
