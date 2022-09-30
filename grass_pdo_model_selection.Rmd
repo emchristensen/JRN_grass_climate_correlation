@@ -1,12 +1,12 @@
 ---
 title: "Grass/PDO model selection"
 author: "Erica Christensen"
-date: "5/12/2022"
+date: "9/30/2022"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-# last run: 5/12/22
+# last run: 9/30/22
 
 library(dplyr)
 library(ggplot2)
@@ -19,55 +19,57 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 # read in data
 grass = read.csv('data/grass_median_yearly.csv') %>% rename(grass = median_grass)
 pptdat = read.csv('data/climate_variables.csv')
+pcadata = read.csv('data/climate_variables_pca.csv')
 
 # create one big data frame
 combined_data = grass %>%
   merge(pptdat, by.x='project_year', by.y='water_yr', all=T) %>%
+  merge(pcadata, all=T) %>%
   rename(year=project_year)
 
-# we know from select_variables_for_models.Rmd that a 10-year moving average of PDO should be included in models, and a 1-year lag of pdsi
+# we know from select_variables_for_models.Rmd that a 10-year moving average of PDO should be included in models
 combined_data = combined_data %>%
   mutate(pdo_mean_10y = c(rep(NA,9),
-                      zoo::rollmean(pdo, 10)),
-         pdsi_lag1 = lag(pdsi,1))
+                      zoo::rollmean(pdo, 10)))
 
 ```
 
 
-From the variable selection process (in select_variables_for_models.Rmd) we chose PDSI, PDSI lagged 1 year, and a 10-year moving average of the PDO index as candidate predictors for grass cover.  
+
 
 
 ## Models and model comparison
 
-Linear models were constructed between grass cover the variables identified above.  
+Linear models were constructed between grass cover and the results of the pca of short-term climate variables, ENSO phase, and smoothed PDO index.  
 
 ```{r linearmodels, echo=F}
 model_data = combined_data %>%
   dplyr::filter(year>=1916, year<1980) %>%
-  dplyr::select(year, grass, pdo_mean_10y, pdsi, pdsi_lag1, enso_phase)
+  dplyr::select(year, grass, pdo_mean_10y, enso_phase, PC1, PC2)
 
-# models with single predictors
-model1 = lm(grass ~ pdo_mean_10y, data=model_data)
-model2 = lm(grass ~ pdsi, data=model_data)
-model3 = lm(grass ~ pdsi_lag1, data=model_data)
-model4 = lm(grass ~ enso_phase, data=model_data)
+# small time scale
+model1 = lm(grass ~ PC1 + PC2, data=model_data)
+
+# mid time scale
+model2 = lm(grass ~ enso_phase, data=model_data)
+
+# long time scale
+model3 = lm(grass ~ pdo_mean_10y, data=model_data)
+
 
 
 # models with multiple predictors
-model5 = lm(grass ~ pdo_mean_10y + pdsi, data=model_data)
-model6 = lm(grass ~ pdo_mean_10y + pdsi_lag1, data=model_data)
-model7 = lm(grass ~ pdsi + pdsi_lag1, data=model_data)
-model8 = lm(grass ~ pdo_mean_10y + pdsi + pdsi_lag1, data=model_data)
+model4 = lm(grass ~ pdo_mean_10y + PC1 + PC2, data=model_data)
+model5 = lm(grass ~ pdo_mean_10y + enso_phase, data=model_data)
+model6 = lm(grass ~ enso_phase + PC1 + PC2, data=model_data)
+model7 = lm(grass ~ pdo_mean_10y + enso_phase + PC1 + PC2, data=model_data)
 
-model9 = lm(grass ~ pdo_mean_10y + enso_phase, data=model_data)
-model10 = lm(grass ~ pdo_mean_10y + enso_phase + pdsi, data=model_data)
-model11 = lm(grass ~ pdo_mean_10y + enso_phase + pdsi_lag1, data=model_data)
-model12 = lm(grass ~ pdo_mean_10y + enso_phase + pdsi + pdsi_lag1, data=model_data)
+
 
 modelnull = lm(grass ~ 1, data=model_data)
 
 # create table with aic and rsquared
-modellist = list(model1, model2, model3, model4, model5, model6, model7, model8, model9, model10, model11, model12, modelnull)
+modellist = list(modelnull, model1, model2, model3, model4, model5, model6, model7) 
                  
 aictable = c()
 for (m in 1:length(modellist)) {
@@ -86,14 +88,14 @@ aictable %>% arrange(deltaAICc)
 write.csv(arrange(aictable, deltaAICc), 'results_aic_table.csv', row.names=F)
 ```
 
-There are several models almost tied for best AICc. The simplest of these has only 10-year mean of pdo as a predictor. 
+There are two almost equivalent models in terms of AICc and rsquared. The simplest of these has only 10-year mean of pdo as a predictor. 
 
 ```{r plot model, echo=F}
 
-# best model: 5 (smoothed pdo, pdsi_lag1)
-# simplest and within 2 AICc units: 1 (just smoothed pdo)
+# best model: 3 (smoothed pdo)
 
-bestmodel = model1
+
+bestmodel = model3
 
 summary(bestmodel)
 gratia::appraise(bestmodel)
@@ -107,7 +109,7 @@ scatterplot = ggplot(model_data, aes(x=pdo_mean_10y, y=grass)) +
   theme_bw() 
 scatterplot
 
-ggsave('Figures/scatterplot_pdo10y_grass.png', plot=scatterplot, width=4, height=3)
+ggsave('Figures/2022_09/scatterplot_pdo10y_grass.png', plot=scatterplot, width=4, height=3)
 
 # timeseries plot
 
@@ -127,7 +129,7 @@ timeplot = ggplot(modelprediction, aes(x=year, y=predicted_grass)) +
   theme_bw() 
 timeplot
 
-ggsave('Figures/grass_pdo10y_timeseries.png', plot=timeplot, width=5, height=3)
+ggsave('Figures/2022_09/grass_pdo10y_timeseries.png', plot=timeplot, width=5, height=3)
 ```
 
 ## Predict grass 1980-2020 from model
@@ -161,7 +163,7 @@ grasspred = ggplot(modelprediction, aes(x=year)) +
   xlab('') +
   ylab('Grass cover (m^2)')
 grasspred
-ggsave('Figures/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
+ggsave('Figures/2022_09/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
 
 
 # get RMSE for 1916-1979 and 1995-2016
