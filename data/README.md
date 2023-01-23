@@ -18,9 +18,9 @@ Functional groups:
  * __grass_species_functional_grouping.csv__ categorizes each grass species in data set as dominant or non-dominant. Classification based on traits in USDA PLANTS database and expert opinion of Jornada scientists.
 
 ## Climate data
-Precipitation data 1914-2017 comes from the Jornada Headquarters data stream (Wooton et al 2020). More recent data (2017-2021) were downloaded from NOAA. The Jornada data and NOAA data are from the same station, but there may be data entry errors in the NOAA data prior to 2007 (Darren James, pers. comm.). 
+Precipitation data 1914-2017 comes from the Jornada Headquarters data stream (Wooton et al 2020). More recent data (2017-2021) were downloaded from NOAA (Menne et al 2012). The Jornada data and NOAA data are from the same station, but there may be data entry errors in the NOAA data prior to 2007 (Darren James, pers. comm.). 
 
-Temperature data 1914-2012 are from the Berkeley Earth project, which performs quality control and corrections. More recent data (2013-2021) were downladed from NOAA. 
+Temperature data 1914-2012 are from the Berkeley Earth project, which performs quality control and corrections. More recent data (2013-2021) were downladed from NOAA (Menne et al 2012). 
 
 Missing values (monthly) filled in with PRISM data. 78 monthly temp values and 5 monthly precip.
 
@@ -67,5 +67,9 @@ Files:
 Citations:  
 Albers, Sam (2022). rsoi: Import Various Northern and Southern Hemisphere Climate Indices. R package version 0.5.5.
   https://CRAN.R-project.org/package=rsoi  
+  
+Menne, M.J., I. Durre, B. Korzeniewski, S. McNeill, K. Thomas, X. Yin, S. Anthony, R. Ray, 
+R.S. Vose, B.E.Gleason, and T.G. Houston, 2012: Global Historical Climatology Network - 
+Daily (GHCN-Daily), Version 3.29. NOAA National Climatic Data Center. http://doi.org/10.7289/V5D21VHZ [accessed 2021-08-03].
 
 Wooton, E., National Weather Service, D. Thatcher, and J. Anderson. 2020. Daily temperature and precipitation data from a NOAA weather station at Jornada Experimental Range headquarters, southern New Mexico USA, 1914 - 2017 ver 80. Environmental Data Initiative. https://doi.org/10.6073/pasta/f09060a9ceb136a1d40b5323aaa0d9a6 (Accessed 2021-08-16).
