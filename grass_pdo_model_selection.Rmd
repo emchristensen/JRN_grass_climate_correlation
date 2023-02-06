@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-# last run: 9/30/22
+# last run: 2/6/23
 
 library(dplyr)
 library(ggplot2)
@@ -17,15 +17,15 @@ library(astsa)
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # read in data
-grass = read.csv('data/grass_median_yearly.csv') %>% rename(grass = median_grass)
+grass = read.csv('data/grass_median_yearly.csv') %>% dplyr::rename(grass = median_grass)
 pptdat = read.csv('data/climate_variables.csv')
 pcadata = read.csv('data/climate_variables_pca.csv')
 
 # create one big data frame
 combined_data = grass %>%
   merge(pptdat, by.x='project_year', by.y='water_yr', all=T) %>%
-  merge(pcadata, all=T) %>%
-  rename(year=project_year)
+  merge(pcadata, by.x='project_year', by.y='X', all=T) %>%
+  dplyr::rename(year=project_year)
 
 # we know from select_variables_for_models.Rmd that a 10-year moving average of PDO should be included in models
 combined_data = combined_data %>%
@@ -45,10 +45,10 @@ Linear models were constructed between grass cover and the results of the pca of
 ```{r linearmodels, echo=F}
 model_data = combined_data %>%
   dplyr::filter(year>=1916, year<1980) %>%
-  dplyr::select(year, grass, pdo_mean_10y, enso_phase, PC1, PC2)
+  dplyr::select(year, grass, pdo_mean_10y, enso_phase, PC1, PC2, PC3)
 
 # small time scale
-model1 = lm(grass ~ PC1 + PC2, data=model_data)
+model1 = lm(grass ~ PC1 + PC2 + PC3, data=model_data)
 
 # mid time scale
 model2 = lm(grass ~ enso_phase, data=model_data)
@@ -59,17 +59,19 @@ model3 = lm(grass ~ pdo_mean_10y, data=model_data)
 
 
 # models with multiple predictors
-model4 = lm(grass ~ pdo_mean_10y + PC1 + PC2, data=model_data)
+model4 = lm(grass ~ pdo_mean_10y + PC1 + PC2 + PC3, data=model_data)
 model5 = lm(grass ~ pdo_mean_10y + enso_phase, data=model_data)
-model6 = lm(grass ~ enso_phase + PC1 + PC2, data=model_data)
-model7 = lm(grass ~ pdo_mean_10y + enso_phase + PC1 + PC2, data=model_data)
+model6 = lm(grass ~ pdo_mean_10y + enso_phase + PC1 + PC2 + PC3, data=model_data)
 
 
 
 modelnull = lm(grass ~ 1, data=model_data)
 
 # create table with aic and rsquared
-modellist = list(modelnull, model1, model2, model3, model4, model5, model6, model7) 
+modellist = list(modelnull, model1, model2, model3)
+
+# additional models to be displayed in supplement
+modellist2 = list(model3, model4, model5, model6) 
                  
 aictable = c()
 for (m in 1:length(modellist)) {
@@ -86,9 +88,21 @@ aictable %>% arrange(deltaAICc)
 #aictable$adj.r.squared = aictable$adj.r.squared * 100
 
 write.csv(arrange(aictable, deltaAICc), 'results_aic_table.csv', row.names=F)
+
+# additional models for supplement
+aictable_supp = c()
+for (m in 1:length(modellist2)) {
+  model=modellist2[[m]]
+  aictable_supp = rbind(aictable_supp, data.frame(parameters=paste(names(model$coefficients), collapse=', '),
+                        AICc=AICc(model),
+                        adj.r.squared=summary(model)$adj.r.squared))
+}
+aictable_supp['deltaAICc'] <- aictable_supp['AICc']-min(aictable_supp['AICc'])
+
+write.csv(arrange(aictable_supp, deltaAICc), 'results_aic_table_supplement.csv', row.names=F)
 ```
 
-There are two almost equivalent models in terms of AICc and rsquared. The simplest of these has only 10-year mean of pdo as a predictor. 
+There best model in terms of AICc is the model with smoothed PDO as a predictor. 
 
 ```{r plot model, echo=F}
 
@@ -105,11 +119,11 @@ scatterplot = ggplot(model_data, aes(x=pdo_mean_10y, y=grass)) +
   geom_point() +
   geom_smooth(method='lm', formula=y~x) +
   xlab('PDO 10-year avg.') +
-  ylab('Median Grass Cover (m^2)') +
+  ylab('Median Grass Cover (m2)') +
   theme_bw() 
 scatterplot
 
-ggsave('Figures/2022_09/scatterplot_pdo10y_grass.png', plot=scatterplot, width=4, height=3)
+ggsave('Figures/2023_01/scatterplot_pdo10y_grass.png', plot=scatterplot, width=4, height=3)
 
 # timeseries plot
 
@@ -121,15 +135,15 @@ modelprediction = data.frame(predicted_grass=predicted_grass$fit,
          upper=predicted_grass$upr) %>%
   cbind(newdata)
 timeplot = ggplot(modelprediction, aes(x=year, y=predicted_grass)) +
-  geom_line(aes(color = 'Model \nprediction'), size=1.5) +
+  geom_line(aes(color = 'Model \nprediction'), linewidth=1.5) +
   geom_point(data=model_data, aes(y=grass, color='Grass \nmeasurement')) +
   scale_color_manual(name='',values=cbPalette[c(7,3)]) +
   xlab('') +
-  ylab('Grass Cover (m^2)') +
+  ylab('Grass Cover (m2)') +
   theme_bw() 
 timeplot
 
-ggsave('Figures/2022_09/grass_pdo10y_timeseries.png', plot=timeplot, width=5, height=3)
+ggsave('Figures/2023_01/grass_pdo10y_timeseries.png', plot=timeplot, width=5, height=3)
 ```
 
 ## Predict grass 1980-2020 from model
@@ -161,9 +175,9 @@ grasspred = ggplot(modelprediction, aes(x=year)) +
   theme_bw() +
   #coord_cartesian(ylim=c(-.005,.1)) +
   xlab('') +
-  ylab('Grass cover (m^2)')
+  ylab('Grass cover (m2)')
 grasspred
-ggsave('Figures/2022_09/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
+ggsave('Figures/2023_01/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
 
 
 # get RMSE for 1916-1979 and 1995-2016
