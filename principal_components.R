@@ -1,76 +1,88 @@
-#' principal component regression
+#' principal component analysis
 #' Using all the short-term climate variables
 #' 
-#' EMC 9/12/22
+#' Erica Christensen 9/12/22
+#' Last update: 2/6/23
 #' 
 library(dplyr)
 library(ggplot2)
-library(pls)
+library(vegan)
 set.seed(1000)
 
-# read in climate and grass data
-climatedata = read.csv('data/climate_variables.csv') 
-grass = read.csv('data/grass_median_yearly.csv') 
-
-# create one big data frame; create lag variables for pdsi (1), spei (1), and summer pdsi (1)
-combined_data = grass %>%
-  merge(climatedata, by.x='project_year', by.y='water_yr', all=T) %>%
-  rename(year=project_year) %>%
-  mutate(summerpdsi_lag1=lag(summer_pdsi, 1),
-         spei_lag1=lag(spei, 1),
-         pdsi_lag1=lag(pdsi,1),
-         yearlyppt_lag1=lag(yearly_ppt_mm,1)) 
-
-# select short term variables
-combined_data_short = combined_data %>%
+# read in climate data
+climatedata = read.csv('data/climate_variables.csv') %>%
+  dplyr::rename(year=water_yr) %>%
   dplyr::filter(year %in% 1916:1979) %>%
-  dplyr::select( grass=median_grass, pdsi, spei, mean_temp, summer_pdsi, summer_spei, yearly_ppt_mm, summer_ppt_mm, winter_ppt_mm, demartonne,
-                 summerpdsi_lag1, spei_lag1, pdsi_lag1, yearlyppt_lag1)
+  dplyr::select(year, summer_ppt_mm, summer_pdsi, summer_spei, summer_tmax, summer_tmin,
+                winter_ppt_mm, winter_pdsi, winter_spei, winter_tmax, winter_tmin)
 
-# pcr model
-pcr_model = pcr(grass ~., data = combined_data_short, scale=T, validation='CV')
-summary(pcr_model)
-validationplot(pcr_model, val.type='RMSEP')
-# 2 principal components is best
-
-# predict 1995-2016 grass values from model
-test_vars = combined_data %>%
-  dplyr::filter(year >1979) %>%
-  dplyr::select(-year, -median_grass)
-y_test = combined_data %>%
-  dplyr::filter(year>1979) %>%
-  dplyr::select(grass=median_grass)
-pcr_pred <- predict(pcr_model, test_vars, ncomp=2)
-
-#calculate RMSE
-prediction = cbind(pcr_pred, y_test)
-names(prediction) <- c('pred','actual')
-sqrt(mean((prediction$pred - prediction$actual)^2, na.rm=T))
-# RMSE is 0.0267
-
-
-# =====================================================================
-# get principal components for regular lm run
-
-# normalize data frame
-data_short_norm <- scale(combined_data_short) %>% as.data.frame() %>% dplyr::select(-grass)
+row.names(climatedata) <- climatedata$year
 
 # PCA
-short_pca1 <- prcomp(data_short_norm, center=TRUE, scale.=TRUE)
+climatePCA <- rda(climatedata[,2:ncol(climatedata)], scale=T)
+climate_s <- summary(climatePCA) 
+climate_s 
 
-# components of the PCA
-short_pca1$x
+# write component axes to csv
+write.csv(climate_s$sites, file='data/climate_variables_pca.csv', row.names = T)
 
-# percent of variance explained by each principal component
-plot(summary(short_pca1)$importance[3,])
+# plot pc1 and pc2
 
-pcs <- as.data.frame(short_pca1$x)
-plot(scale(combined_data_short$grass), pcs$PC1)
+biplot(climatePCA)
 
-# linear model
-ols.data <- cbind(scale_grass =scale(combined_data_short$grass), pcs, project_year=1916:1979)
-lmodel <- lm(scale_grass ~ PC1 + PC2, data = ols.data)
-summary(lmodel)
+# trying to do this in ggplot
+smry <- summary(climatePCA)
+df1  <- data.frame(smry$sites[,1:2])       # PC1 and PC2
+df2  <- data.frame(smry$species[,1:2])     # loadings for PC1 and PC2
+rda.plot <- ggplot(df1, aes(x=PC1, y=PC2)) + 
+  geom_text(aes(label=rownames(df1)),size=4) +
+  geom_hline(yintercept=0, linetype="dotted") +
+  geom_vline(xintercept=0, linetype="dotted") +
+  coord_fixed()
+rda.plot
 
-# write pca data frame to csv
-write.csv(ols.data, file='data/climate_variables_pca.csv', row.names=F)
+
+# Parallel Analysis for number of components to retain (Horn, 1965)
+#set.seed(921)
+hornpa::hornpa(k = 9, size = 37, reps = 1000, seed = 921)
+# Calculate Correlations from Loadings 
+var_loadings <- vegan::scores(climatePCA, display = "species", scaling = 0, choices=c(1,2,3))
+var_loadings
+evs <- eigenvals(climatePCA)
+evs # eigenvalues of PC1, PC2 and PC3 are greater than .95 intervals
+climatedatascaled <- as.data.frame(scale(climatedata[,2:ncol(climatedata)]))
+
+# # correlations:
+# # Axis 1
+# var_loadings[1,1] * ((evs[1]/var(climatedatascaled$summer_ppt_mm))^1/2)
+# var_loadings[2,1] * ((evs[1]/var(climatedatascaled$summer_pdsi))^1/2)
+# var_loadings[3,1] * ((evs[1]/var(climatedatascaled$summer_spei))^1/2)
+# var_loadings[4,1] * ((evs[1]/var(climatedatascaled$summer_tmax))^1/2)
+# var_loadings[5,1] * ((evs[1]/var(climatedatascaled$summer_tmin))^1/2)
+# var_loadings[6,1] * ((evs[1]/var(climatedatascaled$winter_ppt_mm))^1/2)
+# var_loadings[7,1] * ((evs[1]/var(climatedatascaled$winter_pdsi))^1/2)
+# var_loadings[8,1] * ((evs[1]/var(climatedatascaled$winter_spei))^1/2)
+# var_loadings[9,1] * ((evs[1]/var(climatedatascaled$winter_tmax))^1/2)
+# var_loadings[10,1] * ((evs[1]/var(climatedatascaled$winter_tmin))^1/2)
+# # Axis 2
+# var_loadings[1,2] * ((evs[2]/var(climatedatascaled$summer_ppt_mm))^1/2)
+# var_loadings[2,2] * ((evs[2]/var(climatedatascaled$summer_pdsi))^1/2)
+# var_loadings[3,2] * ((evs[2]/var(climatedatascaled$summer_spei))^1/2)
+# var_loadings[4,2] * ((evs[2]/var(climatedatascaled$summer_tmax))^1/2)
+# var_loadings[5,2] * ((evs[2]/var(climatedatascaled$summer_tmin))^1/2)
+# var_loadings[6,2] * ((evs[2]/var(climatedatascaled$winter_ppt_mm))^1/2)
+# var_loadings[7,2] * ((evs[2]/var(climatedatascaled$winter_pdsi))^1/2)
+# var_loadings[8,2] * ((evs[2]/var(climatedatascaled$winter_spei))^1/2)
+# var_loadings[9,2] * ((evs[2]/var(climatedatascaled$winter_tmax))^1/2)
+# var_loadings[10,2] * ((evs[2]/var(climatedatascaled$winter_tmin))^1/2)
+# # Axis 3
+# var_loadings[1,3] * ((evs[3]/var(climatedatascaled$summer_ppt_mm))^1/2)
+# var_loadings[2,3] * ((evs[3]/var(climatedatascaled$summer_pdsi))^1/2)
+# var_loadings[3,3] * ((evs[3]/var(climatedatascaled$summer_spei))^1/2)
+# var_loadings[4,3] * ((evs[3]/var(climatedatascaled$summer_tmax))^1/2)
+# var_loadings[5,3] * ((evs[3]/var(climatedatascaled$summer_tmin))^1/2)
+# var_loadings[6,3] * ((evs[3]/var(climatedatascaled$winter_ppt_mm))^1/2)
+# var_loadings[7,3] * ((evs[3]/var(climatedatascaled$winter_pdsi))^1/2)
+# var_loadings[8,3] * ((evs[3]/var(climatedatascaled$winter_spei))^1/2)
+# var_loadings[9,3] * ((evs[3]/var(climatedatascaled$winter_tmax))^1/2)
+# var_loadings[10,3] * ((evs[3]/var(climatedatascaled$winter_tmin))^1/2)
