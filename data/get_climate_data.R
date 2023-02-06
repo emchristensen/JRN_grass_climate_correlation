@@ -5,13 +5,13 @@
 #'  - summer = May-Sept
 #'  - winter = Oct-April and belongs to the following year (Oct 1923-Apr 1924 is winter 1924)
 #' Precip 1914-2017 from EDI Portal; 2017-2020 from NOAA
-#' Temp 1914-2012 from Berkeley Earth project; 2012-2020 from NOAA
+#' Temp 1914-2017 EDI portal; 2017-2020 from NOAA
 #' Gaps in monthly data filled by PRISM
 #' 
 #' Weather station at JRN began in June 1914, so data 1900-1914 filled by PRISM
 #' 
 # EMC
-# last run: 5/12/22
+# last run: 1/18/23
 
 library(dplyr)
 library(lubridate)
@@ -32,7 +32,7 @@ prism = read.csv('data/raw_climate_data/PRISM_ppt_tmin_tmean_tmax_tdmean_vpdmin_
                  skip=10) %>%
   mutate(year=as.numeric(substr(Date, 1,4)),
          month=as.numeric(substr(Date,6,7))) %>%
-  dplyr::select(year, month, ppt_prism=ppt..mm., tmean_prism=tmean..degrees.C.)
+  dplyr::select(year, month, ppt_prism=ppt..mm., tmin_prism=tmin..degrees.C., tmax_prism=tmax..degrees.C.)
 
 # =========================================================
 # Precipitation
@@ -76,10 +76,14 @@ monthlyppt = pptdat %>%
 # ==================================
 # temperature
 
-# read temperature from Berkeley http://berkeleyearth.lbl.gov/stations/27938
-temp_be = read.table('data/raw_climate_data/27938-TAVG-Data.txt', sep='', skip=87, 
-                  col.names=c('year','month','raw_temperature','data_anomaly','qc_failed','cont_breaks','adj_temp','data_anomaly2',
-                              'regional_temperature','expectation_anomaly'))
+# temperature from weather EDI portal data; aggregate to monthly
+temp_jrn = pptdat_jrn %>%
+  group_by(year, month) %>%
+  summarize(monthly_tmax_c = mean(tmax_c, na.rm=T),
+            monthly_tmin_c = mean(tmin_c, na.rm=T),
+            monthly_temp_nas = sum(is.na(tmin_c)))
+
+
 # read temperature from NOAA station (for 2013-2017)
 temp_noaa = read.csv('data/raw_climate_data/NOAA_Jornada_temp.csv', stringsAsFactors = F) %>%
   mutate(TMIN_C = (TMIN-32) * (5/9),
@@ -97,19 +101,24 @@ temp_noaa$tmean_C = rowMeans(temp_noaa[,c('TMAX_C','TMIN_C')])
 temp_noaa_monthly = temp_noaa %>%
   group_by(year, month) %>%
   summarize(monthly_tmean_c = mean(tmean_C, na.rm=T),
+            monthly_tmax_c = mean(TMAX_C, na.rm=T),
+            monthly_tmin_c = mean(TMIN_C, na.rm = T),
             monthly_temp_nas = sum(is.na(tmean_C)))
-# the most NA days after Oct 2013 (the data I will use) is 9; there is no reason to discard any monthly data due to missingness
 
-# combine Berkeley and NOAA data
-temp1 = temp_be %>%
+
+# combine JRN and NOAA data
+temp1 = temp_jrn %>%
   mutate(date = as.Date(paste(year, month, '15', sep='-'))) %>%
-  dplyr::filter(date>as.Date('1914-01-01'), date<as.Date('2013-10-01')) %>%
-  dplyr::select(year, month, monthly_tmean_c =adj_temp) 
+  dplyr::select(year, month, monthly_tmax_c, monthly_tmin_c, monthly_temp_nas) 
 temp2 = temp_noaa_monthly %>%
   mutate(date = as.Date(paste(year, month, '15', sep='-'))) %>%
-  dplyr::filter(date>as.Date('2013-09-15')) %>%
-  dplyr::select(year, month, monthly_tmean_c)
+  dplyr::filter(date>as.Date('2017-10-15')) %>%
+  dplyr::select(year, month, monthly_tmax_c, monthly_tmin_c, monthly_temp_nas)
 temp = rbind(temp1, temp2)
+
+# remove values for months missing > 20 data days
+temp$monthly_tmax_c[temp$monthly_temp_nas>20] <- NA
+temp$monthly_tmin_c[temp$monthly_temp_nas>20] <- NA
 
 # =================================
 # El Nino index
@@ -132,16 +141,18 @@ nino$enso_phase[nino$ONI> 0.5] <- 'ElNino'
 monthlyclimate = merge(monthlyppt, temp, all=T) %>%
   merge(prism, all=T) %>%
   mutate(ppt_mm = monthly_ppt_mm,
-         tmean_c = monthly_tmean_c)
+         tmin_c = monthly_tmin_c,
+         tmax_c = monthly_tmax_c)
 
 # if whole month of ppt missing, make NA and fill with PRISM
 monthlyclimate$ppt_mm[monthlyclimate$monthly_ppt_nas>=28] <- NA
 monthlyclimate$ppt_mm[is.na(monthlyclimate$ppt_mm)] <- monthlyclimate$ppt_prism[is.na(monthlyclimate$ppt_mm)]
 # fill missing temp with PRISM
-monthlyclimate$tmean_c[is.na(monthlyclimate$tmean_c)] <- monthlyclimate$tmean_prism[is.na(monthlyclimate$tmean_c)]
+monthlyclimate$tmin_c[is.na(monthlyclimate$tmin_c)] <- monthlyclimate$tmin_prism[is.na(monthlyclimate$tmin_c)]
+monthlyclimate$tmax_c[is.na(monthlyclimate$tmax_c)] <- monthlyclimate$tmax_prism[is.na(monthlyclimate$tmax_c)]
 
 # get 1-month SPEI
-monthlyclimate$PET = thornthwaite(monthlyclimate$tmean_c, lat=32.6171)
+monthlyclimate$PET = thornthwaite(rowMeans(monthlyclimate[,c('tmin_c','tmax_c')]), lat=32.6171)
 monthlyclimate$BAL = monthlyclimate$ppt_mm-monthlyclimate$PET
 spei1 = spei(monthlyclimate[,'BAL'],1)
 monthlyclimate$spei1 = spei1$fitted
@@ -153,7 +164,7 @@ monthlyfinal = monthlyclimate %>%
   merge(pdsi) %>%
   merge(pdo) %>%
   merge(nino) %>%
-  dplyr::select(year, month, ppt_mm, tmean_c, spei1, pdsi, nino34_index, ONI, enso_phase, pdo=PDO) %>%
+  dplyr::select(year, month, ppt_mm, tmin_c, tmax_c, spei1, pdsi, nino34_index, ONI, enso_phase, pdo=PDO) %>%
   mutate(date = as.Date(paste(year, month, '01',sep='-'))) %>%
   arrange(date)
 
@@ -184,44 +195,44 @@ ensophases = dplyr::select(monthlyfinal, year, month, ONI, enso_phase) %>%
 monthlyfinal$water_yr = monthlyfinal$year
 monthlyfinal$water_yr[monthlyfinal$month %in% c(10,11,12)] <- monthlyfinal$year[monthlyfinal$month %in% c(10,11,12)] +1
 
-# summer precip, spei, pdsi
+# summer precip, spei, pdsi, tmax, tmin
 summerppt = monthlyfinal %>%
   dplyr::filter(month %in% c(5,6,7,8,9)) %>%
   group_by(water_yr) %>%
   summarize(summer_ppt_mm = sum(ppt_mm),
             summer_pdsi = mean(pdsi),
-            summer_spei = mean(spei1))
+            summer_spei = mean(spei1),
+            summer_tmax = mean(tmax_c),
+            summer_tmin = mean(tmin_c))
 
 # winter precip
 winterppt = monthlyfinal %>%
   dplyr::filter(month %in% c(1,2,3,4,10,11,12)) %>%
   group_by(water_yr) %>%
-  summarize(winter_ppt_mm = sum(ppt_mm))
+  summarize(winter_ppt_mm = sum(ppt_mm),
+            winter_pdsi = mean(pdsi),
+            winter_spei = mean(spei1),
+            winter_tmax = mean(tmax_c),
+            winter_tmin = mean(tmin_c))
 
-# growing season De Martonne aridity index
-demartonne = monthlyfinal %>%
-  dplyr::filter(month %in% c(6,7,8,9)) %>%
-  group_by(year) %>%
-  summarize(meanppt = mean(ppt_mm),
-            meantemp = mean(tmean_c)) %>%
-  mutate(demartonne = meanppt/(meantemp + 10))
+
 
 # aggregate precip, temp, spei to yearly; merge with summer and winter precip; merge with pdo and enso phases
 yearlyclimate = monthlyfinal %>%
   group_by(water_yr) %>%
   summarize(pdo = mean(pdo),
             nino34 = mean(nino34_index),
-            oni = mean(ONI),
+            #oni = mean(ONI),
             pdsi = mean(pdsi),
             spei = mean(spei1, na.rm=T),
-            mean_temp=mean(tmean_c),
+            #mean_temp=mean(tmean_c),
             yearly_ppt_mm = sum(ppt_mm)) %>%
   merge(summerppt) %>%
   merge(winterppt) %>%
   merge(pdophase, by.x='water_yr', by.y='year') %>%
   merge(ensophases, by.x='water_yr', by.y='winteryear') %>%
-  dplyr::filter(water_yr>=1901) %>%
-  merge(demartonne[,c('year','demartonne')], by.x='water_yr',by.y='year')
+  dplyr::filter(water_yr>=1901) #%>%
+  #merge(demartonne[,c('year','demartonne')], by.x='water_yr',by.y='year')
 
 write.csv(yearlyclimate, 'data/climate_variables.csv', row.names=F)
 
