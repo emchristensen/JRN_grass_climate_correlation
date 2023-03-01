@@ -1,5 +1,0 @@
-"parameters","AICc","adj.r.squared","deltaAICc"
-"(Intercept), pdo_mean_10y",-344.515987739857,0.625606942542273,0
-"(Intercept), pdo_mean_10y, enso_phaseLaNina, enso_phaseNeutral",-341.201300707537,0.621023493165904,3.31468703232019
-"(Intercept), pdo_mean_10y, PC1, PC2, PC3",-340.557016719811,0.625258764598521,3.95897102004596
-"(Intercept), pdo_mean_10y, enso_phaseLaNina, enso_phaseNeutral, PC1, PC2, PC3",-337.455141176608,0.624294363485123,7.06084656324902

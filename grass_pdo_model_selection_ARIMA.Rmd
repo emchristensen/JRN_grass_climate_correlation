@@ -1,0 +1,314 @@
+---
+title: "Grass/PDO model selection"
+author: "Erica Christensen"
+date: "2/22/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# last run: 2/22/23
+
+library(dplyr)
+library(ggplot2)
+library(MuMIn)
+library(astsa)
+
+# One measure of R-squared: squared correlation of fitted values to actual values
+arima_rsquare <- function(arimamodel) {cor(fitted(arimamodel), dta[,"grass"])^2}
+
+# colors for figures
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# read in data
+grass = read.csv('data/grass_median_yearly.csv') %>% dplyr::rename(grass = median_grass)
+pptdat = read.csv('data/climate_variables.csv')
+pcadata = read.csv('data/climate_variables_pca.csv')
+
+# create one big data frame
+combined_data = grass %>%
+  merge(pptdat, by.x='project_year', by.y='water_yr', all=T) %>%
+  merge(pcadata, by.x='project_year', by.y='X', all=T) %>%
+  dplyr::rename(year=project_year)
+
+# we know from select_variables_for_models.Rmd that a 10-year moving average of PDO should be included in models
+combined_data = combined_data %>%
+  mutate(pdo_mean_10y = c(rep(NA,9),
+                      zoo::rollmean(pdo, 10)))
+
+```
+
+
+
+
+
+## Models and model comparison
+
+Linear models were constructed between grass cover and the results of the pca of short-term climate variables, ENSO phase, and smoothed PDO index.  
+
+```{r linearmodels, echo=F}
+# restrict to time window
+model_data = combined_data %>%
+  dplyr::filter(year>=1916, year<1980) %>%
+  dplyr::select(year, grass, pdo_mean_10y, enso_phase, PC1, PC2, PC3)
+
+# Convert modeling data to time series object
+dta <- ts(model_data, start = 1916)
+
+# ARIMA models
+null.lm = lm(grass ~ 1, data = model_data) # Linear regression model with 0 slope
+arima.NoPred <- auto.arima(dta[,"grass"], stepwise=FALSE, approximation=FALSE) # ARIMA with grass only (no covariates)
+arima.mean_10y <- auto.arima(dta[,"grass"], xreg = dta[, "pdo_mean_10y"], stepwise=FALSE, approximation=FALSE)
+#arima.pc1 <- auto.arima(dta[,"grass"], xreg = dta[, "PC1"], stepwise=FALSE, approximation=FALSE)
+#arima.pc2 <- auto.arima(dta[,"grass"], xreg = dta[, "PC2"], stepwise=FALSE, approximation=FALSE)
+#arima.pc3 <- auto.arima(dta[,"grass"], xreg = dta[, "PC3"], stepwise=FALSE, approximation=FALSE)
+#arima.pc12 <- auto.arima(dta[,"grass"], xreg = dta[, c("PC1", "PC2")], stepwise=FALSE, approximation=FALSE)
+#arima.pc13 <- auto.arima(dta[,"grass"], xreg = dta[, c("PC1", "PC3")], stepwise=FALSE, approximation=FALSE)
+#arima.pc23 <- auto.arima(dta[,"grass"], xreg = dta[, c("PC2", "PC3")], stepwise=FALSE, approximation=FALSE)
+arima.pc123 <- auto.arima(dta[,"grass"], xreg = dta[, c("PC1", "PC2", "PC3")], stepwise=FALSE, approximation=FALSE)
+arima.mean_10y.pc1 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1")], stepwise=FALSE, approximation=FALSE)
+arima.mean_10y.pc2 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC2")], stepwise=FALSE, approximation=FALSE)
+arima.mean_10y.pc3 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC3")], stepwise=FALSE, approximation=FALSE)
+arima.mean_10y.pc12 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1", "PC2")], stepwise=FALSE, approximation=FALSE)
+arima.mean_10y.pc13 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1", "PC3")], stepwise=FALSE, approximation=FALSE)
+arima.mean_10y.pc23 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC2", "PC3")], stepwise=FALSE, approximation=FALSE)
+arima.mean_10y.pc123 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1", "PC2", "PC3")], stepwise=FALSE, approximation=FALSE)
+arima.enso_phase <- auto.arima(dta[,"grass"], xreg = dta[, "enso_phase"], stepwise=FALSE, approximation=FALSE)
+arima.mean_10y.enso <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y","enso_phase")], stepwise=FALSE, approximation=FALSE)
+arima.mean_10y.enso.pc123 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y","enso_phase","PC1","PC2","PC3")], stepwise=FALSE, approximation=FALSE)
+
+
+aicc.mainmodels <- data.frame(
+  models = c("null",
+             "arima.NoPred",  
+             "arima.mean_10y", 
+             "arima.pc123",
+             "arima.enso_phase"),
+  AICc = c(AICc(null.lm),
+           arima.NoPred$aicc,  
+           arima.mean_10y$aicc, 
+           arima.pc123$aicc,
+           arima.enso_phase$aicc),
+  rsquared = c(summary(null.lm)$adj.r.squared,
+               arima_rsquare(arima.NoPred),
+               arima_rsquare(arima.mean_10y),
+               arima_rsquare(arima.pc123),
+               arima_rsquare(arima.enso_phase)),
+  stringsAsFactors = FALSE
+) %>%
+  arrange(AICc) %>%
+  mutate(delta_AICc = AICc - min(AICc))
+
+
+
+aicc.allmodels <- data.frame(
+  models = c("null",
+             "arima.NoPred",  
+             "arima.mean_10y", 
+             #"arima.pc1", 
+             #"arima.pc2", 
+             #"arima.pc3", 
+             #"arima.pc12",
+             #"arima.pc13",
+             #"arima.pc23",
+             "arima.pc123",
+             #"arima.mean_10y.pc1",
+             #"arima.mean_10y.pc2",
+             #"arima.mean_10y.pc3",
+             #"arima.mean_10y.pc12",
+             #"arima.mean_10y.pc13",
+             #"arima.mean_10y.pc23",
+             "arima.mean_10y.pc123",
+             "arima.mean_10y.enso",
+             "arima.enso_phase",
+             "arima.mean_10y.enso.pc123"),
+  AICc = c(AICc(null.lm),
+           arima.NoPred$aicc,  
+           arima.mean_10y$aicc, 
+           #arima.pc1$aicc, 
+           #arima.pc2$aicc, 
+           #arima.pc3$aicc, 
+           #arima.pc12$aicc,
+           #arima.pc13$aicc,
+           #arima.pc23$aicc,
+           arima.pc123$aicc,
+           #arima.mean_10y.pc1$aicc,
+           #arima.mean_10y.pc2$aicc,
+           #arima.mean_10y.pc3$aicc,
+           #arima.mean_10y.pc12$aicc,
+           #arima.mean_10y.pc13$aicc,
+           #arima.mean_10y.pc23$aicc,
+           arima.mean_10y.pc123$aicc,
+           arima.mean_10y.enso$aicc,
+           arima.enso_phase$aicc,
+           arima.mean_10y.enso.pc123$aicc),
+    rsquared = c(summary(null.lm)$adj.r.squared,
+               arima_rsquare(arima.NoPred),
+               arima_rsquare(arima.mean_10y),
+               #arima_rsquare(arima.pc1),
+               #arima_rsquare(arima.pc2),
+               #arima_rsquare(arima.pc3),
+               #arima_rsquare(arima.pc12),
+               #arima_rsquare(arima.pc13),
+               #arima_rsquare(arima.pc23),
+               arima_rsquare(arima.pc123),
+               #arima_rsquare(arima.mean_10y.pc1),
+               #arima_rsquare(arima.mean_10y.pc2),
+               #arima_rsquare(arima.mean_10y.pc3),
+               #arima_rsquare(arima.mean_10y.pc12),
+               #arima_rsquare(arima.mean_10y.pc13),
+               #arima_rsquare(arima.mean_10y.pc23),
+               arima_rsquare(arima.mean_10y.pc123),
+               arima_rsquare(arima.mean_10y.enso),
+               arima_rsquare(arima.enso_phase),
+               arima_rsquare(arima.mean_10y.enso.pc123)),
+  stringsAsFactors = FALSE
+) %>%
+  arrange(AICc) %>%
+  mutate(delta_AICc = AICc - min(AICc))
+
+
+write_csv(aicc.mainmodels, "results_aic_table_arima.csv")
+
+
+
+write_csv(arrange(aicc.allmodels, delta_AICc), 'results_aic_table_arima_all.csv')
+```
+
+There best model in terms of AICc is the model with smoothed PDO as a predictor. 
+
+```{r plot model, echo=F}
+
+# best model: arima.mean_10y
+# Obtain fit statistics for best model
+summary(arima.mean_10y)
+
+# Test whether parameters are significantly different from zero
+library(lmtest)
+coeftest(arima.mean_10y) # All paramters are significant
+
+# rsquare (correlation between fitted values and real)
+arima_rsquare(arima.mean_10y)
+
+
+
+# timeseries plot
+modelfit = data.frame(predicted_grass=as.numeric(fitted(arima.mean_10y)),
+                             low = as.numeric(fitted(arima.mean_10y) - 1.96*sqrt(arima.mean_10y$sigma2)),
+                             high = as.numeric(fitted(arima.mean_10y) + 1.96*sqrt(arima.mean_10y$sigma2))) %>%
+  cbind(model_data)
+
+timeplot = ggplot(modelfit, aes(x=year, y=predicted_grass)) +
+  geom_line(aes(color = 'Model \nprediction'), linewidth=1.5) +
+  geom_point(data=model_data, aes(y=grass, color='Grass \nmeasurement')) +
+  scale_color_manual(name='',values=cbPalette[c(7,3)]) +
+  xlab('') +
+  ylab('Grass Cover (m2)') +
+  theme_bw() 
+timeplot
+
+ggsave('Figures/2023_02/grass_pdo10y_timeseries.png', plot=timeplot, width=5, height=3)
+```
+
+
+
+## Predict grass 1980-2020 from model
+
+Using the best model based on the 1916-1979 timeseries, create predictions for grass up to 2020. Compare to data collected in 1995, 2001, 2006, 2011, and 2016.
+
+
+```{r model predict, echo=F}
+# prediction based on pdo model
+
+
+# Convert covariate data fore forecasting to time series object
+newdta <- combined_data %>% dplyr::filter(year>1979) %>% ts(start = 1980)
+
+# forecast based on arima
+modelprediction <- forecast::forecast(arima.mean_10y, h=41, xreg=newdta[,'pdo_mean_10y'])
+
+predictionvalues <- data.frame(mean = modelprediction$mean,
+                               upper = modelprediction$upper,
+                               lower = modelprediction$lower,
+                               year = newdta[,'year'])
+
+# plot figure
+grasspred = ggplot(predictionvalues, aes(x=year)) +
+  geom_line(aes(y=mean)) +
+  geom_ribbon(aes(ymin=lower.95., ymax=upper.95.), alpha=.3) +
+  geom_line(data=modelfit, aes(x=year, y=predicted_grass)) +
+  geom_ribbon(data=modelfit, aes(ymin=low, ymax=high), alpha=.3) +
+  geom_point(data=combined_data, aes(x=year, y=grass)) +
+  xlim(1916, 2022) +
+  theme_bw() +
+  #coord_cartesian(ylim=c(-.005,.1)) +
+  xlab('') +
+  ylab('Grass cover (m2)')
+grasspred
+ggsave('Figures/2023_02/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
+
+
+# get RMSE for 1916-1979 and 1995-2016
+late_section = combined_data %>%
+  dplyr::filter(year>1980, !is.na(grass)) %>%
+  merge(predictionvalues)
+
+rmse_early = round(sqrt(mean((modelfit$predicted_grass-modelfit$grass)^2)), digits=2)
+rmse_late = round(sqrt(mean((late_section$mean-late_section$grass)^2)), digits=2)
+```
+
+```{r, echo=F}
+# # other model fits
+# modelfit = data.frame(predicted_grass=as.numeric(fitted(arima.mean_10y)),
+#                              low = as.numeric(fitted(arima.mean_10y) - 1.96*sqrt(arima.mean_10y$sigma2)),
+#                              high = as.numeric(fitted(arima.mean_10y) + 1.96*sqrt(arima.mean_10y$sigma2))) %>%
+#   cbind(model_data)
+# 
+# modelfit2 = data.frame(predicted_grass=as.numeric(fitted(arima.NoPred)),
+#                              low = as.numeric(fitted(arima.NoPred) - 1.96*sqrt(arima.NoPred$sigma2)),
+#                              high = as.numeric(fitted(arima.NoPred) + 1.96*sqrt(arima.NoPred$sigma2))) %>%
+#   cbind(model_data)
+# modelfit3 = data.frame(predicted_grass=as.numeric(fitted(arima.pc123)),
+#                              low = as.numeric(fitted(arima.pc123) - 1.96*sqrt(arima.pc123$sigma2)),
+#                              high = as.numeric(fitted(arima.pc123) + 1.96*sqrt(arima.pc123$sigma2))) %>%
+#   cbind(model_data)
+# modelfit4 = data.frame(predicted_grass=as.numeric(fitted(arima.enso_phase)),
+#                              low = as.numeric(fitted(arima.enso_phase) - 1.96*sqrt(arima.enso_phase$sigma2)),
+#                              high = as.numeric(fitted(arima.enso_phase) + 1.96*sqrt(arima.enso_phase$sigma2))) %>%
+#   cbind(model_data)
+# 
+# # forecast based on arimas
+# modelprediction2 <- forecast::forecast(arima.NoPred, h=41)
+# predictionvalues2 <- data.frame(mean = modelprediction2$mean,
+#                                upper = modelprediction2$upper,
+#                                lower = modelprediction2$lower,
+#                                year = newdta[,'year'])
+# modelprediction3 <- forecast::forecast(arima.pc123, h=41, xreg=newdta[,c('PC1','PC2','PC3')])
+# predictionvalues3 <- data.frame(mean = modelprediction3$mean,
+#                                upper = modelprediction3$upper,
+#                                lower = modelprediction3$lower,
+#                                year = newdta[,'year'])
+# modelprediction4 <- forecast::forecast(arima.enso_phase, h=41, xreg=newdta[,'enso_phase'])
+# predictionvalues4 <- data.frame(mean = modelprediction4$mean,
+#                                upper = modelprediction4$upper,
+#                                lower = modelprediction4$lower,
+#                                year = newdta[,'year'])
+# 
+# 
+# allmodels = ggplot() +
+#   geom_line(data = modelfit, aes(x=year, y=predicted_grass, color = 'PDO'), linewidth=1) +
+#   
+#   geom_line(data=modelfit2, aes(x=year, y=predicted_grass, color = 'No Predictors'), linewidth=1) +
+#   #geom_ribbon(data = predictionvalues2, aes(x=year, ymin=lower.95., ymax=upper.95., fill='No Predictors'), alpha=.3) +
+#   geom_line(data=modelfit3, aes(x=year, y=predicted_grass, color = 'PC1, PC2, PC3'), linewidth=1) +
+#   #geom_ribbon(data = predictionvalues3, aes(x=year, ymin=lower.95., ymax=upper.95., fill='PC1, PC2, PC3'), alpha=.3) +
+#   geom_line(data=modelfit4, aes(x=year, y=predicted_grass, color = 'ENSO phase'), linewidth=1) +
+#   #geom_ribbon(data = predictionvalues4, aes(x=year, ymin=lower.95., ymax=upper.95., fill='ENSO phase'), alpha=.3) +
+#   geom_point(data=model_data, aes(x=year, y=grass, color='Grass \nmeasurement')) +
+#   #geom_ribbon(data = predictionvalues, aes(x=year, ymin=lower.95., ymax=upper.95., fill='PDO'), alpha=.3) +
+#   scale_color_manual(name='',values=cbPalette[c(7,3,1,2,4)]) +
+#   scale_fill_manual(name='',values=cbPalette[c(7,1,2,4)]) +
+#   xlab('') +
+#   ylab('Grass Cover (m2)') +
+#   theme_bw() 
+# allmodels
+```
