@@ -18,12 +18,11 @@ Run scripts in 'data' folder to prepare quadrat grass data and climate variable 
  - __data/get_climate_data.R__
 
 
-### Main model scripts
-Cross-correlation analyses are run in __variables_cca.Rmd__.  
+### Main model scripts  
 
 Principal components analysis of short-term climate variables is done in __principal_components.R__. 
 
-The main models correlating grass with climate variables are run in __grass_pdo_model_selection.Rmd__. This script depends on intermediate csv files created in the first step. Creates _results_aic_table.csv_. 
+The main models correlating grass with climate variables are run in __grass_pdo_model_selection_ARIMA.Rmd__. This script depends on intermediate csv files created in the first step. Creates _results_aic_table_arima.csv_. 
 
 
 ### Additional scripts

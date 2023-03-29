@@ -27,8 +27,10 @@ climate_s
 write.csv(climate_s$sites, file='data/climate_variables_pca.csv', row.names = T)
 
 # plot pc1 and pc2
-
-biplot(climatePCA)
+png('Figures/2023_01/PCA_biplot.png', width=5, height=5, units='in', res=600)
+plot.file <- biplot(climatePCA)
+plot.file
+dev.off()
 
 # trying to do this in ggplot
 smry <- summary(climatePCA)
