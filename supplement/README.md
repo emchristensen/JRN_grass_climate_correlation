@@ -2,7 +2,7 @@
 
 Scripts to create figures for supplement to paper.
 
-* __compare_sev_jer_temperature.R__ Comparing min/max temperature at the Sevilleta vs. Jornada. Included in supplement of paper.
+* __climate variables with PDO.R__ Plots correlation between PDO and climate variables. Included in supplement of paper.
 
 * __HQ temp data.R__ Timeseries of temperature at Jornada Headquarters 1915-2020. Shows significant warming trend since 1980.
 
