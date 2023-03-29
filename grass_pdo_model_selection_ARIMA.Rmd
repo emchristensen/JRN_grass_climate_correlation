@@ -12,6 +12,8 @@ library(dplyr)
 library(ggplot2)
 library(MuMIn)
 library(astsa)
+library(forecast)
+library(readr)
 
 # One measure of R-squared: squared correlation of fitted values to actual values
 arima_rsquare <- function(arimamodel) {cor(fitted(arimamodel), dta[,"grass"])^2}
@@ -56,25 +58,19 @@ dta <- ts(model_data, start = 1916)
 
 # ARIMA models
 null.lm = lm(grass ~ 1, data = model_data) # Linear regression model with 0 slope
-arima.NoPred <- auto.arima(dta[,"grass"], stepwise=FALSE, approximation=FALSE) # ARIMA with grass only (no covariates)
-arima.mean_10y <- auto.arima(dta[,"grass"], xreg = dta[, "pdo_mean_10y"], stepwise=FALSE, approximation=FALSE)
-#arima.pc1 <- auto.arima(dta[,"grass"], xreg = dta[, "PC1"], stepwise=FALSE, approximation=FALSE)
-#arima.pc2 <- auto.arima(dta[,"grass"], xreg = dta[, "PC2"], stepwise=FALSE, approximation=FALSE)
-#arima.pc3 <- auto.arima(dta[,"grass"], xreg = dta[, "PC3"], stepwise=FALSE, approximation=FALSE)
-#arima.pc12 <- auto.arima(dta[,"grass"], xreg = dta[, c("PC1", "PC2")], stepwise=FALSE, approximation=FALSE)
-#arima.pc13 <- auto.arima(dta[,"grass"], xreg = dta[, c("PC1", "PC3")], stepwise=FALSE, approximation=FALSE)
-#arima.pc23 <- auto.arima(dta[,"grass"], xreg = dta[, c("PC2", "PC3")], stepwise=FALSE, approximation=FALSE)
-arima.pc123 <- auto.arima(dta[,"grass"], xreg = dta[, c("PC1", "PC2", "PC3")], stepwise=FALSE, approximation=FALSE)
-arima.mean_10y.pc1 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1")], stepwise=FALSE, approximation=FALSE)
-arima.mean_10y.pc2 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC2")], stepwise=FALSE, approximation=FALSE)
-arima.mean_10y.pc3 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC3")], stepwise=FALSE, approximation=FALSE)
-arima.mean_10y.pc12 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1", "PC2")], stepwise=FALSE, approximation=FALSE)
-arima.mean_10y.pc13 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1", "PC3")], stepwise=FALSE, approximation=FALSE)
-arima.mean_10y.pc23 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC2", "PC3")], stepwise=FALSE, approximation=FALSE)
-arima.mean_10y.pc123 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1", "PC2", "PC3")], stepwise=FALSE, approximation=FALSE)
-arima.enso_phase <- auto.arima(dta[,"grass"], xreg = dta[, "enso_phase"], stepwise=FALSE, approximation=FALSE)
-arima.mean_10y.enso <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y","enso_phase")], stepwise=FALSE, approximation=FALSE)
-arima.mean_10y.enso.pc123 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y","enso_phase","PC1","PC2","PC3")], stepwise=FALSE, approximation=FALSE)
+arima.NoPred <- auto.arima(dta[,"grass"], stepwise=FALSE, approximation=FALSE, ic = 'aicc') # ARIMA with grass only (no covariates)
+arima.mean_10y <- auto.arima(dta[,"grass"], xreg = dta[, "pdo_mean_10y"], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.pc123 <- auto.arima(dta[,"grass"], xreg = dta[, c("PC1", "PC2", "PC3")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.mean_10y.pc1 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.mean_10y.pc2 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC2")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.mean_10y.pc3 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC3")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.mean_10y.pc12 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1", "PC2")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.mean_10y.pc13 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1", "PC3")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.mean_10y.pc23 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC2", "PC3")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.mean_10y.pc123 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y", "PC1", "PC2", "PC3")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.enso_phase <- auto.arima(dta[,"grass"], xreg = dta[, "enso_phase"], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.mean_10y.enso <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y","enso_phase")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
+arima.mean_10y.enso.pc123 <- auto.arima(dta[,"grass"], xreg = dta[, c("pdo_mean_10y","enso_phase","PC1","PC2","PC3")], stepwise=FALSE, approximation=FALSE, ic = 'aicc')
 
 
 aicc.mainmodels <- data.frame(
@@ -104,19 +100,7 @@ aicc.allmodels <- data.frame(
   models = c("null",
              "arima.NoPred",  
              "arima.mean_10y", 
-             #"arima.pc1", 
-             #"arima.pc2", 
-             #"arima.pc3", 
-             #"arima.pc12",
-             #"arima.pc13",
-             #"arima.pc23",
              "arima.pc123",
-             #"arima.mean_10y.pc1",
-             #"arima.mean_10y.pc2",
-             #"arima.mean_10y.pc3",
-             #"arima.mean_10y.pc12",
-             #"arima.mean_10y.pc13",
-             #"arima.mean_10y.pc23",
              "arima.mean_10y.pc123",
              "arima.mean_10y.enso",
              "arima.enso_phase",
@@ -124,19 +108,7 @@ aicc.allmodels <- data.frame(
   AICc = c(AICc(null.lm),
            arima.NoPred$aicc,  
            arima.mean_10y$aicc, 
-           #arima.pc1$aicc, 
-           #arima.pc2$aicc, 
-           #arima.pc3$aicc, 
-           #arima.pc12$aicc,
-           #arima.pc13$aicc,
-           #arima.pc23$aicc,
            arima.pc123$aicc,
-           #arima.mean_10y.pc1$aicc,
-           #arima.mean_10y.pc2$aicc,
-           #arima.mean_10y.pc3$aicc,
-           #arima.mean_10y.pc12$aicc,
-           #arima.mean_10y.pc13$aicc,
-           #arima.mean_10y.pc23$aicc,
            arima.mean_10y.pc123$aicc,
            arima.mean_10y.enso$aicc,
            arima.enso_phase$aicc,
@@ -144,19 +116,7 @@ aicc.allmodels <- data.frame(
     rsquared = c(summary(null.lm)$adj.r.squared,
                arima_rsquare(arima.NoPred),
                arima_rsquare(arima.mean_10y),
-               #arima_rsquare(arima.pc1),
-               #arima_rsquare(arima.pc2),
-               #arima_rsquare(arima.pc3),
-               #arima_rsquare(arima.pc12),
-               #arima_rsquare(arima.pc13),
-               #arima_rsquare(arima.pc23),
                arima_rsquare(arima.pc123),
-               #arima_rsquare(arima.mean_10y.pc1),
-               #arima_rsquare(arima.mean_10y.pc2),
-               #arima_rsquare(arima.mean_10y.pc3),
-               #arima_rsquare(arima.mean_10y.pc12),
-               #arima_rsquare(arima.mean_10y.pc13),
-               #arima_rsquare(arima.mean_10y.pc23),
                arima_rsquare(arima.mean_10y.pc123),
                arima_rsquare(arima.mean_10y.enso),
                arima_rsquare(arima.enso_phase),
