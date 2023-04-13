@@ -158,15 +158,17 @@ modelfit = data.frame(predicted_grass=as.numeric(fitted(arima.mean_10y)),
   cbind(model_data)
 
 timeplot = ggplot(modelfit, aes(x=year, y=predicted_grass)) +
-  geom_line(aes(color = 'Model \nprediction'), linewidth=1.5) +
-  geom_point(data=model_data, aes(y=grass, color='Grass \nmeasurement')) +
+  geom_line(aes(color = 'Model \nprediction'), linewidth=1) +
+  geom_point(data=model_data, aes(y=grass, color='Grass \nmeasurement'), size=.7) +
   scale_color_manual(name='',values=cbPalette[c(7,3)]) +
   xlab('') +
   ylab('Grass Cover (m2)') +
-  theme_bw() 
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8), legend.position = 'right', legend.margin=margin(l=-10))
 timeplot
 
-ggsave('Figures/2023_02/grass_pdo10y_timeseries.png', plot=timeplot, width=5, height=3)
+#ggsave('Figures/2023_02/grass_pdo10y_timeseries.png', plot=timeplot, width=5, height=3)
+ggsave('Figures/2023_04/Fig1.tiff', plot=timeplot, width=8.5, height=5, units='cm', dpi=600)
 ```
 
 
@@ -197,15 +199,16 @@ grasspred = ggplot(predictionvalues, aes(x=year)) +
   geom_ribbon(aes(ymin=lower.95., ymax=upper.95.), alpha=.3) +
   geom_line(data=modelfit, aes(x=year, y=predicted_grass)) +
   geom_ribbon(data=modelfit, aes(ymin=low, ymax=high), alpha=.3) +
-  geom_point(data=combined_data, aes(x=year, y=grass)) +
+  geom_point(data=combined_data, aes(x=year, y=grass), size=.7) +
   xlim(1916, 2022) +
   theme_bw() +
   #coord_cartesian(ylim=c(-.005,.1)) +
   xlab('') +
-  ylab('Grass cover (m2)')
+  ylab('Grass cover (m2)') +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8))
 grasspred
-ggsave('Figures/2023_02/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
-
+#ggsave('Figures/2023_02/grass_prediction_from_PDO.png', plot=grasspred, width=5, height=4)
+ggsave('Figures/2023_04/Fig2.tiff', plot=grasspred, width=8.5, height=6, units='cm', dpi=600)
 
 # get RMSE for 1916-1979 and 1995-2016
 late_section = combined_data %>%

@@ -82,10 +82,11 @@ grassgroups_relative <- ggplot(relative_cover) +
        color='PDO phase') +
   scale_color_manual(values=c('blue','red')) +
   scale_fill_manual(values=cbPalette, breaks=c('transient','core'),labels=c('Transient\n species','Core species')) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8))
 grassgroups_relative
-ggsave('Figures/grass_func_groups_timeseries_relative_cover.png', plot=grassgroups_relative, width=6, height=4)
-
+#ggsave('Figures/grass_func_groups_timeseries_relative_cover.png', plot=grassgroups_relative, width=6, height=4)
+ggsave('Figures/2023_04/Fig4.tiff', plot=grassgroups_relative, width=8.5, height=5.7, units='cm', dpi=600)
 
 # =================================
 # relative cover of functional groups post-1995

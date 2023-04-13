@@ -28,7 +28,7 @@ cdrrc = read.csv('other data sets/CDRRC/CDRRC pasture 1 long term forage product
 # plot timeseries
 cdrrc_figure = ggplot(cdrrc, aes(x=year, y=forage)) +
   geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
-  geom_point() +
+  geom_point(size=.7) +
   geom_line() +
   xlab('') +
   ylab('Forage production \n(kg/ha)') +
@@ -36,19 +36,23 @@ cdrrc_figure = ggplot(cdrrc, aes(x=year, y=forage)) +
   
   scale_color_manual(values=c('blue','red')) +
   coord_cartesian(xlim=c(1966,2020)) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8),
+        plot.title=element_text(size=10))
 cdrrc_figure
 
 # boxplot: significant difference between phases?
 cdrrc_pdo = merge(cdrrc, pdo, all.x=T)
 cdrrcbox = ggplot(cdrrc_pdo, aes(x=pdo_phase, y=forage)) +
-  geom_boxplot(na.rm=T) +
-  geom_jitter(width=.1, alpha=.4, na.rm=T)+
+  geom_boxplot(na.rm=T, outlier.size=.7) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T, size=.7)+
   #ylab('Forage production (kg/ha)') +
   ylab('') +
   ggtitle('CDRRC') +
   xlab('') +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8),
+        plot.title=element_text(size=10))
 cdrrcbox
 
 # is there a significant difference?
@@ -75,7 +79,7 @@ sev_pct = sev %>%
 
 # plot timeseries
 sev_figure = ggplot(sev_pct, aes(x=year, y=pct_cover)) +
-  geom_point() +
+  geom_point(size=.7) +
   geom_line() +
   xlab('') +
   ylab('Percent cover') +
@@ -83,19 +87,23 @@ sev_figure = ggplot(sev_pct, aes(x=year, y=pct_cover)) +
   geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
   scale_color_manual(values=c('blue','red')) +
   coord_cartesian(xlim=c(1988,2020)) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8),
+        plot.title=element_text(size=10))
 sev_figure
 
 # boxplot: significant difference between phases?
 sev_pdo = merge(sev_pct, pdo, all.x=T)
 sevbox = ggplot(sev_pdo, aes(x=pdo_phase, y=pct_cover)) +
-  geom_boxplot(na.rm=T) +
-  geom_jitter(width=.1, alpha=.4, na.rm=T)+
+  geom_boxplot(na.rm=T, outlier.size=.7) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T, size=.7)+
   #ylab('Percent cover') +
   ylab('') +
   ggtitle('Sevilleta') +
   xlab('') +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8),
+        plot.title=element_text(size=10))
 sevbox
 
 # is there a significant difference? aov
@@ -114,7 +122,7 @@ sr_dat = read.csv('other data sets/santa rita/transects/pasture8_transects_mean.
 
 # plot timeseries
 sr_figure = ggplot(sr_dat, aes(x=year, y=mean_grass)) +
-  geom_point() +
+  geom_point(size=.7) +
   geom_line() +
   xlab('') +
   ylab('Cover (ft) \n along transect') +
@@ -122,19 +130,23 @@ sr_figure = ggplot(sr_dat, aes(x=year, y=mean_grass)) +
   geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
   scale_color_manual(values=c('blue','red')) +
   coord_cartesian(xlim=c(1952,2021)) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8),
+        plot.title=element_text(size=10))
 sr_figure
 
 # boxplot: significant difference between phases?
 sr_pdo = merge(sr_dat, pdo, all.x=T)
 srbox = ggplot(sr_pdo, aes(x=pdo_phase, y=mean_grass)) +
-  geom_boxplot(na.rm=T) +
-  geom_jitter(width=.1, alpha=.4, na.rm=T)+
+  geom_boxplot(na.rm=T, outlier.size = .7) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T, size=.7)+
   #ylab('Percent cover') +
   ylab('') +
   ggtitle('Santa Rita') +
   xlab('') +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8),
+        plot.title=element_text(size=10))
 srbox
 
 # is there a significant difference? aov
@@ -153,7 +165,7 @@ jrngrass = read.csv('data/grass_median_yearly.csv') %>% dplyr::filter(project_ye
 # plot timeseries
 jrn_figure = ggplot(jrngrass, aes(x=project_year, y=median_grass)) +
   geom_point(data=pdophases, aes(x=year, y=yint, color = pdo_phase), size=3, shape=15) +
-  geom_point() +
+  geom_point(size=.7) +
   geom_line() +
   xlab('') +
   ylab('Percent cover') +
@@ -161,19 +173,24 @@ jrn_figure = ggplot(jrngrass, aes(x=project_year, y=median_grass)) +
   
   scale_color_manual(values=c('blue','red')) +
   coord_cartesian(xlim=c(1915,1980)) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8),
+        plot.title=element_text(size=10))
 jrn_figure
 
 # boxplot: significant difference between phases?
 jrn_pdo = merge(jrngrass, pdo, by.x = 'project_year', by.y='year', all.x=T)
 jrnbox = ggplot(jrn_pdo, aes(x=pdo_phase, y=median_grass)) +
-  geom_boxplot(na.rm=T) +
-  geom_jitter(width=.1, alpha=.4, na.rm=T)+
+  geom_boxplot(na.rm=T, outlier.size=.7) +
+  geom_jitter(width=.1, alpha=.4, na.rm=T, size=.7)+
   #ylab('Percent cover') +
   ylab('') +
   ggtitle('Jornada') +
   xlab('') +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.text=element_text(size=6), legend.title=element_text(size=8),
+        plot.title=element_text(size=10))
+
 jrnbox
 
 # is there a significant difference? aov
@@ -191,6 +208,6 @@ emmeans(jrn.aov, ~ pdo_phase)
 allplots = ggpubr::ggarrange(jrn_figure, jrnbox, cdrrc_figure, cdrrcbox, sr_figure, srbox, sev_figure, sevbox, 
                              nrow=4, ncol=2, common.legend=T, legend='bottom', labels='AUTO')
 allplots
-ggsave('Figures/other_data_multifigure.png', plot=allplots, width=5, height=8)
-
+#ggsave('Figures/other_data_multifigure.png', plot=allplots, width=5, height=8)
+ggsave('Figures/2023_04/Fig3.tiff', plot=allplots, width=8.5, height=16, units='cm', dpi=600)
 
